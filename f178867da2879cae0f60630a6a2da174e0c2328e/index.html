@@ -18,41 +18,37 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;lin
 
 /* ═══ SUMMARY ═══ */
 .sg{display:grid;grid-template-columns:105px 8px 22px 1fr 1fr 1fr 8px 185px;grid-template-rows:auto auto repeat(8,38px);margin:14px 0 10px;gap:0}
-/* Card outlines via background trick */
-.sg-proc{grid-column:1;grid-row:1/11;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);display:flex;flex-direction:column}
+.sg-proc{grid-column:1;grid-row:1/11;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);display:grid;grid-template-rows:subgrid}
 .sg-gap1{grid-column:2;grid-row:1/11}
 .sg-canvas{grid-column:3/7;grid-row:1/11;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);display:grid;grid-template-columns:subgrid;grid-template-rows:subgrid}
 .sg-gap2{grid-column:7;grid-row:1/11}
-.sg-eval{grid-column:8;grid-row:1/11;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);display:flex;flex-direction:column}
-/* Headers */
+.sg-eval{grid-column:8;grid-row:1/11;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);display:grid;grid-template-rows:subgrid}
+/* Process */
 .sg-ph{grid-row:1/3;padding:10px;font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700;text-align:center;color:var(--text-muted);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;position:relative;cursor:default}
-.sg-ch{grid-column:3/7;grid-row:1;padding:7px 10px;font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700;text-align:center;color:var(--gold);border-bottom:1px solid var(--border);position:relative;cursor:default}
+.sg-pb{grid-row:3/11;padding:12px 10px;font-size:10.5px;color:var(--text-muted);font-style:italic;line-height:1.5;display:flex;align-items:center}
+/* Canvas headers */
+.sg-ch{grid-column:1/-1;grid-row:1;padding:7px 10px;font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700;text-align:center;color:var(--gold);border-bottom:1px solid var(--border);position:relative;cursor:default}
 .sg-csh{grid-row:2;padding:6px 8px;font-size:10px;font-weight:700;text-align:center;border-bottom:1px solid var(--border);border-right:1px solid var(--border);position:relative;cursor:default;line-height:1.3}
 .sg-csh:last-of-type{border-right:none}
 .sg-csh small{display:block;font-size:8px;font-weight:500;color:var(--text-muted);letter-spacing:.3px;margin-top:1px}
-.sg-eh{padding:10px;font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700;text-align:center;color:var(--blue);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;position:relative;cursor:default}
-/* Process body */
-.sg-pb{padding:12px 10px;font-size:10.5px;color:var(--text-muted);font-style:italic;line-height:1.5;flex:1;display:flex;align-items:center}
-/* Canvas body cells */
+/* Eval header */
+.sg-eh{grid-row:1/3;padding:10px;font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700;text-align:center;color:var(--blue);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;position:relative;cursor:default}
+/* Canvas body */
 .rl{writing-mode:vertical-rl;transform:rotate(180deg);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 2px;border-right:1px solid var(--border)}
 .ci{padding:0 10px;font-size:11.5px;font-weight:500;display:flex;align-items:center;border-bottom:1px solid rgba(0,0,0,.06);position:relative;cursor:default;transition:background .1s}
 .ci:hover{background:var(--surface2)}
 .cb{border-right:1px solid var(--border)}
 /* Eval body */
-.ev-body{display:grid;grid-template-rows:repeat(8,38px);flex:1}
-.ev-body>*{display:flex;align-items:center;border-bottom:1px solid rgba(0,0,0,.06)}
-.ei{padding:0 14px;font-size:11.5px;font-weight:500;position:relative;cursor:default;transition:background .1s}
+.ei{padding:0 14px;font-size:11.5px;font-weight:500;display:flex;align-items:center;border-bottom:1px solid rgba(0,0,0,.06);position:relative;cursor:default;transition:background .1s}
 .ei:hover{background:var(--surface2)}
-.eh{padding:0 14px;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;color:var(--text-muted);background:var(--surface2)}
+.eh{padding:0 14px;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;color:var(--text-muted);background:var(--surface2);display:flex;align-items:center}
 /* Tooltips */
-.tt{display:none;position:absolute;z-index:30;width:250px;background:var(--text);color:#fff;font-size:10.5px;font-weight:400;line-height:1.5;padding:9px 12px;border-radius:var(--r);box-shadow:0 6px 20px rgba(0,0,0,.2);letter-spacing:0;text-transform:none}
-.ci:hover>.tt,.ei:hover>.tt,.sg-ph:hover>.tt,.sg-ch:hover>.tt,.sg-csh:hover>.tt,.sg-eh:hover>.tt{display:block}
+.tt{display:none;position:absolute;z-index:30;width:250px;background:var(--text);color:#fff;font-size:10.5px;font-weight:400;line-height:1.5;padding:9px 12px;border-radius:var(--r);box-shadow:0 6px 20px rgba(0,0,0,.2);letter-spacing:0;text-transform:none;pointer-events:none}
+*:hover>.tt{display:block}
 .tr>.tt{left:calc(100% + 6px);top:50%;transform:translateY(-50%)}
 .tl>.tt{right:calc(100% + 6px);top:50%;transform:translateY(-50%)}
-.tb>.tt{left:50%;top:100%;transform:translateX(-50%);margin-top:4px}
-.ttu>.tt{bottom:100%;top:auto;left:50%;transform:translateX(-50%);margin-bottom:6px}
-.tl.ttu>.tt{right:calc(100% + 6px);bottom:auto;top:50%;left:auto;transform:translateY(-50%)}
-/* Header tooltips */
+.ttu>.tt{bottom:calc(100% + 6px);top:auto;left:50%;transform:translateX(-50%)}
+.tl.ttu>.tt{right:0;left:auto;bottom:calc(100% + 6px);top:auto;transform:none}
 .sg-ch>.tt,.sg-ph>.tt{top:100%;left:50%;transform:translateX(-50%);margin-top:4px;width:300px}
 .sg-csh>.tt{top:100%;margin-top:4px;width:280px}
 .sg-csh:nth-of-type(1)>.tt{left:0}
@@ -63,7 +59,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;lin
 .combo-sm{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .combo-sm-f{font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.7;flex-shrink:0}
 .combo-sm-ex{font-size:10.5px;color:var(--text-dim);line-height:1.5;border-left:2px solid var(--gold);padding-left:10px;flex:1;min-width:200px}
-
+  
 /* ═══ DETAIL SECTIONS (below fold) ═══ */
 .sec{padding:40px 0;border-top:1px solid var(--border)}.sec-tag{font-size:9px;letter-spacing:3px;text-transform:uppercase;font-weight:700;margin-bottom:4px}.sec h2{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:6px}.sec-desc{font-size:13px;color:var(--text-dim);margin-bottom:24px;max-width:640px;line-height:1.7}
 .vb{margin-bottom:36px}.vh{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}.vn{font-family:'DM Serif Display',serif;font-size:22px;line-height:1}.vh h3{font-size:16px;font-weight:600}.vh h3 span{font-weight:400;color:var(--text-dim);font-size:13px}
@@ -89,74 +85,55 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;lin
 
 <!-- ═══ SUMMARY ═══ -->
 <div class="sg">
-  <!-- PROCESS card outline -->
   <div class="sg-proc">
     <div class="sg-ph">Process<span class="tt">The lifecycle from land to living — each step is a canvas to apply the three vectors.</span></div>
     <div class="sg-pb">Defined separately — the lifecycle tree from land to living</div>
   </div>
   <div class="sg-gap1"></div>
-
-  <!-- CANVAS card outline (uses subgrid) -->
   <div class="sg-canvas">
-    <!-- Main header row 1 -->
     <div class="sg-ch" style="grid-column:1/-1">Generative Canvas — 3 Vectors<span class="tt">For each process step, ask: what treatment, using what capability, to drive what benefit? Most recommendations combine 2–3 moves across vectors.</span></div>
-    <!-- Sub headers row 2 -->
     <div class="sg-csh c-red" style="grid-column:1/3">Treatment<small>Vector 1 — What</small><span class="tt">Applied to Design Brief: Eliminate the brief if feasibility auto-configures a template. Resequence to run parallel with feasibility. Merge brief + architect kick-off into one workshop. Automate the first draft. Elevate by capturing assumptions as a knowledge asset.</span></div>
     <div class="sg-csh c-gold" style="grid-column:3">Capability<small>Vector 2 — How</small><span class="tt">Applied to Design Brief: Capture site data via drone/GIS. Analyze the last 20 projects for unit-mix accuracy. Predict demand for 24 months. Generate a first-draft brief from parameters. Optimize unit mix to maximize IRR.</span></div>
     <div class="sg-csh c-green" style="grid-column:4">Benefit<small>Vector 3 — Why</small><span class="tt">At the Design Brief stage: Speed (5 days not 6 weeks). Cost (right unit mix = less unsold inventory). Customization (site-specific within standards). Agility (micro-phased briefs updated as data comes in).</span></div>
-    <!-- Body rows 3–10 -->
-    <!-- Row 3 -->
     <div class="rl c-red" style="grid-row:3/7;grid-column:1">Flow</div>
     <div class="ci cb tr" style="grid-row:3;grid-column:2">Eliminate<span class="tt">What if this step didn't exist at all? The question is whether its function can be made unnecessary by a change elsewhere.</span></div>
     <div class="ci cb tr" style="grid-row:3;grid-column:3">Capture<span class="tt">What's actually happening in the physical world? Acquiring data from reality — drones, IoT, satellite, GIS, behavioral tracking.</span></div>
     <div class="ci tl" style="grid-row:3;grid-column:4">Speed<span class="tt">Faster time-to-market, faster cycles, faster response. Land-to-launch, launch-to-sellout, booking-to-possession.</span></div>
-    <!-- Row 4 -->
     <div class="ci cb tr" style="grid-row:4;grid-column:2">Resequence<span class="tt">What if this happened at a fundamentally different time — earlier, later, or in parallel? Includes parallelization and trigger redesign.</span></div>
     <div class="ci cb tr" style="grid-row:4;grid-column:3">Analyze<span class="tt">What patterns or anomalies exist in existing data? Finding signal in noise. Backward-looking: what IS and what WAS.</span></div>
     <div class="ci tl" style="grid-row:4;grid-column:4">Cost<span class="tt">Lower cost per sqft delivered — construction, capital, sales, and quality failure costs.</span></div>
-    <!-- Row 5 -->
     <div class="ci cb tr" style="grid-row:5;grid-column:2">Add<span class="tt">What step is missing that would prevent downstream failure or unlock new value? Sometimes the highest-leverage intervention is adding a step.</span></div>
     <div class="ci cb tr" style="grid-row:5;grid-column:3">Predict<span class="tt">What is likely to happen next, under what scenarios? Demand forecasting, delay probability, cost overrun risk, scenario simulation.</span></div>
     <div class="ci tl" style="grid-row:5;grid-column:4">Customer Experience<span class="tt">Customer experience across the full journey. Distinct from Quality: a defect-free apartment with silence post-booking is bad CX.</span></div>
-    <!-- Row 6 -->
     <div class="ci cb tr" style="grid-row:6;grid-column:2">Merge / Fragment<span class="tt">Merge: combine two steps into one. Fragment: break a monolithic step into iterative micro-steps with feedback loops.</span></div>
     <div class="ci cb tr" style="grid-row:6;grid-column:3">Generate<span class="tt">Can I create a new artifact from parameters and constraints? Auto-generated designs, briefs, contracts, marketing content.</span></div>
     <div class="ci tl" style="grid-row:6;grid-column:4">Customization<span class="tt">Personalization without proportional complexity. Customize the surface, standardize the structure.</span></div>
-    <!-- Row 7 -->
     <div class="rl c-red" style="grid-row:7/10;grid-column:1">Execution</div>
     <div class="ci cb tr" style="grid-row:7;grid-column:2">Automate<span class="tt">Can the human be removed entirely? Full replacement — the step still happens, no one does it.</span></div>
     <div class="ci cb tr" style="grid-row:7;grid-column:3">Optimize<span class="tt">Given constraints, what is the best configuration? FSI maximization, dynamic pricing, schedule optimization.</span></div>
     <div class="ci tl" style="grid-row:7;grid-column:4">Risk Management<span class="tt">Identify, mitigate, and absorb risks — demand slowdown, cost spikes, regulatory surprises, contractor failures.</span></div>
-    <!-- Row 8 -->
     <div class="ci cb ttu" style="grid-row:8;grid-column:2">Augment<span class="tt">Can the human make a materially better or faster decision with a machine co-pilot? Human retains judgment; machine expands capacity.</span></div>
     <div class="ci cb ttu" style="grid-row:8;grid-column:3">Connect<span class="tt">Unifying data, workflows, and actors across boundaries. BIM as single source of truth. API-connected stacks.</span></div>
     <div class="ci tl" style="grid-row:8;grid-column:4">Agility<span class="tt">Ability to adapt, iterate, pivot. Micro-phased launches, modular tech, flexible partnerships.</span></div>
-    <!-- Row 9 -->
     <div class="ci cb ttu" style="grid-row:9;grid-column:2">Standardize<span class="tt">Convert bespoke-every-time to a repeatable template, playbook, or configurable module. Reduces variability, cost, time, and error.</span></div>
     <div class="ci cb ttu" style="grid-row:9;grid-column:3">Coordinate<span class="tt">Coordinating multiple actors toward a shared outcome. Platform-based coordination, multi-project resource allocation.</span></div>
     <div class="ci tl" style="grid-row:9;grid-column:4">Quality<span class="tt">Fewer defects, higher consistency, brand-standard adherence. Measured in defect rates, snag counts, customer satisfaction.</span></div>
-    <!-- Row 10 -->
     <div class="rl c-red" style="grid-row:10;grid-column:1;font-size:7px">Value</div>
     <div class="ci cb ttu" style="grid-row:10;grid-column:2">Elevate<span class="tt">Add value beyond the step's primary function: delight layer, data capture layer, feedback loop, or brand signal.</span></div>
     <div class="ci cb ttu" style="grid-row:10;grid-column:3">Learn<span class="tt">Getting systematically better over time. Post-project reviews, evolving benchmarks, ML models that retrain.</span></div>
     <div class="ci tl" style="grid-row:10;grid-column:4">Visibility<span class="tt">Real-time, transparent information — internal and external. Replaces reporting culture with sensing culture.</span></div>
   </div>
-
   <div class="sg-gap2"></div>
-
-  <!-- EVAL card outline -->
   <div class="sg-eval">
-    <div class="sg-eh">Evaluation<span class="tt">Assess feasibility first, then prioritize by impact, criticality, and stakeholder complexity.</span></div>
-    <div class="ev-body">
-      <div class="eh">Feasibility</div>
-      <div class="ei tl">Technical<span class="tt">Can we build it? Is the technology mature? Do we have or can we acquire the skills?</span></div>
-      <div class="ei tl">Organizational<span class="tt">Will people adopt it? Does it require culture change? Can we fund it? Does the investment fit capital constraints?</span></div>
-      <div class="ei tl">Regulatory<span class="tt">Is it allowed under current RERA, SEBI, local bylaws? Is there a path via sandbox or advocacy?</span></div>
-      <div class="eh">Priority &amp; Sequence</div>
-      <div class="ei tl">Impact<span class="tt">High: step-change, competitive advantage, multi-stakeholder. Medium: meaningful, localized. Low: incremental, hygiene.</span></div>
-      <div class="ei tl ttu">Criticality<span class="tt">High: required for Day-1, strong dependency. Medium: can phase after launch. Low: deferrable, standalone.</span></div>
-      <div class="ei tl ttu">Stakeholders<span class="tt">Who needs to change behavior? Internal teams, customers, contractors, regulators, investors.</span></div>
-    </div>
+    <div class="sg-eh" style="grid-row:1/3">Evaluation<span class="tt">Assess feasibility first, then prioritize by impact, criticality, and stakeholder complexity.</span></div>
+    <div class="eh" style="grid-row:3">Feasibility</div>
+    <div class="ei tl" style="grid-row:4">Technical<span class="tt">Can we build it? Is the technology mature? Do we have or can we acquire the skills?</span></div>
+    <div class="ei tl" style="grid-row:5">Organizational<span class="tt">Will people adopt it? Does it require culture change? Can we fund it? Does the investment fit capital constraints?</span></div>
+    <div class="ei tl" style="grid-row:6">Regulatory<span class="tt">Is it allowed under current RERA, SEBI, local bylaws? Is there a path via sandbox or advocacy?</span></div>
+    <div class="eh" style="grid-row:7">Priority &amp; Sequence</div>
+    <div class="ei tl" style="grid-row:8">Impact<span class="tt">High: step-change, competitive advantage, multi-stakeholder. Medium: meaningful, localized. Low: incremental, hygiene.</span></div>
+    <div class="ei tl ttu" style="grid-row:9">Criticality<span class="tt">High: required for Day-1, strong dependency. Medium: can phase after launch. Low: deferrable, standalone.</span></div>
+    <div class="ei tl ttu" style="grid-row:10">Stakeholders<span class="tt">Who needs to change behavior? Internal teams, customers, contractors, regulators, investors.</span></div>
   </div>
 </div>
 
