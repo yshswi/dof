@@ -6,26 +6,76 @@
 <title>Developer of the Future — Framework</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#faf9f7;--surface:#fff;--surface2:#f2f1ee;--surface3:#eae8e4;--border:#ddd9d3;--border-hi:#c5c0b8;--text:#1a1a1e;--text-dim:#5c5a64;--text-muted:#8a8793;--red:#b5432a;--red-bg:rgba(181,67,42,.08);--gold:#9a7a2e;--gold-bg:rgba(154,122,46,.08);--green:#3d7358;--green-bg:rgba(61,115,88,.08);--blue:#4a5a8a;--blue-bg:rgba(74,90,138,.08);--purple:#7b5fa0;--purple-bg:rgba(123,95,160,.06);--r:8px}
+:root{--bg:#faf9f7;--surface:#fff;--surface2:#f2f1ee;--border:#ddd9d3;--border-hi:#c5c0b8;--text:#1a1a1e;--text-dim:#5c5a64;--text-muted:#8a8793;--red:#b5432a;--red-bg:rgba(181,67,42,.08);--gold:#9a7a2e;--gold-bg:rgba(154,122,46,.08);--green:#3d7358;--green-bg:rgba(61,115,88,.08);--blue:#4a5a8a;--blue-bg:rgba(74,90,138,.08);--purple:#7b5fa0;--purple-bg:rgba(123,95,160,.06);--r:6px;--rh:38px}
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;line-height:1.65;-webkit-font-smoothing:antialiased}
-.w{max-width:880px;margin:0 auto;padding:0 24px}
-.hero{padding:64px 0 44px;border-bottom:1px solid var(--border)}.hero-tag{font-size:10px;letter-spacing:3.5px;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:14px}.hero h1{font-family:'DM Serif Display',serif;font-size:clamp(28px,5vw,44px);font-weight:400;line-height:1.15;margin-bottom:16px}.hero p{font-size:15px;color:var(--text-dim);max-width:620px;line-height:1.75}
-.arch{padding:48px 0 0}.arch h2{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:20px}.layers{display:flex;flex-direction:column;gap:3px}.layer{display:flex;border-radius:var(--r);overflow:hidden;text-decoration:none;color:inherit;transition:transform .15s}.layer:hover{transform:translateX(3px)}.layer-tag{font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700;padding:14px 0;display:flex;align-items:center;justify-content:center;width:110px;flex-shrink:0;text-align:center}.layer-body{flex:1;padding:14px 20px;display:flex;justify-content:space-between;align-items:center}.layer-body strong{font-size:14px;display:block}.layer-body span{font-size:12px;color:var(--text-dim)}.l1 .layer-tag{background:var(--purple);color:#fff}.l1 .layer-body{background:var(--purple-bg)}.l2 .layer-tag{background:var(--gold);color:#fff}.l2 .layer-body{background:var(--gold-bg)}.l3 .layer-tag{background:var(--blue);color:#fff}.l3 .layer-body{background:var(--blue-bg)}
-.sec{padding:52px 0;border-top:1px solid var(--border)}.sec-tag{font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:700;margin-bottom:6px}.sec h2{font-family:'DM Serif Display',serif;font-size:26px;margin-bottom:8px}.sec-desc{font-size:14px;color:var(--text-dim);margin-bottom:28px;max-width:640px;line-height:1.75}
-.found-over{background:var(--purple-bg);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:14px}.found-over h4{font-size:14px;font-weight:700;margin-bottom:5px;color:var(--purple)}.found-over p{font-size:12.5px;color:var(--text-dim);line-height:1.65}
-.fg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}@media(max-width:640px){.fg{grid-template-columns:1fr}}.fc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px}.fc:hover{border-color:var(--purple)}.fc h4{font-size:13px;font-weight:700;margin-bottom:5px}.fc p{font-size:12px;color:var(--text-dim);line-height:1.6}
-.found-note{font-size:12px;color:var(--text-muted);line-height:1.7;padding:12px 16px;background:var(--surface2);border-radius:var(--r);border-left:3px solid var(--border-hi)}
-.vb{margin-bottom:44px}.vh{display:flex;align-items:baseline;gap:12px;margin-bottom:4px}.vn{font-family:'DM Serif Display',serif;font-size:32px;line-height:1}.vh h3{font-size:18px;font-weight:600}.vh h3 span{font-weight:400;color:var(--text-dim);font-size:15px}.vq{font-size:13px;color:var(--text-dim);font-style:italic;margin-bottom:20px;padding-left:44px}
-.ai{border:1px solid var(--border);border-radius:6px;margin-bottom:4px;overflow:hidden;background:var(--surface);transition:border-color .15s}.ai:hover{border-color:var(--border-hi)}.at{width:100%;background:none;border:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;text-align:left;padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:10px}.at .n{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);min-width:20px}.at .l{flex:1}.at .b{font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:3px;flex-shrink:0}.at .c{font-size:15px;color:var(--text-muted);transition:transform .2s;flex-shrink:0}.ai.open .c{transform:rotate(90deg)}.ac{display:none;padding:0 16px 14px 46px;font-size:12.5px;color:var(--text-dim);line-height:1.7}.ai.open .ac{display:block}.ac strong{color:var(--text);font-weight:600}
-.b-flow{background:var(--red-bg);color:var(--red)}.b-exec{background:var(--gold-bg);color:var(--gold)}.b-val{background:var(--green-bg);color:var(--green)}.b-out{background:var(--red-bg);color:var(--red)}.b-drv{background:var(--gold-bg);color:var(--gold)}.b-sig{background:var(--gold-bg);color:var(--gold)}
-.cd{font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700;padding:10px 0 6px 16px;color:var(--text-muted)}
-.vex{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--border-hi);border-radius:0 var(--r) var(--r) 0;padding:16px 20px;margin-top:16px}.vex-tag{font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:var(--text-muted);margin-bottom:6px}.vex p{font-size:12.5px;color:var(--text-dim);line-height:1.7;margin-bottom:6px}.vex p:last-child{margin-bottom:0}
-.bl{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}@media(max-width:600px){.bl{grid-template-columns:1fr}}.blc{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--surface)}.blc-h{padding:12px 16px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700}.blc-b{padding:4px 6px 6px}
-.et{width:100%;border-collapse:collapse;font-size:13px}.et th{text-align:left;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;color:var(--text-muted);padding:10px 14px;border-bottom:1px solid var(--border)}.et td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:top}.et td:first-child{font-weight:600;white-space:nowrap;color:var(--text)}.et td:nth-child(2){color:var(--text-dim)}.et tr:last-child td{border-bottom:none}
-.combo{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;margin-top:28px}.combo-f{font-family:'JetBrains Mono',monospace;font-size:13px;text-align:center;padding:16px;background:var(--surface2);border-radius:var(--r);margin-bottom:16px;line-height:2}.combo-ex{font-size:12.5px;color:var(--text-dim);line-height:1.7;padding:14px 18px;background:var(--surface2);border-radius:var(--r);border-left:3px solid var(--gold)}
-.eb{display:flex;justify-content:flex-end;margin-bottom:8px}.ebtn{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border-radius:4px;cursor:pointer;transition:all .15s}.ebtn:hover{border-color:var(--text-muted);color:var(--text)}
-.foot{padding:36px 0;border-top:1px solid var(--border);text-align:center;font-size:11px;color:var(--text-muted)}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+.w{max-width:980px;margin:0 auto;padding:0 20px}
+
+.hero{padding:22px 0 14px}
+.hero-tag{font-size:9px;letter-spacing:3.5px;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:6px}
+.hero h1{font-family:'DM Serif Display',serif;font-size:26px;font-weight:400;line-height:1.15;margin-bottom:6px}
+.hero p{font-size:12px;color:var(--text-dim);line-height:1.55}
+
+/* ═══ SUMMARY ═══ */
+.sg{display:grid;grid-template-columns:105px 8px 22px 1fr 1fr 1fr 8px 185px;grid-template-rows:auto auto repeat(8,38px);margin:14px 0 10px;gap:0}
+/* Card outlines via background trick */
+.sg-proc{grid-column:1;grid-row:1/11;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);display:flex;flex-direction:column}
+.sg-gap1{grid-column:2;grid-row:1/11}
+.sg-canvas{grid-column:3/7;grid-row:1/11;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);display:grid;grid-template-columns:subgrid;grid-template-rows:subgrid}
+.sg-gap2{grid-column:7;grid-row:1/11}
+.sg-eval{grid-column:8;grid-row:1/11;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);display:flex;flex-direction:column}
+/* Headers */
+.sg-ph{grid-row:1/3;padding:10px;font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700;text-align:center;color:var(--text-muted);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;position:relative;cursor:default}
+.sg-ch{grid-column:3/7;grid-row:1;padding:7px 10px;font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700;text-align:center;color:var(--gold);border-bottom:1px solid var(--border);position:relative;cursor:default}
+.sg-csh{grid-row:2;padding:6px 8px;font-size:10px;font-weight:700;text-align:center;border-bottom:1px solid var(--border);border-right:1px solid var(--border);position:relative;cursor:default;line-height:1.3}
+.sg-csh:last-of-type{border-right:none}
+.sg-csh small{display:block;font-size:8px;font-weight:500;color:var(--text-muted);letter-spacing:.3px;margin-top:1px}
+.sg-eh{padding:10px;font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700;text-align:center;color:var(--blue);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;position:relative;cursor:default}
+/* Process body */
+.sg-pb{padding:12px 10px;font-size:10.5px;color:var(--text-muted);font-style:italic;line-height:1.5;flex:1;display:flex;align-items:center}
+/* Canvas body cells */
+.rl{writing-mode:vertical-rl;transform:rotate(180deg);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 2px;border-right:1px solid var(--border)}
+.ci{padding:0 10px;font-size:11.5px;font-weight:500;display:flex;align-items:center;border-bottom:1px solid rgba(0,0,0,.06);position:relative;cursor:default;transition:background .1s}
+.ci:hover{background:var(--surface2)}
+.cb{border-right:1px solid var(--border)}
+/* Eval body */
+.ev-body{display:grid;grid-template-rows:repeat(8,38px);flex:1}
+.ev-body>*{display:flex;align-items:center;border-bottom:1px solid rgba(0,0,0,.06)}
+.ei{padding:0 14px;font-size:11.5px;font-weight:500;position:relative;cursor:default;transition:background .1s}
+.ei:hover{background:var(--surface2)}
+.eh{padding:0 14px;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;color:var(--text-muted);background:var(--surface2)}
+/* Tooltips */
+.tt{display:none;position:absolute;z-index:30;width:250px;background:var(--text);color:#fff;font-size:10.5px;font-weight:400;line-height:1.5;padding:9px 12px;border-radius:var(--r);box-shadow:0 6px 20px rgba(0,0,0,.2);letter-spacing:0;text-transform:none}
+.ci:hover>.tt,.ei:hover>.tt,.sg-ph:hover>.tt,.sg-ch:hover>.tt,.sg-csh:hover>.tt,.sg-eh:hover>.tt{display:block}
+.tr>.tt{left:calc(100% + 6px);top:50%;transform:translateY(-50%)}
+.tl>.tt{right:calc(100% + 6px);top:50%;transform:translateY(-50%)}
+.tb>.tt{left:50%;top:100%;transform:translateX(-50%);margin-top:4px}
+.ttu>.tt{bottom:100%;top:auto;left:50%;transform:translateX(-50%);margin-bottom:6px}
+.tl.ttu>.tt{right:calc(100% + 6px);bottom:auto;top:50%;left:auto;transform:translateY(-50%)}
+/* Header tooltips */
+.sg-ch>.tt,.sg-ph>.tt{top:100%;left:50%;transform:translateX(-50%);margin-top:4px;width:300px}
+.sg-csh>.tt{top:100%;margin-top:4px;width:280px}
+.sg-csh:nth-of-type(1)>.tt{left:0}
+.sg-csh:nth-of-type(2)>.tt{left:50%;transform:translateX(-50%)}
+.sg-csh:nth-of-type(3)>.tt{right:0;left:auto}
+.sg-eh>.tt{top:100%;right:0;left:auto;margin-top:4px;width:260px}
+/* ═══ COMBINATOR ═══ */
+.combo-sm{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.combo-sm-f{font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.7;flex-shrink:0}
+.combo-sm-ex{font-size:10.5px;color:var(--text-dim);line-height:1.5;border-left:2px solid var(--gold);padding-left:10px;flex:1;min-width:200px}
+
+/* ═══ DETAIL SECTIONS (below fold) ═══ */
+.sec{padding:40px 0;border-top:1px solid var(--border)}.sec-tag{font-size:9px;letter-spacing:3px;text-transform:uppercase;font-weight:700;margin-bottom:4px}.sec h2{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:6px}.sec-desc{font-size:13px;color:var(--text-dim);margin-bottom:24px;max-width:640px;line-height:1.7}
+.vb{margin-bottom:36px}.vh{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}.vn{font-family:'DM Serif Display',serif;font-size:22px;line-height:1}.vh h3{font-size:16px;font-weight:600}.vh h3 span{font-weight:400;color:var(--text-dim);font-size:13px}
+.cat-row{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:10px 14px 6px;margin-top:8px;border-bottom:2px solid var(--border);margin-bottom:4px}.cat-row:first-of-type{margin-top:0}
+.ai{border:1px solid var(--border);border-radius:var(--r);margin-bottom:3px;overflow:hidden;background:var(--surface);transition:border-color .15s}.ai:hover{border-color:var(--border-hi)}.at{width:100%;background:none;border:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:600;text-align:left;padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:8px}.at .n{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);min-width:18px}.at .l{flex:1}.at .c{font-size:14px;color:var(--text-muted);transition:transform .2s;flex-shrink:0}.ai.open .c{transform:rotate(90deg)}.ac{display:none;padding:0 14px 12px 40px;font-size:12px;color:var(--text-dim);line-height:1.65}.ai.open .ac{display:block}.ac strong{color:var(--text);font-weight:600}
+.vex{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--border-hi);border-radius:0 var(--r) var(--r) 0;padding:14px 18px;margin-top:12px}.vex-tag{font-size:8px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:var(--text-muted);margin-bottom:4px}.vex p{font-size:11.5px;color:var(--text-dim);line-height:1.65;margin-bottom:4px}.vex p:last-child{margin-bottom:0}
+.eb{display:flex;justify-content:flex-end;margin-bottom:6px}.ebtn{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:4px;cursor:pointer}.ebtn:hover{border-color:var(--text-muted);color:var(--text)}
+.eval-group{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:10px 14px 6px;margin-top:12px;border-bottom:2px solid var(--border);margin-bottom:4px;color:var(--text-muted)}.eval-group:first-of-type{margin-top:0}
+.et{width:100%;border-collapse:collapse;font-size:12.5px}.et td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top}.et td:first-child{font-weight:600;white-space:nowrap;color:var(--text);width:110px}.et td:nth-child(2){color:var(--text-dim)}.et tr:last-child td{border-bottom:none}
+.data-arch{margin:0;padding:20px;background:var(--purple-bg);border:1px solid var(--border);border-radius:var(--r)}.data-arch h4{font-size:13px;font-weight:700;margin-bottom:4px;color:var(--purple)}.data-arch p{font-size:12px;color:var(--text-dim);line-height:1.6}
+.foot{padding:28px 0;border-top:1px solid var(--border);text-align:center;font-size:10px;color:var(--text-muted)}
+.c-red{color:var(--red)}.c-gold{color:var(--gold)}.c-green{color:var(--green)}.c-blue{color:var(--blue)}
 </style>
 </head>
 <body>
@@ -34,149 +84,166 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;lin
 <div class="hero">
   <div class="hero-tag">Framework</div>
   <h1>Developer of the Future</h1>
-  <p>.</p>
+  <p>Consistently staying on the forefront of real estate by delivering superior capital returns through customer obsession, differentiated delivery, ecosystem orchestration, and agile execution, all enabled by tech & AI led innovation.</p>
 </div>
 
-<div style="padding:36px 0 0">
-  <div style="background:var(--red-bg);border:1px solid var(--border);border-left:4px solid var(--red);border-radius:0 var(--r) var(--r) 0;padding:20px 24px">
-    <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:700;color:var(--red);margin-bottom:8px">Ambition</div>
-    <p style="font-size:15px;color:var(--text);line-height:1.7;margin:0">Consistently staying on the forefront of real estate by delivering superior capital returns through customer obsession, differentiated delivery, ecosystem orchestration, and agile execution, all enabled by tech & AI led innovation
-</p>
+<!-- ═══ SUMMARY ═══ -->
+<div class="sg">
+  <!-- PROCESS card outline -->
+  <div class="sg-proc">
+    <div class="sg-ph">Process<span class="tt">The lifecycle from land to living — each step is a canvas to apply the three vectors.</span></div>
+    <div class="sg-pb">Defined separately — the lifecycle tree from land to living</div>
+  </div>
+  <div class="sg-gap1"></div>
+
+  <!-- CANVAS card outline (uses subgrid) -->
+  <div class="sg-canvas">
+    <!-- Main header row 1 -->
+    <div class="sg-ch" style="grid-column:1/-1">Generative Canvas — 3 Vectors<span class="tt">For each process step, ask: what treatment, using what capability, to drive what benefit? Most recommendations combine 2–3 moves across vectors.</span></div>
+    <!-- Sub headers row 2 -->
+    <div class="sg-csh c-red" style="grid-column:1/3">Treatment<small>Vector 1 — What</small><span class="tt">Applied to Design Brief: Eliminate the brief if feasibility auto-configures a template. Resequence to run parallel with feasibility. Merge brief + architect kick-off into one workshop. Automate the first draft. Elevate by capturing assumptions as a knowledge asset.</span></div>
+    <div class="sg-csh c-gold" style="grid-column:3">Capability<small>Vector 2 — How</small><span class="tt">Applied to Design Brief: Capture site data via drone/GIS. Analyze the last 20 projects for unit-mix accuracy. Predict demand for 24 months. Generate a first-draft brief from parameters. Optimize unit mix to maximize IRR.</span></div>
+    <div class="sg-csh c-green" style="grid-column:4">Benefit<small>Vector 3 — Why</small><span class="tt">At the Design Brief stage: Speed (5 days not 6 weeks). Cost (right unit mix = less unsold inventory). Customization (site-specific within standards). Agility (micro-phased briefs updated as data comes in).</span></div>
+    <!-- Body rows 3–10 -->
+    <!-- Row 3 -->
+    <div class="rl c-red" style="grid-row:3/7;grid-column:1">Flow</div>
+    <div class="ci cb tr" style="grid-row:3;grid-column:2">Eliminate<span class="tt">What if this step didn't exist at all? The question is whether its function can be made unnecessary by a change elsewhere.</span></div>
+    <div class="ci cb tr" style="grid-row:3;grid-column:3">Capture<span class="tt">What's actually happening in the physical world? Acquiring data from reality — drones, IoT, satellite, GIS, behavioral tracking.</span></div>
+    <div class="ci tl" style="grid-row:3;grid-column:4">Speed<span class="tt">Faster time-to-market, faster cycles, faster response. Land-to-launch, launch-to-sellout, booking-to-possession.</span></div>
+    <!-- Row 4 -->
+    <div class="ci cb tr" style="grid-row:4;grid-column:2">Resequence<span class="tt">What if this happened at a fundamentally different time — earlier, later, or in parallel? Includes parallelization and trigger redesign.</span></div>
+    <div class="ci cb tr" style="grid-row:4;grid-column:3">Analyze<span class="tt">What patterns or anomalies exist in existing data? Finding signal in noise. Backward-looking: what IS and what WAS.</span></div>
+    <div class="ci tl" style="grid-row:4;grid-column:4">Cost<span class="tt">Lower cost per sqft delivered — construction, capital, sales, and quality failure costs.</span></div>
+    <!-- Row 5 -->
+    <div class="ci cb tr" style="grid-row:5;grid-column:2">Add<span class="tt">What step is missing that would prevent downstream failure or unlock new value? Sometimes the highest-leverage intervention is adding a step.</span></div>
+    <div class="ci cb tr" style="grid-row:5;grid-column:3">Predict<span class="tt">What is likely to happen next, under what scenarios? Demand forecasting, delay probability, cost overrun risk, scenario simulation.</span></div>
+    <div class="ci tl" style="grid-row:5;grid-column:4">Customer Experience<span class="tt">Customer experience across the full journey. Distinct from Quality: a defect-free apartment with silence post-booking is bad CX.</span></div>
+    <!-- Row 6 -->
+    <div class="ci cb tr" style="grid-row:6;grid-column:2">Merge / Fragment<span class="tt">Merge: combine two steps into one. Fragment: break a monolithic step into iterative micro-steps with feedback loops.</span></div>
+    <div class="ci cb tr" style="grid-row:6;grid-column:3">Generate<span class="tt">Can I create a new artifact from parameters and constraints? Auto-generated designs, briefs, contracts, marketing content.</span></div>
+    <div class="ci tl" style="grid-row:6;grid-column:4">Customization<span class="tt">Personalization without proportional complexity. Customize the surface, standardize the structure.</span></div>
+    <!-- Row 7 -->
+    <div class="rl c-red" style="grid-row:7/10;grid-column:1">Execution</div>
+    <div class="ci cb tr" style="grid-row:7;grid-column:2">Automate<span class="tt">Can the human be removed entirely? Full replacement — the step still happens, no one does it.</span></div>
+    <div class="ci cb tr" style="grid-row:7;grid-column:3">Optimize<span class="tt">Given constraints, what is the best configuration? FSI maximization, dynamic pricing, schedule optimization.</span></div>
+    <div class="ci tl" style="grid-row:7;grid-column:4">Risk Management<span class="tt">Identify, mitigate, and absorb risks — demand slowdown, cost spikes, regulatory surprises, contractor failures.</span></div>
+    <!-- Row 8 -->
+    <div class="ci cb ttu" style="grid-row:8;grid-column:2">Augment<span class="tt">Can the human make a materially better or faster decision with a machine co-pilot? Human retains judgment; machine expands capacity.</span></div>
+    <div class="ci cb ttu" style="grid-row:8;grid-column:3">Connect<span class="tt">Unifying data, workflows, and actors across boundaries. BIM as single source of truth. API-connected stacks.</span></div>
+    <div class="ci tl" style="grid-row:8;grid-column:4">Agility<span class="tt">Ability to adapt, iterate, pivot. Micro-phased launches, modular tech, flexible partnerships.</span></div>
+    <!-- Row 9 -->
+    <div class="ci cb ttu" style="grid-row:9;grid-column:2">Standardize<span class="tt">Convert bespoke-every-time to a repeatable template, playbook, or configurable module. Reduces variability, cost, time, and error.</span></div>
+    <div class="ci cb ttu" style="grid-row:9;grid-column:3">Coordinate<span class="tt">Coordinating multiple actors toward a shared outcome. Platform-based coordination, multi-project resource allocation.</span></div>
+    <div class="ci tl" style="grid-row:9;grid-column:4">Quality<span class="tt">Fewer defects, higher consistency, brand-standard adherence. Measured in defect rates, snag counts, customer satisfaction.</span></div>
+    <!-- Row 10 -->
+    <div class="rl c-red" style="grid-row:10;grid-column:1;font-size:7px">Value</div>
+    <div class="ci cb ttu" style="grid-row:10;grid-column:2">Elevate<span class="tt">Add value beyond the step's primary function: delight layer, data capture layer, feedback loop, or brand signal.</span></div>
+    <div class="ci cb ttu" style="grid-row:10;grid-column:3">Learn<span class="tt">Getting systematically better over time. Post-project reviews, evolving benchmarks, ML models that retrain.</span></div>
+    <div class="ci tl" style="grid-row:10;grid-column:4">Visibility<span class="tt">Real-time, transparent information — internal and external. Replaces reporting culture with sensing culture.</span></div>
+  </div>
+
+  <div class="sg-gap2"></div>
+
+  <!-- EVAL card outline -->
+  <div class="sg-eval">
+    <div class="sg-eh">Evaluation<span class="tt">Assess feasibility first, then prioritize by impact, criticality, and stakeholder complexity.</span></div>
+    <div class="ev-body">
+      <div class="eh">Feasibility</div>
+      <div class="ei tl">Technical<span class="tt">Can we build it? Is the technology mature? Do we have or can we acquire the skills?</span></div>
+      <div class="ei tl">Organizational<span class="tt">Will people adopt it? Does it require culture change? Can we fund it? Does the investment fit capital constraints?</span></div>
+      <div class="ei tl">Regulatory<span class="tt">Is it allowed under current RERA, SEBI, local bylaws? Is there a path via sandbox or advocacy?</span></div>
+      <div class="eh">Priority &amp; Sequence</div>
+      <div class="ei tl">Impact<span class="tt">High: step-change, competitive advantage, multi-stakeholder. Medium: meaningful, localized. Low: incremental, hygiene.</span></div>
+      <div class="ei tl ttu">Criticality<span class="tt">High: required for Day-1, strong dependency. Medium: can phase after launch. Low: deferrable, standalone.</span></div>
+      <div class="ei tl ttu">Stakeholders<span class="tt">Who needs to change behavior? Internal teams, customers, contractors, regulators, investors.</span></div>
+    </div>
   </div>
 </div>
 
-<div class="arch">
-  <h2>Layers</h2>
-  <div class="layers">
-    <a href="#found" class="layer l1"><div class="layer-tag">Foundation</div><div class="layer-body"><div><strong>Foundational Stack</strong><span>6 structural choices + data &amp; agentic architecture.</span></div></div></a>
-    <a href="#canvas" class="layer l2"><div class="layer-tag">Canvas</div><div class="layer-body"><div><strong>Generative Canvas</strong><span>4 vectors we combine to discover interventions. The idea machine.</span></div></div></a>
-    <a href="#eval" class="layer l3"><div class="layer-tag">Evaluation</div><div class="layer-body"><div><strong>Evaluation Layer</strong><span>6 dimensions to help prioritize and sequence our initiatives.</span></div></div></a>
-  </div>
+<!-- COMBINATOR -->
+<div class="combo-sm">
+  <div class="combo-sm-f">At <span style="color:var(--text-muted)">[Process]</span>, we <span style="color:var(--red)">[What]</span> using <span style="color:var(--gold)">[How]</span> to drive <span style="color:var(--green)">[Why]</span></div>
+  <div class="combo-sm-ex"><strong>e.g.</strong> At <span style="color:var(--text-muted)">construction monitoring</span>, we <span style="color:var(--red)">Automate</span> reporting using <span style="color:var(--gold)">Capture</span> (drones) + <span style="color:var(--gold)">Analyze</span> (BIM comparison) to drive <span style="color:var(--green)">Speed</span> + <span style="color:var(--green)">Quality</span>.</div>
 </div>
 
-<div class="sec" id="found">
-  <div class="sec-tag" style="color:var(--purple)">Layer 01</div>
-  <h2>Foundational Stack</h2>
-  <p class="sec-desc">Resolve directionally before generating interventions, because they determine which interventions are coherent.</p>
+<!-- ═══════════════════════════ -->
+<!-- BELOW FOLD — DETAIL        -->
+<!-- ═══════════════════════════ -->
 
-  <div class="fg" style="grid-template-columns:repeat(3,1fr)">
-    <div class="fc"><h4>Operating Model</h4><p>Org structure, headcount philosophy (lean core vs. full stack), decision rights.</p></div>
-    <div class="fc"><h4>Business Model</h4><p>Asset-light vs. heavy. Build-to-sell vs. lease vs. operate. Monetization models. </p></div>
-    <div class="fc"><h4>Portfolio strategy</h4><p>Where to play (geographies, project mix, customer segments, asset types). </p></div>
-    <div class="fc"><h4>Governance</h4><p>Decision rights, KPIs, review cadence. </p></div>
-    <div class="fc"><h4>Talent</h4><p>Initial hiring strategy. Capability development. Team scaling. </p></div>
-    <div class="fc"><h4>Partnership Ecosystem</h4><p>Partner selection, onboarding and performance management.</p></div>
-  </div>
-
-  <div class="found-over">
-    <h4>+ Data &amp; Agentic Architecture (overarching)</h4>
-    <p>Cuts across all six choices above. Single source of truth. Real-time vs. batch. API-first design. Data ownership model. <br/> <br/> Agentic AI architecture — which processes are candidates for autonomous AI agents, and what guardrails govern them.</p>
-  </div>
-</div>
-
-<div class="sec" id="canvas">
-  <div class="sec-tag" style="color:var(--gold)">Layer 02</div>
+<div class="sec" id="canvas-detail">
+  <div class="sec-tag" style="color:var(--gold)">Layer 01</div>
   <h2>Generative Canvas</h2>
-  <p class="sec-desc">The Foundation defines <em>where to play</em>. This canvas defines <em>how to win</em>. Four vectors we combine across the value chain: <em>"At this step, apply this treatment, using this capability, to unlock this benefit."</em></p>
+  <p class="sec-desc">Defines operational excellence through a combination of three vectors applied to each process step. For each step in the value chain, ask: what treatment, using what capability, to drive what benefit?</p>
 
-
-  <div class="vb">
-    <div class="vh"><div class="vn" style="color:var(--text-muted)">V1</div><h3>Process <span>— "Where in the value chain?"</span></h3></div>
-    <p class="vq">The lifecycle tree from land to living. Defined separately — not repeated here.</p>
+  <div class="vb" id="v-what">
+    <div class="vh"><div class="vn c-red">What</div><h3>Treatment <span>— "What's my move?"</span></h3></div>
+    <div class="eb"><button class="ebtn" onclick="toggleAll(this,'v-what')">Expand all</button></div>
+    <div class="cat-row" style="color:var(--red)">Flow — change whether, when, or how steps connect</div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">01</span><span class="l">Eliminate</span><span class="c">›</span></button><div class="ac">What if this step didn't exist at all? Not cost-cutting — the question is whether the <strong>function</strong> this step serves can be made unnecessary by a change elsewhere.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">02</span><span class="l">Resequence</span><span class="c">›</span></button><div class="ac">What if this happened at a fundamentally different time — <strong>earlier, later, or in parallel</strong>? Includes parallelization (the most common compression lever) and trigger redesign (event-driven vs. calendar-driven).</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">03</span><span class="l">Add</span><span class="c">›</span></button><div class="ac">What step is <strong>missing</strong> that would prevent downstream failure or unlock new value? The contrarian move — sometimes the highest-leverage intervention is adding a step that doesn't exist.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">04</span><span class="l">Merge or Fragment</span><span class="c">›</span></button><div class="ac"><strong>Merge:</strong> Can two steps with a handoff between them become one step with one owner? Every handoff is a delay, an information loss, and an accountability gap. <strong>Fragment:</strong> Conversely, should one monolithic step be broken into smaller, iterative micro-steps? Large-phase launches → micro-launches with feedback loops. Waterfall design → iterative design sprints.</div></div>
+    <div class="cat-row" style="color:var(--red)">Execution — change how the step is performed</div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">05</span><span class="l">Automate</span><span class="c">›</span></button><div class="ac">Can the <strong>human be removed entirely</strong>? Full replacement — the step still happens, no one does it. Distinct from Augment: there is no human in the loop.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">06</span><span class="l">Augment</span><span class="c">›</span></button><div class="ac">Can the human stay but make a <strong>materially better or faster decision with a machine co-pilot</strong>? The human retains judgment; the machine expands their capacity.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">07</span><span class="l">Standardize</span><span class="c">›</span></button><div class="ac">Can this be converted from <strong>bespoke-every-time to a repeatable template, playbook, or configurable module</strong>? Every bespoke instance reintroduces variability, cost, time, and error.</div></div>
+    <div class="cat-row" style="color:var(--red)">Value — change what value the step creates</div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">08</span><span class="l">Elevate</span><span class="c">›</span></button><div class="ac">Beyond its primary function, what <strong>additional value</strong> could this step generate? Four sub-types: <strong>delight layer</strong> (customer experience), <strong>data capture layer</strong> (every step feeds intelligence), <strong>feedback loop</strong> (output feeds back to other stages), <strong>brand signal</strong> (the process itself communicates quality/trust).</div></div>
+    <div class="vex" style="border-left-color:var(--red)"><div class="vex-tag">Example — applied to "Design Brief" stage</div><p>Scanning the 8 moves against the design brief: Could we <strong>Eliminate</strong> the standalone brief entirely if the feasibility model auto-configures a design template? <strong>Resequence</strong> it to run in parallel with feasibility instead of after? <strong>Merge</strong> the brief and TDD alignment into one cross-functional workshop, or <strong>Fragment</strong> it into iterative sprints? <strong>Automate</strong> the first draft from land parameters + demand data? <strong>Standardize</strong> it into templates by product type (70% pre-filled)? <strong>Elevate</strong> it by capturing the assumptions behind every decision as a knowledge asset for future projects? <br/><br/> Most real recommendations combine only 2–3 moves.</p></div>
   </div>
 
-  <div class="vb" id="v2">
-    <div class="vh"><div class="vn" style="color:var(--red)">V2</div><h3>Treatment <span>— "What's my move?"</span></h3></div>
-    <p class="vq">8 moves available at any process step. Ordered most disruptive → least.</p>
-    <div class="eb"><button class="ebtn" onclick="toggleAll(this,'v2')">Expand all</button></div>
-    <div class="cd">Flow moves — change whether, when, or how steps connect</div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">01</span><span class="l">Eliminate</span><span class="b b-flow">Flow</span><span class="c">›</span></button><div class="ac">What if this step didn't exist at all? Not cost-cutting — the question is whether the <strong>function</strong> this step serves can be made unnecessary by a change elsewhere.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">02</span><span class="l">Resequence</span><span class="b b-flow">Flow</span><span class="c">›</span></button><div class="ac">What if this happened at a fundamentally different time — <strong>earlier, later, or in parallel</strong>? Includes parallelization (the most common compression lever) and trigger redesign (event-driven vs. calendar-driven).</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">03</span><span class="l">Add</span><span class="b b-flow">Flow</span><span class="c">›</span></button><div class="ac">What step is <strong>missing</strong> that would prevent downstream failure or unlock new value? The contrarian move — sometimes the highest-leverage intervention is adding a step that doesn't exist.</div></div>    
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">04</span><span class="l">Merge or Fragment</span><span class="b b-flow">Flow</span><span class="c">›</span></button><div class="ac"><strong>Merge:</strong> Can two steps with a handoff between them become one step with one owner? Every handoff is a delay, an information loss, and an accountability gap. <strong>Fragment:</strong> Conversely, should one monolithic step be broken into smaller, iterative micro-steps? Large-phase launches → micro-launches with feedback loops. Waterfall design → iterative design sprints.</div></div>
-    <div class="cd">Execution moves — change how the step is performed</div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">05</span><span class="l">Automate</span><span class="b b-exec">Exec</span><span class="c">›</span></button><div class="ac">Can the <strong>human be removed entirely</strong>? Full replacement — the step still happens, no one does it. Distinct from Augment: there is no human in the loop.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">06</span><span class="l">Augment</span><span class="b b-exec">Exec</span><span class="c">›</span></button><div class="ac">Can the human stay but make a <strong>materially better or faster decision with a machine co-pilot</strong>? The human retains judgment; the machine expands their capacity.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">07</span><span class="l">Standardize</span><span class="b b-exec">Exec</span><span class="c">›</span></button><div class="ac">Can this be converted from <strong>bespoke-every-time to a repeatable template, playbook, or configurable module</strong>? Every bespoke instance reintroduces variability, cost, time, and error.</div></div>
-    <div class="cd">Value move — change what value the step creates</div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">08</span><span class="l">Elevate</span><span class="b b-val">Value</span><span class="c">›</span></button><div class="ac">Beyond its primary function, what <strong>additional value</strong> could this step generate? Four sub-types: <strong>delight layer</strong> (customer experience), <strong>data capture layer</strong> (every step feeds intelligence), <strong>feedback loop</strong> (output feeds back to other stages), <strong>brand signal</strong> (the process itself communicates quality/trust).</div></div>
-    <div class="vex" style="border-left-color:var(--red)">
-      <div class="vex-tag">Example — applied to "Design Brief" stage</div>
-      <p>Scanning the 8 moves against the design brief: Could we <strong>Eliminate</strong> the standalone brief entirely if the feasibility model auto-configures a design template? <strong>Resequence</strong> it to run in parallel with feasibility instead of after? <strong>Merge</strong> the brief and TDD alignment into one cross-functional workshop, or <strong>Fragment</strong> it into iterative sprints? <strong>Automate</strong> the first draft from land parameters + demand data? <strong>Standardize</strong> it into templates by product type (70% pre-filled)? <strong>Elevate</strong> it by capturing the assumptions behind every decision as a knowledge asset for future projects? <br/><br/> Most real recommendations combine only 2–3 moves.</p>
-    </div>
-  </div>
-
-  <div class="vb" id="v3">
-    <div class="vh"><div class="vn" style="color:var(--gold)">V3</div><h3>Capability <span>— "What type of skill am I deploying?"</span></h3></div>
-    <p class="vq">8 functional modes, ordered as an intelligence stack from raw signal to institutional wisdom. Not technologies — what the capability does for you.</p>
-    <div class="eb"><button class="ebtn" onclick="toggleAll(this,'v3')">Expand all</button></div>
+  <div class="vb" id="v-how">
+    <div class="vh"><div class="vn c-gold">How</div><h3>Capability <span>— "What type of skill am I deploying?"</span></h3></div>
+    <div class="eb"><button class="ebtn" onclick="toggleAll(this,'v-how')">Expand all</button></div>
     <div class="ai"><button class="at" onclick="tog(this)"><span class="n">01</span><span class="l">Capture</span><span class="c">›</span></button><div class="ac"><strong>"What's actually happening in the physical world?"</strong> — Acquiring data from reality that was previously invisible or delayed. Drones, IoT, satellite, GIS, behavioral tracking. Without capture, everything downstream runs on assumptions.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">02</span><span class="l">Connect</span><span class="c">›</span></button><div class="ac"><strong>"How do I connect what's currently siloed?"</strong> — Unifying data, workflows, and actors across boundaries. BIM as single source of truth. API-connected stacks. Unified customer records. The connective tissue that makes every other mode possible.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">03</span><span class="l">Analyze</span><span class="c">›</span></button><div class="ac"><strong>"What patterns or anomalies exist in data I already have?"</strong> — Finding signal in noise. Backward-looking: what IS and what WAS. Detecting cost anomalies, identifying which specs correlate with higher NPS, surfacing which assumptions were wrong.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">04</span><span class="l">Predict</span><span class="c">›</span></button><div class="ac"><strong>"What is likely to happen next, under what scenarios?"</strong> — Forward-looking. Demand forecasting, delay probability, cost overrun risk, scenario simulation. Where analysis becomes foresight.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">05</span><span class="l">Generate</span><span class="c">›</span></button><div class="ac"><strong>"Can I create a new artifact from parameters and constraints?"</strong> — Most transformative for knowledge-heavy steps. Auto-generated designs, briefs, contracts, marketing content. Not search-and-retrieve — creating something new.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">06</span><span class="l">Optimize</span><span class="c">›</span></button><div class="ac"><strong>"Given constraints, what is the best configuration?"</strong> — Finding the mathematical or logical optimum. FSI maximization, dynamic pricing, schedule optimization, unit mix optimization. Not patterns (Analyze) or forecasts (Predict) — the best answer.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">02</span><span class="l">Analyze</span><span class="c">›</span></button><div class="ac"><strong>"What patterns or anomalies exist in data I already have?"</strong> — Finding signal in noise. Backward-looking: what IS and what WAS. Detecting cost anomalies, identifying which specs correlate with higher NPS, surfacing which assumptions were wrong.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">03</span><span class="l">Predict</span><span class="c">›</span></button><div class="ac"><strong>"What is likely to happen next, under what scenarios?"</strong> — Forward-looking. Demand forecasting, delay probability, cost overrun risk, scenario simulation. Where analysis becomes foresight.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">04</span><span class="l">Generate</span><span class="c">›</span></button><div class="ac"><strong>"Can I create a new artifact from parameters and constraints?"</strong> — Most transformative for knowledge-heavy steps. Auto-generated designs, briefs, contracts, marketing content. Not search-and-retrieve — creating something new.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">05</span><span class="l">Optimize</span><span class="c">›</span></button><div class="ac"><strong>"Given constraints, what is the best configuration?"</strong> — Finding the mathematical or logical optimum. FSI maximization, dynamic pricing, schedule optimization, unit mix optimization. Not patterns (Analyze) or forecasts (Predict) — the best answer.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">06</span><span class="l">Connect</span><span class="c">›</span></button><div class="ac"><strong>"How do I connect what's currently siloed?"</strong> — Unifying data, workflows, and actors across boundaries. BIM as single source of truth. API-connected stacks. Unified customer records. The connective tissue that makes every other mode possible.</div></div>
     <div class="ai"><button class="at" onclick="tog(this)"><span class="n">07</span><span class="l">Coordinate</span><span class="c">›</span></button><div class="ac"><strong>"How do I coordinate multiple actors toward a shared outcome?"</strong> Platform-based coordination, multi-project resource allocation, ecosystem partner management. Makes the "operating system" model possible.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">08</span><span class="l">Learn</span><span class="c">›</span></button><div class="ac"><strong>"How do I get systematically better at this over time?"</strong> Every other mode operates on a snapshot; Learn accumulates. Post-project reviews, evolving cost benchmarks, design libraries updated from resident feedback, ML models that retrain. </div></div>
-    <div class="vex" style="border-left-color:var(--gold)">
-      <div class="vex-tag">Example — applied to "Design Brief" stage</div>
-      <p><strong>Capture</strong> site data via drone/GIS instead of relying on memory from a visit. <strong>Integrate</strong> CRM + competitive intel + financial model into one brief workspace. <strong>Analyze</strong> the last 20 projects to see which unit-mix assumptions were right vs. wrong. <strong>Predict</strong> demand by unit type for the next 24 months. <strong>Generate</strong> a first-draft brief from land parameters + micro-market profile. <strong>Optimize</strong> unit mix to maximize IRR given demand and FSI constraints. <strong>Orchestrate</strong> inputs from sales, finance, design, and construction into one workflow. <strong>Learn</strong> by comparing every brief's assumptions against actuals post-completion, feeding deviations into the next brief.</p>
-    </div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">08</span><span class="l">Learn</span><span class="c">›</span></button><div class="ac"><strong>"How do I get systematically better at this over time?"</strong> Every other mode operates on a snapshot; Learn accumulates. Post-project reviews, evolving cost benchmarks, design libraries updated from resident feedback, ML models that retrain.</div></div>
+    <div class="vex" style="border-left-color:var(--gold)"><div class="vex-tag">Example — applied to "Design Brief" stage</div><p><strong>Capture</strong> site data via drone/GIS instead of relying on memory from a visit. <strong>Analyze</strong> the last 20 projects to see which unit-mix assumptions were right vs. wrong. <strong>Predict</strong> demand by unit type for the next 24 months. <strong>Generate</strong> a first-draft brief from land parameters + micro-market profile. <strong>Optimize</strong> unit mix to maximize IRR given demand and FSI constraints.</p></div>
   </div>
 
-  <div class="vb" id="v4">
-    <div class="vh"><div class="vn" style="color:var(--green)">V4</div><h3>Benefit <span>— "What am I solving for?"</span></h3></div>
-    <p class="vq">Two-level tree. Outcomes are what the board measures. Drivers are the intermediate operational improvements that cause outcomes. Same driver can serve multiple outcomes. Same outcome served by multiple drivers.</p>
-    <div class="bl">
-      <div class="blc">
-        <div class="blc-h" style="background:var(--red-bg);color:var(--red)">Level 1 — Outcomes (the "so what")</div>
-        <div class="blc-b">
-          <div class="ai"><button class="at" onclick="tog(this)"><span class="n">O1</span><span class="l">Speed</span><span class="b b-out">Outcome</span><span class="c">›</span></button><div class="ac">Faster time-to-market, faster cycles, faster response. Land-to-launch, launch-to-sellout, booking-to-possession.</div></div>
-          <div class="ai"><button class="at" onclick="tog(this)"><span class="n">O2</span><span class="l">Cost</span><span class="b b-out">Outcome</span><span class="c">›</span></button><div class="ac">Lower cost per sqft delivered. Not just construction — includes cost of capital (faster cycles), cost of sales (better channels), cost of quality failure (fewer defects).</div></div>
-          <div class="ai"><button class="at" onclick="tog(this)"><span class="n">O3</span><span class="l">Quality</span><span class="b b-out">Outcome</span><span class="c">›</span></button><div class="ac">Fewer defects, higher consistency, brand-standard adherence. Measured in defect rates, snag counts, rework costs, customer satisfaction, referral rates.</div></div>
-          <div class="ai"><button class="at" onclick="tog(this)"><span class="n">O4</span><span class="l">Experience</span><span class="b b-out">Outcome</span><span class="c">›</span></button><div class="ac">Customer experience across the full journey. Distinct from Quality: a defect-free apartment with 12 months of silence post-booking is bad CX.</div></div>
-          <div class="ai"><button class="at" onclick="tog(this)"><span class="n">O5</span><span class="l">Growth</span><span class="b b-out">Outcome</span><span class="c">›</span></button><div class="ac">More projects, more cities, more product types, more revenue per customer. Ability to enter new revenue pools (services, data, management fees).</div></div>
-          <div class="ai"><button class="at" onclick="tog(this)"><span class="n">O6</span><span class="l">Risk Management</span><span class="b b-out">Outcome</span><span class="c">›</span></button><div class="ac">Ability to identify, mitigate, and absorb risks — demand slowdown, cost spikes, regulatory surprises, contractor failures, concentration exposure. Proactive risk management, not just resilience after the fact.</div></div>
-        </div>
-      </div>
-      <div class="blc">
-        <div class="blc-h" style="background:var(--gold-bg);color:var(--gold)">Level 2 — Drivers (the operational "how")</div>
-        <div class="blc-b">
-          <div class="ai"><button class="at" onclick="tog(this)"><span class="n">D1</span><span class="l">Visibility</span><span class="b b-drv">Driver</span><span class="c">›</span></button><div class="ac">Real-time, transparent information — internal (teams see what's happening now, not last month) and external (customers/investors see it too). Replaces reporting culture with sensing culture. <strong>→ Speed, Quality, Experience</strong></div></div>
-          <div class="ai"><button class="at" onclick="tog(this)"><span class="n">D2</span><span class="l">Foresight</span><span class="b b-drv">Driver</span><span class="c">›</span></button><div class="ac">Ability to see what's coming and act before it arrives. Prediction + preparedness. Replaces reactive firefighting with proactive intervention. <strong>→ Cost, Risk Management, Speed</strong></div></div>
-          <div class="ai"><button class="at" onclick="tog(this)"><span class="n">D3</span><span class="l">Standardization</span><span class="b b-drv">Driver</span><span class="c">›</span></button><div class="ac">Consistency, repeatability, portability. The most powerful driver for a multi-project developer. Standard design libraries, spec books, processes. Enables geographic expansion without reinventing the model. <strong>→ Cost, Quality, Growth</strong></div></div>
-          <div class="ai"><button class="at" onclick="tog(this)"><span class="n">D4</span><span class="l">Customization</span><span class="b b-drv">Driver</span><span class="c">›</span></button><div class="ac">Personalization without proportional complexity. Only works on top of Standardization (customize the surface, standardize the structure). Not the opposite of D3 — a layer above it. <strong>→ Experience, Growth</strong></div></div>
-          <div class="ai"><button class="at" onclick="tog(this)"><span class="n">D5</span><span class="l">Agility</span><span class="b b-drv">Driver</span><span class="c">›</span></button><div class="ac">Ability to adapt, iterate, pivot. Micro-phased launches, modular tech stacks, flexible partnerships. The opposite is rigidity — locked into a plan with no ability to course-correct. <strong>→ Speed, Risk Management, Growth</strong></div></div>
-          <div class="ai"><button class="at" onclick="tog(this)"><span class="n">D6</span><span class="l">Integration</span><span class="b b-drv">Driver</span><span class="c">›</span></button><div class="ac">Connected systems, people, and data. The plumbing. BIM → procurement → site → finance. Eliminates re-entry, handoff delays, and information asymmetry. Not glamorous, but its absence is the root cause of most inefficiency. <strong>→ Speed, Cost, Visibility</strong></div></div>
-        </div>
-      </div>
-    </div>
-    <div class="vex" style="border-left-color:var(--green)">
-      <div class="vex-tag">Example — applied to "Design Brief" stage</div>
-      <p>The brief stage can be optimized for <strong>Speed</strong> (done in 5 days not 6 weeks via templates + data-fed inputs) and <strong>Cost</strong> (right unit mix from the start = less unsold inventory). The key drivers: <strong>Standardization</strong> (template briefs per product type), <strong>Visibility</strong> (all stakeholders see the same real-time dashboard of assumptions and sign-off status), and <strong>Foresight</strong> (demand prediction and scenario modeling built in, not done as a separate exercise later).</p>
-    </div>
-  </div>
-
-  <div class="combo">
-    <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text)">How the Vectors Combine</div>
-    <div class="combo-f">At <span style="color:var(--text-muted)">[V1: Process Step]</span>,<br>we <span style="color:var(--red)">[V2: Treatment]</span><br>using <span style="color:var(--gold)">[V3: Capability]</span><br>to drive <span style="color:var(--green)">[V4: Benefit]</span></div>
-    <div class="combo-ex"><strong>Example:</strong> At <span style="color:var(--text-muted)">construction progress monitoring</span>, we <span style="color:var(--red)">Automate</span> reporting using <span style="color:var(--gold)">Capture</span> (drones) + <span style="color:var(--gold)">Analyze</span> (BIM comparison) to drive <span style="color:var(--green)">Visibility</span> → which delivers <span style="color:var(--green)">Speed</span> (faster issue resolution) and <span style="color:var(--green)">Quality</span> (earlier defect detection).</div>
+  <div class="vb" id="v-why">
+    <div class="vh"><div class="vn c-green">Why</div><h3>Benefit <span>— "What am I solving for?"</span></h3></div>
+    <div class="eb"><button class="ebtn" onclick="toggleAll(this,'v-why')">Expand all</button></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">01</span><span class="l">Speed</span><span class="c">›</span></button><div class="ac">Faster time-to-market, faster cycles, faster response. Land-to-launch, launch-to-sellout, booking-to-possession.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">02</span><span class="l">Cost</span><span class="c">›</span></button><div class="ac">Lower cost per sqft delivered. Not just construction — includes cost of capital (faster cycles), cost of sales (better channels), cost of quality failure (fewer defects).</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">03</span><span class="l">Quality</span><span class="c">›</span></button><div class="ac">Fewer defects, higher consistency, brand-standard adherence. Measured in defect rates, snag counts, rework costs, customer satisfaction, referral rates.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">04</span><span class="l">Experience</span><span class="c">›</span></button><div class="ac">Customer experience across the full journey. Distinct from Quality: a defect-free apartment with 12 months of silence post-booking is bad CX.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">05</span><span class="l">Risk Management</span><span class="c">›</span></button><div class="ac">Ability to identify, mitigate, and absorb risks — demand slowdown, cost spikes, regulatory surprises, contractor failures, concentration exposure. Proactive risk management, not just resilience after the fact.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">06</span><span class="l">Customization</span><span class="c">›</span></button><div class="ac">Personalization without proportional complexity. Only works on top of standardization — customize the surface, standardize the structure. Not the opposite of consistency — a layer above it.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">07</span><span class="l">Agility</span><span class="c">›</span></button><div class="ac">Ability to adapt, iterate, pivot. Micro-phased launches, modular tech stacks, flexible partnerships. The opposite is rigidity — locked into a plan with no ability to course-correct.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">08</span><span class="l">Visibility</span><span class="c">›</span></button><div class="ac">Real-time, transparent information — internal (teams see what's happening now, not last month) and external (customers/investors see it too). Replaces reporting culture with sensing culture.</div></div>
+    <div class="vex" style="border-left-color:var(--green)"><div class="vex-tag">Example — applied to "Design Brief" stage</div><p>The brief stage can be optimized for <strong>Speed</strong> (done in 5 days not 6 weeks via templates + data-fed inputs) and <strong>Cost</strong> (right unit mix from the start = less unsold inventory). <strong>Customization</strong> is enabled within standard templates (site-specific configuration). <strong>Agility</strong> comes from micro-phased briefs updated as Phase 1 market data comes in.</p></div>
   </div>
 </div>
 
-<div class="sec" id="eval">
-  <div class="sec-tag" style="color:var(--blue)">Layer 03</div>
+<div class="sec" id="eval-detail">
+  <div class="sec-tag" style="color:var(--blue)">Layer 02</div>
   <h2>Evaluation Layer</h2>
-  <p class="sec-desc">Once you've generated an intervention using the canvas, assess it on these six dimensions to prioritize and sequence.</p>
+  <p class="sec-desc">Assess feasibility first, then prioritize and sequence.</p>
+  <div class="eval-group">Feasibility — can we do this?</div>
   <table class="et">
-    <tr><th>Dimension</th><th>What to assess</th></tr>
-   
-    <tr><td>Feasibility</td><td>Four sub-dimensions: <strong>Technical</strong> (can we build it?), <strong>Organizational</strong> (will people adopt?), <strong>Regulatory</strong> (is it allowed?), <strong>Financial</strong> (can we fund it?). </td></tr>
-    <tr><td>Impact</td><td>Degree of value creation: <strong>High</strong> — step-change impact, drives competitive advantage, affects multiple stakeholders across the value chain. <strong>Medium</strong> — meaningful improvement to existing performance, localized or function-specific. <strong>Low</strong> — incremental or hygiene improvement, limited strategic differentiation. Consider: expected business impact, scalability across projects, and disruption potential (alignment with cross-industry best practice).</td></tr>
-    <tr><td>Criticality</td><td>Urgency for Day-1 readiness: <strong>High</strong> — required to start operations, strong dependency for other capabilities, foundational for delivering early projects. <strong>Medium</strong> — important but can be phased after initial launch, limited interdependencies. <strong>Low</strong> — can be deferred without impacting early success, standalone or future-state capability.</td></tr>
-    <tr><td>Dependencies</td><td>Which foundational choices must be resolved first? Which other interventions are prerequisites? Critical for sequencing — some interventions unlock 10 others.</td></tr>
-     <tr><td>Stakeholders</td><td>Who is involved at this stage? Who needs to change behavior? Internal teams, customers, contractors, regulators, investors. Prioritize customer and investor benefit over others.</td></tr>
+    <tr><td>Technical</td><td>Can we build it? Is the technology mature enough? Do we have or can we acquire the skills?</td></tr>
+    <tr><td>Organizational</td><td>Will people adopt it? Does it require culture change? Can we fund it? Does the investment fit within capital constraints?</td></tr>
+    <tr><td>Regulatory</td><td>Is it allowed under current RERA, SEBI, and local bylaws? Is there a path via sandbox or advocacy?</td></tr>
   </table>
+  <div class="eval-group">Priority & Sequence — when and in what order?</div>
+  <table class="et">
+    <tr><td>Impact</td><td>Degree of value creation: <strong>High</strong> — step-change impact, drives competitive advantage, affects multiple stakeholders across the value chain. <strong>Medium</strong> — meaningful improvement to existing performance, localized or function-specific. <strong>Low</strong> — incremental or hygiene improvement, limited strategic differentiation.</td></tr>
+    <tr><td>Criticality</td><td>Urgency for Day-1 readiness: <strong>High</strong> — required to start operations, strong dependency for other capabilities. <strong>Medium</strong> — important but can be phased after initial launch. <strong>Low</strong> — can be deferred without impacting early success.</td></tr>
+    <tr><td>Stakeholders</td><td>Who is involved at this stage? Who needs to change behavior? Internal teams, customers, contractors, regulators, investors. Prioritize customer and investor benefit over others.</td></tr>
+  </table>
+</div>
+
+<div style="padding:32px 0">
+  <div class="data-arch">
+    <h4>Data &amp; Agentic Architecture (overarching)</h4>
+    <p>Cuts across the entire framework. Single source of truth. Real-time vs. batch. API-first design. Data ownership model. Agentic AI architecture — which processes are candidates for autonomous AI agents, and what guardrails govern them.</p>
+  </div>
 </div>
 
 <div class="foot">Future-ready. Ground-up.</div>
