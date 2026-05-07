@@ -1,0 +1,21 @@
+# Blocks Google's AI training bot (Google Gemini)
+User-agent: Google-Extended
+Disallow: /
+
+# Blocks OpenAI's crawler (ChatGPT)
+User-agent: GPTBot
+Disallow: /
+
+# Blocks Anthropic's crawler (Claude)
+User-agent: ClaudeBot
+Disallow: /
+
+# Blocks common AI data collection bots
+User-agent: CCBot
+Disallow: /
+User-agent: PerplexityBot
+Disallow: /
+
+# Blocks all bots (including Google Search) from the entire site
+User-agent: *
+Disallow: /
