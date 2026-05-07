@@ -6,61 +6,69 @@
 <title>Developer of the Future — Framework</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#faf9f7;--surface:#fff;--surface2:#f2f1ee;--border:#ddd9d3;--border-hi:#c5c0b8;--text:#1a1a1e;--text-dim:#5c5a64;--text-muted:#8a8793;--red:#b5432a;--red-bg:rgba(181,67,42,.08);--gold:#9a7a2e;--gold-bg:rgba(154,122,46,.08);--green:#3d7358;--green-bg:rgba(61,115,88,.08);--blue:#4a5a8a;--blue-bg:rgba(74,90,138,.08);--purple:#7b5fa0;--purple-bg:rgba(123,95,160,.06);--r:6px;--rh:38px}
+:root{--bg:#faf9f7;--surface:#fff;--surface2:#f2f1ee;--border:#ddd9d3;--border-hi:#c5c0b8;--text:#1a1a1e;--text-dim:#5c5a64;--text-muted:#8a8793;--red:#b5432a;--gold:#9a7a2e;--green:#3d7358;--blue:#4a5a8a;--purple:#7b5fa0;--purple-bg:rgba(123,95,160,.06);--r:6px}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
 .w{max-width:980px;margin:0 auto;padding:0 20px}
-
 .hero{padding:22px 0 14px}
 .hero-tag{font-size:9px;letter-spacing:3.5px;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:6px}
 .hero h1{font-family:'DM Serif Display',serif;font-size:26px;font-weight:400;line-height:1.15;margin-bottom:6px}
 .hero p{font-size:12px;color:var(--text-dim);line-height:1.55}
 
-/* ═══ SUMMARY ═══ */
-.sg{display:grid;grid-template-columns:105px 8px 22px 1fr 1fr 1fr 8px 185px;grid-template-rows:auto auto repeat(8,38px);margin:14px 0 10px;gap:0}
-.sg-proc{grid-column:1;grid-row:1/11;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);display:grid;grid-template-rows:subgrid}
-.sg-gap1{grid-column:2;grid-row:1/11}
-.sg-canvas{grid-column:3/7;grid-row:1/11;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);display:grid;grid-template-columns:subgrid;grid-template-rows:subgrid}
-.sg-gap2{grid-column:7;grid-row:1/11}
-.sg-eval{grid-column:8;grid-row:1/11;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);display:grid;grid-template-rows:subgrid}
-/* Process */
-.sg-ph{grid-row:1/3;padding:10px;font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700;text-align:center;color:var(--text-muted);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;position:relative;cursor:default}
-.sg-pb{grid-row:3/11;padding:12px 10px;font-size:10.5px;color:var(--text-muted);font-style:italic;line-height:1.5;display:flex;align-items:center}
-/* Canvas headers */
-.sg-ch{grid-column:1/-1;grid-row:1;padding:7px 10px;font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700;text-align:center;color:var(--gold);border-bottom:1px solid var(--border);position:relative;cursor:default}
-.sg-csh{grid-row:2;padding:6px 8px;font-size:10px;font-weight:700;text-align:center;border-bottom:1px solid var(--border);border-right:1px solid var(--border);position:relative;cursor:default;line-height:1.3}
-.sg-csh:last-of-type{border-right:none}
-.sg-csh small{display:block;font-size:8px;font-weight:500;color:var(--text-muted);letter-spacing:.3px;margin-top:1px}
-/* Eval header */
-.sg-eh{grid-row:1/3;padding:10px;font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700;text-align:center;color:var(--blue);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;position:relative;cursor:default}
-/* Canvas body */
-.rl{writing-mode:vertical-rl;transform:rotate(180deg);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 2px;border-right:1px solid var(--border)}
-.ci{padding:0 10px;font-size:11.5px;font-weight:500;display:flex;align-items:center;border-bottom:1px solid rgba(0,0,0,.06);position:relative;cursor:default;transition:background .1s}
-.ci:hover{background:var(--surface2)}
-.cb{border-right:1px solid var(--border)}
-/* Eval body */
-.ei{padding:0 14px;font-size:11.5px;font-weight:500;display:flex;align-items:center;border-bottom:1px solid rgba(0,0,0,.06);position:relative;cursor:default;transition:background .1s}
-.ei:hover{background:var(--surface2)}
-.eh{padding:0 14px;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;color:var(--text-muted);background:var(--surface2);display:flex;align-items:center}
+/* ═══ SUMMARY TABLE ═══ */
+.st{border-collapse:separate;border-spacing:8px 0;width:100%;margin:14px 0 10px}
+.st td,.st th{background:var(--surface);vertical-align:middle;font-family:'DM Sans',sans-serif}
+/* Header cells */
+.h1{font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:700;text-align:center;padding:10px 8px;position:relative;cursor:default}
+.h2{font-size:10px;font-weight:700;text-align:center;padding:7px 8px;line-height:1.3;position:relative;cursor:default}
+.h2 small{display:block;font-size:8px;font-weight:500;color:var(--text-muted);letter-spacing:.3px;margin-top:1px}
+/* Body cells */
+.bc{padding:0 10px;height:38px;font-size:11.5px;font-weight:500;position:relative;cursor:default;transition:background .1s}
+.bc:hover{background:var(--surface2)}
+/* Eval heading rows */
+.ec{padding:0 14px;height:38px;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;color:var(--text-muted);background:var(--surface2)}
+/* Rotated label cells */
+.rl{writing-mode:vertical-rl;transform:rotate(180deg);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;text-align:center;padding:4px 2px;width:22px}
+/* Process body */
+.pb{padding:12px 10px;font-size:10.5px;color:var(--text-muted);font-style:italic;line-height:1.5}
+/* Gap columns */
+.gap{background:var(--bg)!important;width:8px;padding:0!important;border:none!important}
+/* Borders */
+.bb{border-bottom:1px solid var(--border)}
+.br{border-right:1px solid var(--border)}
+.bl{border-left:1px solid var(--border)}
+.bt{border-top:1px solid var(--border)}
+.bsub{border-bottom:1px solid rgba(0,0,0,.06)}
+/* Card borders (outer edges) */
+.crd-t{border-top:1px solid var(--border)}
+.crd-b{border-bottom:1px solid var(--border)}
+.crd-l{border-left:1px solid var(--border)}
+.crd-r{border-right:1px solid var(--border)}
+.crd-tl{border-top-left-radius:var(--r)}
+.crd-tr{border-top-right-radius:var(--r)}
+.crd-bl{border-bottom-left-radius:var(--r)}
+.crd-br{border-bottom-right-radius:var(--r)}
+
 /* Tooltips */
-.tt{display:none;position:absolute;z-index:30;width:250px;background:var(--text);color:#fff;font-size:10.5px;font-weight:400;line-height:1.5;padding:9px 12px;border-radius:var(--r);box-shadow:0 6px 20px rgba(0,0,0,.2);letter-spacing:0;text-transform:none;pointer-events:none}
-*:hover>.tt{display:block}
-.tr>.tt{left:calc(100% + 6px);top:50%;transform:translateY(-50%)}
-.tl>.tt{right:calc(100% + 6px);top:50%;transform:translateY(-50%)}
-.ttu>.tt{bottom:calc(100% + 6px);top:auto;left:50%;transform:translateX(-50%)}
-.tl.ttu>.tt{right:0;left:auto;bottom:calc(100% + 6px);top:auto;transform:none}
-.sg-ch>.tt,.sg-ph>.tt{top:100%;left:50%;transform:translateX(-50%);margin-top:4px;width:300px}
-.sg-csh>.tt{top:100%;margin-top:4px;width:280px}
-.sg-csh:nth-of-type(1)>.tt{left:0}
-.sg-csh:nth-of-type(2)>.tt{left:50%;transform:translateX(-50%)}
-.sg-csh:nth-of-type(3)>.tt{right:0;left:auto}
-.sg-eh>.tt{top:100%;right:0;left:auto;margin-top:4px;width:260px}
+.tt{display:none;position:absolute;z-index:40;width:250px;background:var(--text);color:#fff;font-size:10.5px;font-weight:400;line-height:1.5;padding:9px 12px;border-radius:var(--r);box-shadow:0 6px 20px rgba(0,0,0,.2);letter-spacing:0;text-transform:none;pointer-events:none}
+td:hover>.tt,th:hover>.tt{display:block}
+/* Directions */
+.tt-r{left:calc(100% + 6px);top:50%;transform:translateY(-50%)}
+.tt-l{right:calc(100% + 6px);top:50%;transform:translateY(-50%)}
+.tt-b{left:50%;top:100%;transform:translateX(-50%);margin-top:4px}
+.tt-bl{left:0;top:100%;margin-top:4px}
+.tt-br{right:0;left:auto;top:100%;margin-top:4px}
+.tt-t{left:50%;bottom:100%;transform:translateX(-50%);margin-bottom:4px}
+.tt-tl{right:0;left:auto;bottom:100%;margin-bottom:4px}
+
+.c-red{color:var(--red)}.c-gold{color:var(--gold)}.c-green{color:var(--green)}.c-blue{color:var(--blue)}.c-muted{color:var(--text-muted)}
+
 /* ═══ COMBINATOR ═══ */
 .combo-sm{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .combo-sm-f{font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.7;flex-shrink:0}
 .combo-sm-ex{font-size:10.5px;color:var(--text-dim);line-height:1.5;border-left:2px solid var(--gold);padding-left:10px;flex:1;min-width:200px}
-  
-/* ═══ DETAIL SECTIONS (below fold) ═══ */
+
+/* ═══ DETAIL SECTIONS ═══ */
 .sec{padding:40px 0;border-top:1px solid var(--border)}.sec-tag{font-size:9px;letter-spacing:3px;text-transform:uppercase;font-weight:700;margin-bottom:4px}.sec h2{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:6px}.sec-desc{font-size:13px;color:var(--text-dim);margin-bottom:24px;max-width:640px;line-height:1.7}
 .vb{margin-bottom:36px}.vh{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}.vn{font-family:'DM Serif Display',serif;font-size:22px;line-height:1}.vh h3{font-size:16px;font-weight:600}.vh h3 span{font-weight:400;color:var(--text-dim);font-size:13px}
 .cat-row{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:10px 14px 6px;margin-top:8px;border-bottom:2px solid var(--border);margin-bottom:4px}.cat-row:first-of-type{margin-top:0}
@@ -71,7 +79,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;lin
 .et{width:100%;border-collapse:collapse;font-size:12.5px}.et td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top}.et td:first-child{font-weight:600;white-space:nowrap;color:var(--text);width:110px}.et td:nth-child(2){color:var(--text-dim)}.et tr:last-child td{border-bottom:none}
 .data-arch{margin:0;padding:20px;background:var(--purple-bg);border:1px solid var(--border);border-radius:var(--r)}.data-arch h4{font-size:13px;font-weight:700;margin-bottom:4px;color:var(--purple)}.data-arch p{font-size:12px;color:var(--text-dim);line-height:1.6}
 .foot{padding:28px 0;border-top:1px solid var(--border);text-align:center;font-size:10px;color:var(--text-muted)}
-.c-red{color:var(--red)}.c-gold{color:var(--gold)}.c-green{color:var(--green)}.c-blue{color:var(--blue)}
 </style>
 </head>
 <body>
@@ -83,59 +90,103 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;lin
   <p>Consistently staying on the forefront of real estate by delivering superior capital returns through customer obsession, differentiated delivery, ecosystem orchestration, and agile execution, all enabled by tech & AI led innovation.</p>
 </div>
 
-<!-- ═══ SUMMARY ═══ -->
-<div class="sg">
-  <div class="sg-proc">
-    <div class="sg-ph">Process<span class="tt">The lifecycle from land to living — each step is a canvas to apply the three vectors.</span></div>
-    <div class="sg-pb">Defined separately — the lifecycle tree from land to living</div>
-  </div>
-  <div class="sg-gap1"></div>
-  <div class="sg-canvas">
-    <div class="sg-ch" style="grid-column:1/-1">Generative Canvas — 3 Vectors<span class="tt">For each process step, ask: what treatment, using what capability, to drive what benefit? Most recommendations combine 2–3 moves across vectors.</span></div>
-    <div class="sg-csh c-red" style="grid-column:1/3">Treatment<small>Vector 1 — What</small><span class="tt">Applied to Design Brief: Eliminate the brief if feasibility auto-configures a template. Resequence to run parallel with feasibility. Merge brief + architect kick-off into one workshop. Automate the first draft. Elevate by capturing assumptions as a knowledge asset.</span></div>
-    <div class="sg-csh c-gold" style="grid-column:3">Capability<small>Vector 2 — How</small><span class="tt">Applied to Design Brief: Capture site data via drone/GIS. Analyze the last 20 projects for unit-mix accuracy. Predict demand for 24 months. Generate a first-draft brief from parameters. Optimize unit mix to maximize IRR.</span></div>
-    <div class="sg-csh c-green" style="grid-column:4">Benefit<small>Vector 3 — Why</small><span class="tt">At the Design Brief stage: Speed (5 days not 6 weeks). Cost (right unit mix = less unsold inventory). Customization (site-specific within standards). Agility (micro-phased briefs updated as data comes in).</span></div>
-    <div class="rl c-red" style="grid-row:3/7;grid-column:1">Flow</div>
-    <div class="ci cb tr" style="grid-row:3;grid-column:2">Eliminate<span class="tt">What if this step didn't exist at all? The question is whether its function can be made unnecessary by a change elsewhere.</span></div>
-    <div class="ci cb tr" style="grid-row:3;grid-column:3">Capture<span class="tt">What's actually happening in the physical world? Acquiring data from reality — drones, IoT, satellite, GIS, behavioral tracking.</span></div>
-    <div class="ci tl" style="grid-row:3;grid-column:4">Speed<span class="tt">Faster time-to-market, faster cycles, faster response. Land-to-launch, launch-to-sellout, booking-to-possession.</span></div>
-    <div class="ci cb tr" style="grid-row:4;grid-column:2">Resequence<span class="tt">What if this happened at a fundamentally different time — earlier, later, or in parallel? Includes parallelization and trigger redesign.</span></div>
-    <div class="ci cb tr" style="grid-row:4;grid-column:3">Analyze<span class="tt">What patterns or anomalies exist in existing data? Finding signal in noise. Backward-looking: what IS and what WAS.</span></div>
-    <div class="ci tl" style="grid-row:4;grid-column:4">Cost<span class="tt">Lower cost per sqft delivered — construction, capital, sales, and quality failure costs.</span></div>
-    <div class="ci cb tr" style="grid-row:5;grid-column:2">Add<span class="tt">What step is missing that would prevent downstream failure or unlock new value? Sometimes the highest-leverage intervention is adding a step.</span></div>
-    <div class="ci cb tr" style="grid-row:5;grid-column:3">Predict<span class="tt">What is likely to happen next, under what scenarios? Demand forecasting, delay probability, cost overrun risk, scenario simulation.</span></div>
-    <div class="ci tl" style="grid-row:5;grid-column:4">Customer Experience<span class="tt">Customer experience across the full journey. Distinct from Quality: a defect-free apartment with silence post-booking is bad CX.</span></div>
-    <div class="ci cb tr" style="grid-row:6;grid-column:2">Merge / Fragment<span class="tt">Merge: combine two steps into one. Fragment: break a monolithic step into iterative micro-steps with feedback loops.</span></div>
-    <div class="ci cb tr" style="grid-row:6;grid-column:3">Generate<span class="tt">Can I create a new artifact from parameters and constraints? Auto-generated designs, briefs, contracts, marketing content.</span></div>
-    <div class="ci tl" style="grid-row:6;grid-column:4">Customization<span class="tt">Personalization without proportional complexity. Customize the surface, standardize the structure.</span></div>
-    <div class="rl c-red" style="grid-row:7/10;grid-column:1">Execution</div>
-    <div class="ci cb tr" style="grid-row:7;grid-column:2">Automate<span class="tt">Can the human be removed entirely? Full replacement — the step still happens, no one does it.</span></div>
-    <div class="ci cb tr" style="grid-row:7;grid-column:3">Optimize<span class="tt">Given constraints, what is the best configuration? FSI maximization, dynamic pricing, schedule optimization.</span></div>
-    <div class="ci tl" style="grid-row:7;grid-column:4">Risk Management<span class="tt">Identify, mitigate, and absorb risks — demand slowdown, cost spikes, regulatory surprises, contractor failures.</span></div>
-    <div class="ci cb ttu" style="grid-row:8;grid-column:2">Augment<span class="tt">Can the human make a materially better or faster decision with a machine co-pilot? Human retains judgment; machine expands capacity.</span></div>
-    <div class="ci cb ttu" style="grid-row:8;grid-column:3">Connect<span class="tt">Unifying data, workflows, and actors across boundaries. BIM as single source of truth. API-connected stacks.</span></div>
-    <div class="ci tl" style="grid-row:8;grid-column:4">Agility<span class="tt">Ability to adapt, iterate, pivot. Micro-phased launches, modular tech, flexible partnerships.</span></div>
-    <div class="ci cb ttu" style="grid-row:9;grid-column:2">Standardize<span class="tt">Convert bespoke-every-time to a repeatable template, playbook, or configurable module. Reduces variability, cost, time, and error.</span></div>
-    <div class="ci cb ttu" style="grid-row:9;grid-column:3">Coordinate<span class="tt">Coordinating multiple actors toward a shared outcome. Platform-based coordination, multi-project resource allocation.</span></div>
-    <div class="ci tl" style="grid-row:9;grid-column:4">Quality<span class="tt">Fewer defects, higher consistency, brand-standard adherence. Measured in defect rates, snag counts, customer satisfaction.</span></div>
-    <div class="rl c-red" style="grid-row:10;grid-column:1;font-size:7px">Value</div>
-    <div class="ci cb ttu" style="grid-row:10;grid-column:2">Elevate<span class="tt">Add value beyond the step's primary function: delight layer, data capture layer, feedback loop, or brand signal.</span></div>
-    <div class="ci cb ttu" style="grid-row:10;grid-column:3">Learn<span class="tt">Getting systematically better over time. Post-project reviews, evolving benchmarks, ML models that retrain.</span></div>
-    <div class="ci tl" style="grid-row:10;grid-column:4">Visibility<span class="tt">Real-time, transparent information — internal and external. Replaces reporting culture with sensing culture.</span></div>
-  </div>
-  <div class="sg-gap2"></div>
-  <div class="sg-eval">
-    <div class="sg-eh" style="grid-row:1/3">Evaluation<span class="tt">Assess feasibility first, then prioritize by impact, criticality, and stakeholder complexity.</span></div>
-    <div class="eh" style="grid-row:3">Feasibility</div>
-    <div class="ei tl" style="grid-row:4">Technical<span class="tt">Can we build it? Is the technology mature? Do we have or can we acquire the skills?</span></div>
-    <div class="ei tl" style="grid-row:5">Organizational<span class="tt">Will people adopt it? Does it require culture change? Can we fund it? Does the investment fit capital constraints?</span></div>
-    <div class="ei tl" style="grid-row:6">Regulatory<span class="tt">Is it allowed under current RERA, SEBI, local bylaws? Is there a path via sandbox or advocacy?</span></div>
-    <div class="eh" style="grid-row:7">Priority &amp; Sequence</div>
-    <div class="ei tl" style="grid-row:8">Impact<span class="tt">High: step-change, competitive advantage, multi-stakeholder. Medium: meaningful, localized. Low: incremental, hygiene.</span></div>
-    <div class="ei tl ttu" style="grid-row:9">Criticality<span class="tt">High: required for Day-1, strong dependency. Medium: can phase after launch. Low: deferrable, standalone.</span></div>
-    <div class="ei tl ttu" style="grid-row:10">Stakeholders<span class="tt">Who needs to change behavior? Internal teams, customers, contractors, regulators, investors.</span></div>
-  </div>
-</div>
+<!-- ═══ THE TABLE ═══ -->
+<table class="st">
+  <colgroup>
+    <col style="width:105px">
+    <col style="width:8px">
+    <col style="width:22px">
+    <col>
+    <col>
+    <col>
+    <col style="width:8px">
+    <col style="width:185px">
+  </colgroup>
+
+  <!-- HEADER ROW 1 -->
+  <tr>
+    <th rowspan="2" class="h1 c-muted crd-t crd-l crd-r crd-tl crd-tr bb">Process<span class="tt tt-b">The lifecycle from land to living — each step is a canvas to apply the three vectors.</span></th>
+    <td rowspan="10" class="gap"></td>
+    <th colspan="4" class="h1 c-gold crd-t crd-l crd-r crd-tl crd-tr bb">Generative Canvas — 3 Vectors<span class="tt tt-b" style="width:300px">For each process step, ask: what treatment, using what capability, to drive what benefit? Most recommendations combine 2–3 moves across vectors.</span></th>
+    <td rowspan="10" class="gap"></td>
+    <th rowspan="2" class="h1 c-blue crd-t crd-l crd-r crd-tl crd-tr bb">Evaluation<span class="tt tt-br">Assess feasibility first, then prioritize by impact, criticality, and stakeholder complexity.</span></th>
+  </tr>
+
+  <!-- HEADER ROW 2 -->
+  <tr>
+    <th colspan="2" class="h2 c-red bb br crd-l">Treatment<small>Vector 1 — What</small><span class="tt tt-bl" style="width:280px">Applied to Design Brief: Eliminate the brief if feasibility auto-configures a template. Resequence to run parallel with feasibility. Merge brief + architect kick-off into one workshop. Automate the first draft. Elevate by capturing assumptions as a knowledge asset.</span></th>
+    <th class="h2 c-gold bb br">Capability<small>Vector 2 — How</small><span class="tt tt-b" style="width:280px">Applied to Design Brief: Capture site data via drone/GIS. Analyze the last 20 projects for unit-mix accuracy. Predict demand for 24 months. Generate a first-draft brief from parameters. Optimize unit mix to maximize IRR.</span></th>
+    <th class="h2 c-green bb crd-r">Benefit<small>Vector 3 — Why</small><span class="tt tt-br" style="width:260px">At the Design Brief stage: Speed (5 days not 6 weeks). Cost (right unit mix = less unsold inventory). Customization (site-specific within standards). Agility (micro-phased briefs updated as data comes in).</span></th>
+  </tr>
+
+  <!-- ROW 3 -->
+  <tr>
+    <td rowspan="8" class="pb crd-l crd-r crd-b crd-bl crd-br">Defined separately — the lifecycle tree from land to living</td>
+    <td rowspan="4" class="rl c-red br bsub crd-l">Flow</td>
+    <td class="bc bsub br">Eliminate<span class="tt tt-r">What if this step didn't exist at all? The question is whether its function can be made unnecessary by a change elsewhere.</span></td>
+    <td class="bc bsub br">Capture<span class="tt tt-r">What's actually happening in the physical world? Acquiring data from reality — drones, IoT, satellite, GIS, behavioral tracking.</span></td>
+    <td class="bc bsub crd-r">Speed<span class="tt tt-l">Faster time-to-market, faster cycles, faster response. Land-to-launch, launch-to-sellout, booking-to-possession.</span></td>
+    <td class="ec crd-l crd-r">Feasibility</td>
+  </tr>
+
+  <!-- ROW 4 -->
+  <tr>
+    <td class="bc bsub br">Resequence<span class="tt tt-r">What if this happened at a fundamentally different time — earlier, later, or in parallel? Includes parallelization and trigger redesign.</span></td>
+    <td class="bc bsub br">Analyze<span class="tt tt-r">What patterns or anomalies exist in existing data? Finding signal in noise. Backward-looking: what IS and what WAS.</span></td>
+    <td class="bc bsub crd-r">Cost<span class="tt tt-l">Lower cost per sqft delivered — construction, capital, sales, and quality failure costs.</span></td>
+    <td class="bc bsub crd-l crd-r">Technical<span class="tt tt-l">Can we build it? Is the technology mature? Do we have or can we acquire the skills?</span></td>
+  </tr>
+
+  <!-- ROW 5 -->
+  <tr>
+    <td class="bc bsub br">Add<span class="tt tt-r">What step is missing that would prevent downstream failure or unlock new value? Sometimes the highest-leverage intervention is adding a step.</span></td>
+    <td class="bc bsub br">Predict<span class="tt tt-r">What is likely to happen next, under what scenarios? Demand forecasting, delay probability, cost overrun risk, scenario simulation.</span></td>
+    <td class="bc bsub crd-r">Customer Experience<span class="tt tt-l">Customer experience across the full journey. Distinct from Quality: a defect-free apartment with silence post-booking is bad CX.</span></td>
+    <td class="bc bsub crd-l crd-r">Organizational<span class="tt tt-l">Will people adopt it? Does it require culture change? Can we fund it? Does the investment fit capital constraints?</span></td>
+  </tr>
+
+  <!-- ROW 6 -->
+  <tr>
+    <td class="bc bsub br">Merge / Fragment<span class="tt tt-r">Merge: combine two steps into one. Fragment: break a monolithic step into iterative micro-steps with feedback loops.</span></td>
+    <td class="bc bsub br">Generate<span class="tt tt-r">Can I create a new artifact from parameters and constraints? Auto-generated designs, briefs, contracts, marketing content.</span></td>
+    <td class="bc bsub crd-r">Customization<span class="tt tt-l">Personalization without proportional complexity. Customize the surface, standardize the structure.</span></td>
+    <td class="bc bsub crd-l crd-r">Regulatory<span class="tt tt-l">Is it allowed under current RERA, SEBI, local bylaws? Is there a path via sandbox or advocacy?</span></td>
+  </tr>
+
+  <!-- ROW 7 -->
+  <tr>
+    <td rowspan="3" class="rl c-red br bsub crd-l">Execution</td>
+    <td class="bc bsub br">Automate<span class="tt tt-r">Can the human be removed entirely? Full replacement — the step still happens, no one does it.</span></td>
+    <td class="bc bsub br">Optimize<span class="tt tt-r">Given constraints, what is the best configuration? FSI maximization, dynamic pricing, schedule optimization.</span></td>
+    <td class="bc bsub crd-r">Risk Management<span class="tt tt-l">Identify, mitigate, and absorb risks — demand slowdown, cost spikes, regulatory surprises, contractor failures.</span></td>
+    <td class="ec crd-l crd-r">Priority &amp; Sequence</td>
+  </tr>
+
+  <!-- ROW 8 -->
+  <tr>
+    <td class="bc bsub br">Augment<span class="tt tt-r">Can the human make a materially better or faster decision with a machine co-pilot? Human retains judgment; machine expands capacity.</span></td>
+    <td class="bc bsub br">Connect<span class="tt tt-tl">Unifying data, workflows, and actors across boundaries. BIM as single source of truth. API-connected stacks.</span></td>
+    <td class="bc bsub crd-r">Agility<span class="tt tt-tl">Ability to adapt, iterate, pivot. Micro-phased launches, modular tech, flexible partnerships.</span></td>
+    <td class="bc bsub crd-l crd-r">Impact<span class="tt tt-tl">High: step-change, competitive advantage, multi-stakeholder. Medium: meaningful, localized. Low: incremental, hygiene.</span></td>
+  </tr>
+
+  <!-- ROW 9 -->
+  <tr>
+    <td class="bc bsub br">Standardize<span class="tt tt-r">Convert bespoke-every-time to a repeatable template, playbook, or configurable module. Reduces variability, cost, time, and error.</span></td>
+    <td class="bc bsub br">Coordinate<span class="tt tt-tl">Coordinating multiple actors toward a shared outcome. Platform-based coordination, multi-project resource allocation.</span></td>
+    <td class="bc bsub crd-r">Quality<span class="tt tt-tl">Fewer defects, higher consistency, brand-standard adherence. Measured in defect rates, snag counts, customer satisfaction.</span></td>
+    <td class="bc bsub crd-l crd-r">Criticality<span class="tt tt-tl">High: required for Day-1, strong dependency. Medium: can phase after launch. Low: deferrable, standalone.</span></td>
+  </tr>
+
+  <!-- ROW 10 -->
+  <tr>
+    <td class="rl c-red br crd-l crd-b crd-bl" style="font-size:7px">Value</td>
+    <td class="bc br crd-b">Elevate<span class="tt tt-r">Add value beyond the step's primary function: delight layer, data capture layer, feedback loop, or brand signal.</span></td>
+    <td class="bc br crd-b">Learn<span class="tt tt-tl">Getting systematically better over time. Post-project reviews, evolving benchmarks, ML models that retrain.</span></td>
+    <td class="bc crd-r crd-b crd-br">Visibility<span class="tt tt-tl">Real-time, transparent information — internal and external. Replaces reporting culture with sensing culture.</span></td>
+    <td class="bc crd-l crd-r crd-b crd-bl crd-br">Stakeholders<span class="tt tt-tl">Who needs to change behavior? Internal teams, customers, contractors, regulators, investors.</span></td>
+  </tr>
+</table>
 
 <!-- COMBINATOR -->
 <div class="combo-sm">
@@ -143,15 +194,12 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;lin
   <div class="combo-sm-ex"><strong>e.g.</strong> At <span style="color:var(--text-muted)">construction monitoring</span>, we <span style="color:var(--red)">Automate</span> reporting using <span style="color:var(--gold)">Capture</span> (drones) + <span style="color:var(--gold)">Analyze</span> (BIM comparison) to drive <span style="color:var(--green)">Speed</span> + <span style="color:var(--green)">Quality</span>.</div>
 </div>
 
-<!-- ═══════════════════════════ -->
-<!-- BELOW FOLD — DETAIL        -->
-<!-- ═══════════════════════════ -->
+<!-- ═══ BELOW FOLD ═══ -->
 
 <div class="sec" id="canvas-detail">
   <div class="sec-tag" style="color:var(--gold)">Layer 01</div>
   <h2>Generative Canvas</h2>
   <p class="sec-desc">Defines operational excellence through a combination of three vectors applied to each process step. For each step in the value chain, ask: what treatment, using what capability, to drive what benefit?</p>
-
   <div class="vb" id="v-what">
     <div class="vh"><div class="vn c-red">What</div><h3>Treatment <span>— "What's my move?"</span></h3></div>
     <div class="eb"><button class="ebtn" onclick="toggleAll(this,'v-what')">Expand all</button></div>
@@ -159,42 +207,40 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;lin
     <div class="ai"><button class="at" onclick="tog(this)"><span class="n">01</span><span class="l">Eliminate</span><span class="c">›</span></button><div class="ac">What if this step didn't exist at all? Not cost-cutting — the question is whether the <strong>function</strong> this step serves can be made unnecessary by a change elsewhere.</div></div>
     <div class="ai"><button class="at" onclick="tog(this)"><span class="n">02</span><span class="l">Resequence</span><span class="c">›</span></button><div class="ac">What if this happened at a fundamentally different time — <strong>earlier, later, or in parallel</strong>? Includes parallelization (the most common compression lever) and trigger redesign (event-driven vs. calendar-driven).</div></div>
     <div class="ai"><button class="at" onclick="tog(this)"><span class="n">03</span><span class="l">Add</span><span class="c">›</span></button><div class="ac">What step is <strong>missing</strong> that would prevent downstream failure or unlock new value? The contrarian move — sometimes the highest-leverage intervention is adding a step that doesn't exist.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">04</span><span class="l">Merge or Fragment</span><span class="c">›</span></button><div class="ac"><strong>Merge:</strong> Can two steps with a handoff between them become one step with one owner? Every handoff is a delay, an information loss, and an accountability gap. <strong>Fragment:</strong> Conversely, should one monolithic step be broken into smaller, iterative micro-steps? Large-phase launches → micro-launches with feedback loops. Waterfall design → iterative design sprints.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">04</span><span class="l">Merge or Fragment</span><span class="c">›</span></button><div class="ac"><strong>Merge:</strong> Can two steps with a handoff between them become one step with one owner? Every handoff is a delay, an information loss, and an accountability gap. <strong>Fragment:</strong> Conversely, should one monolithic step be broken into smaller, iterative micro-steps? Large-phase launches → micro-launches with feedback loops.</div></div>
     <div class="cat-row" style="color:var(--red)">Execution — change how the step is performed</div>
     <div class="ai"><button class="at" onclick="tog(this)"><span class="n">05</span><span class="l">Automate</span><span class="c">›</span></button><div class="ac">Can the <strong>human be removed entirely</strong>? Full replacement — the step still happens, no one does it. Distinct from Augment: there is no human in the loop.</div></div>
     <div class="ai"><button class="at" onclick="tog(this)"><span class="n">06</span><span class="l">Augment</span><span class="c">›</span></button><div class="ac">Can the human stay but make a <strong>materially better or faster decision with a machine co-pilot</strong>? The human retains judgment; the machine expands their capacity.</div></div>
     <div class="ai"><button class="at" onclick="tog(this)"><span class="n">07</span><span class="l">Standardize</span><span class="c">›</span></button><div class="ac">Can this be converted from <strong>bespoke-every-time to a repeatable template, playbook, or configurable module</strong>? Every bespoke instance reintroduces variability, cost, time, and error.</div></div>
     <div class="cat-row" style="color:var(--red)">Value — change what value the step creates</div>
     <div class="ai"><button class="at" onclick="tog(this)"><span class="n">08</span><span class="l">Elevate</span><span class="c">›</span></button><div class="ac">Beyond its primary function, what <strong>additional value</strong> could this step generate? Four sub-types: <strong>delight layer</strong> (customer experience), <strong>data capture layer</strong> (every step feeds intelligence), <strong>feedback loop</strong> (output feeds back to other stages), <strong>brand signal</strong> (the process itself communicates quality/trust).</div></div>
-    <div class="vex" style="border-left-color:var(--red)"><div class="vex-tag">Example — applied to "Design Brief" stage</div><p>Scanning the 8 moves against the design brief: Could we <strong>Eliminate</strong> the standalone brief entirely if the feasibility model auto-configures a design template? <strong>Resequence</strong> it to run in parallel with feasibility instead of after? <strong>Merge</strong> the brief and TDD alignment into one cross-functional workshop, or <strong>Fragment</strong> it into iterative sprints? <strong>Automate</strong> the first draft from land parameters + demand data? <strong>Standardize</strong> it into templates by product type (70% pre-filled)? <strong>Elevate</strong> it by capturing the assumptions behind every decision as a knowledge asset for future projects? <br/><br/> Most real recommendations combine only 2–3 moves.</p></div>
+    <div class="vex" style="border-left-color:var(--red)"><div class="vex-tag">Example — applied to "Design Brief" stage</div><p>Could we <strong>Eliminate</strong> the standalone brief if the feasibility model auto-configures a template? <strong>Resequence</strong> to run parallel with feasibility? <strong>Merge</strong> brief + TDD alignment into one workshop, or <strong>Fragment</strong> into sprints? <strong>Automate</strong> the first draft? <strong>Standardize</strong> into templates (70% pre-filled)? <strong>Elevate</strong> by capturing assumptions as a knowledge asset? Most real recommendations combine 2–3 moves.</p></div>
   </div>
-
   <div class="vb" id="v-how">
     <div class="vh"><div class="vn c-gold">How</div><h3>Capability <span>— "What type of skill am I deploying?"</span></h3></div>
     <div class="eb"><button class="ebtn" onclick="toggleAll(this,'v-how')">Expand all</button></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">01</span><span class="l">Capture</span><span class="c">›</span></button><div class="ac"><strong>"What's actually happening in the physical world?"</strong> — Acquiring data from reality that was previously invisible or delayed. Drones, IoT, satellite, GIS, behavioral tracking. Without capture, everything downstream runs on assumptions.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">02</span><span class="l">Analyze</span><span class="c">›</span></button><div class="ac"><strong>"What patterns or anomalies exist in data I already have?"</strong> — Finding signal in noise. Backward-looking: what IS and what WAS. Detecting cost anomalies, identifying which specs correlate with higher NPS, surfacing which assumptions were wrong.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">03</span><span class="l">Predict</span><span class="c">›</span></button><div class="ac"><strong>"What is likely to happen next, under what scenarios?"</strong> — Forward-looking. Demand forecasting, delay probability, cost overrun risk, scenario simulation. Where analysis becomes foresight.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">04</span><span class="l">Generate</span><span class="c">›</span></button><div class="ac"><strong>"Can I create a new artifact from parameters and constraints?"</strong> — Most transformative for knowledge-heavy steps. Auto-generated designs, briefs, contracts, marketing content. Not search-and-retrieve — creating something new.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">05</span><span class="l">Optimize</span><span class="c">›</span></button><div class="ac"><strong>"Given constraints, what is the best configuration?"</strong> — Finding the mathematical or logical optimum. FSI maximization, dynamic pricing, schedule optimization, unit mix optimization. Not patterns (Analyze) or forecasts (Predict) — the best answer.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">06</span><span class="l">Connect</span><span class="c">›</span></button><div class="ac"><strong>"How do I connect what's currently siloed?"</strong> — Unifying data, workflows, and actors across boundaries. BIM as single source of truth. API-connected stacks. Unified customer records. The connective tissue that makes every other mode possible.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">07</span><span class="l">Coordinate</span><span class="c">›</span></button><div class="ac"><strong>"How do I coordinate multiple actors toward a shared outcome?"</strong> Platform-based coordination, multi-project resource allocation, ecosystem partner management. Makes the "operating system" model possible.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">08</span><span class="l">Learn</span><span class="c">›</span></button><div class="ac"><strong>"How do I get systematically better at this over time?"</strong> Every other mode operates on a snapshot; Learn accumulates. Post-project reviews, evolving cost benchmarks, design libraries updated from resident feedback, ML models that retrain.</div></div>
-    <div class="vex" style="border-left-color:var(--gold)"><div class="vex-tag">Example — applied to "Design Brief" stage</div><p><strong>Capture</strong> site data via drone/GIS instead of relying on memory from a visit. <strong>Analyze</strong> the last 20 projects to see which unit-mix assumptions were right vs. wrong. <strong>Predict</strong> demand by unit type for the next 24 months. <strong>Generate</strong> a first-draft brief from land parameters + micro-market profile. <strong>Optimize</strong> unit mix to maximize IRR given demand and FSI constraints.</p></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">01</span><span class="l">Capture</span><span class="c">›</span></button><div class="ac"><strong>"What's actually happening in the physical world?"</strong> — Acquiring data from reality that was previously invisible or delayed. Drones, IoT, satellite, GIS, behavioral tracking.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">02</span><span class="l">Analyze</span><span class="c">›</span></button><div class="ac"><strong>"What patterns or anomalies exist in data I already have?"</strong> — Finding signal in noise. Backward-looking: what IS and what WAS.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">03</span><span class="l">Predict</span><span class="c">›</span></button><div class="ac"><strong>"What is likely to happen next, under what scenarios?"</strong> — Demand forecasting, delay probability, cost overrun risk, scenario simulation.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">04</span><span class="l">Generate</span><span class="c">›</span></button><div class="ac"><strong>"Can I create a new artifact from parameters and constraints?"</strong> — Auto-generated designs, briefs, contracts, marketing content. Not search-and-retrieve — creating something new.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">05</span><span class="l">Optimize</span><span class="c">›</span></button><div class="ac"><strong>"Given constraints, what is the best configuration?"</strong> — FSI maximization, dynamic pricing, schedule optimization, unit mix optimization.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">06</span><span class="l">Connect</span><span class="c">›</span></button><div class="ac"><strong>"How do I connect what's currently siloed?"</strong> — Unifying data, workflows, and actors. BIM as single source of truth. API-connected stacks.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">07</span><span class="l">Coordinate</span><span class="c">›</span></button><div class="ac"><strong>"How do I coordinate multiple actors toward a shared outcome?"</strong> — Platform-based coordination, multi-project resource allocation, ecosystem partner management.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">08</span><span class="l">Learn</span><span class="c">›</span></button><div class="ac"><strong>"How do I get systematically better over time?"</strong> — Post-project reviews, evolving cost benchmarks, design libraries updated from feedback, ML models that retrain.</div></div>
+    <div class="vex" style="border-left-color:var(--gold)"><div class="vex-tag">Example — applied to "Design Brief" stage</div><p><strong>Capture</strong> site data via drone/GIS. <strong>Analyze</strong> the last 20 projects for unit-mix accuracy. <strong>Predict</strong> demand for 24 months. <strong>Generate</strong> a first-draft brief from parameters. <strong>Optimize</strong> unit mix to maximize IRR given demand and FSI constraints.</p></div>
   </div>
-
   <div class="vb" id="v-why">
     <div class="vh"><div class="vn c-green">Why</div><h3>Benefit <span>— "What am I solving for?"</span></h3></div>
     <div class="eb"><button class="ebtn" onclick="toggleAll(this,'v-why')">Expand all</button></div>
     <div class="ai"><button class="at" onclick="tog(this)"><span class="n">01</span><span class="l">Speed</span><span class="c">›</span></button><div class="ac">Faster time-to-market, faster cycles, faster response. Land-to-launch, launch-to-sellout, booking-to-possession.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">02</span><span class="l">Cost</span><span class="c">›</span></button><div class="ac">Lower cost per sqft delivered. Not just construction — includes cost of capital (faster cycles), cost of sales (better channels), cost of quality failure (fewer defects).</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">03</span><span class="l">Quality</span><span class="c">›</span></button><div class="ac">Fewer defects, higher consistency, brand-standard adherence. Measured in defect rates, snag counts, rework costs, customer satisfaction, referral rates.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">04</span><span class="l">Experience</span><span class="c">›</span></button><div class="ac">Customer experience across the full journey. Distinct from Quality: a defect-free apartment with 12 months of silence post-booking is bad CX.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">05</span><span class="l">Risk Management</span><span class="c">›</span></button><div class="ac">Ability to identify, mitigate, and absorb risks — demand slowdown, cost spikes, regulatory surprises, contractor failures, concentration exposure. Proactive risk management, not just resilience after the fact.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">06</span><span class="l">Customization</span><span class="c">›</span></button><div class="ac">Personalization without proportional complexity. Only works on top of standardization — customize the surface, standardize the structure. Not the opposite of consistency — a layer above it.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">07</span><span class="l">Agility</span><span class="c">›</span></button><div class="ac">Ability to adapt, iterate, pivot. Micro-phased launches, modular tech stacks, flexible partnerships. The opposite is rigidity — locked into a plan with no ability to course-correct.</div></div>
-    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">08</span><span class="l">Visibility</span><span class="c">›</span></button><div class="ac">Real-time, transparent information — internal (teams see what's happening now, not last month) and external (customers/investors see it too). Replaces reporting culture with sensing culture.</div></div>
-    <div class="vex" style="border-left-color:var(--green)"><div class="vex-tag">Example — applied to "Design Brief" stage</div><p>The brief stage can be optimized for <strong>Speed</strong> (done in 5 days not 6 weeks via templates + data-fed inputs) and <strong>Cost</strong> (right unit mix from the start = less unsold inventory). <strong>Customization</strong> is enabled within standard templates (site-specific configuration). <strong>Agility</strong> comes from micro-phased briefs updated as Phase 1 market data comes in.</p></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">02</span><span class="l">Cost</span><span class="c">›</span></button><div class="ac">Lower cost per sqft delivered — construction, capital, sales, and quality failure costs.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">03</span><span class="l">Customer Experience</span><span class="c">›</span></button><div class="ac">Customer experience across the full journey. Distinct from Quality: a defect-free apartment with 12 months of silence post-booking is bad CX.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">04</span><span class="l">Customization</span><span class="c">›</span></button><div class="ac">Personalization without proportional complexity. Customize the surface, standardize the structure.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">05</span><span class="l">Risk Management</span><span class="c">›</span></button><div class="ac">Identify, mitigate, and absorb risks — demand slowdown, cost spikes, regulatory surprises, contractor failures.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">06</span><span class="l">Agility</span><span class="c">›</span></button><div class="ac">Ability to adapt, iterate, pivot. Micro-phased launches, modular tech stacks, flexible partnerships.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">07</span><span class="l">Quality</span><span class="c">›</span></button><div class="ac">Fewer defects, higher consistency, brand-standard adherence. Measured in defect rates, snag counts, customer satisfaction.</div></div>
+    <div class="ai"><button class="at" onclick="tog(this)"><span class="n">08</span><span class="l">Visibility</span><span class="c">›</span></button><div class="ac">Real-time, transparent information — internal and external. Replaces reporting culture with sensing culture.</div></div>
+    <div class="vex" style="border-left-color:var(--green)"><div class="vex-tag">Example — applied to "Design Brief" stage</div><p><strong>Speed</strong> (5 days not 6 weeks via templates + data-fed inputs). <strong>Cost</strong> (right unit mix = less unsold inventory). <strong>Customization</strong> (site-specific within standards). <strong>Agility</strong> (micro-phased briefs updated as Phase 1 data comes in).</p></div>
   </div>
 </div>
 
@@ -210,9 +256,9 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;lin
   </table>
   <div class="eval-group">Priority & Sequence — when and in what order?</div>
   <table class="et">
-    <tr><td>Impact</td><td>Degree of value creation: <strong>High</strong> — step-change impact, drives competitive advantage, affects multiple stakeholders across the value chain. <strong>Medium</strong> — meaningful improvement to existing performance, localized or function-specific. <strong>Low</strong> — incremental or hygiene improvement, limited strategic differentiation.</td></tr>
-    <tr><td>Criticality</td><td>Urgency for Day-1 readiness: <strong>High</strong> — required to start operations, strong dependency for other capabilities. <strong>Medium</strong> — important but can be phased after initial launch. <strong>Low</strong> — can be deferred without impacting early success.</td></tr>
-    <tr><td>Stakeholders</td><td>Who is involved at this stage? Who needs to change behavior? Internal teams, customers, contractors, regulators, investors. Prioritize customer and investor benefit over others.</td></tr>
+    <tr><td>Impact</td><td><strong>High</strong> — step-change impact, drives competitive advantage, multi-stakeholder. <strong>Medium</strong> — meaningful, localized. <strong>Low</strong> — incremental, hygiene.</td></tr>
+    <tr><td>Criticality</td><td><strong>High</strong> — required for Day-1, strong dependency. <strong>Medium</strong> — can phase after launch. <strong>Low</strong> — deferrable, standalone.</td></tr>
+    <tr><td>Stakeholders</td><td>Who needs to change behavior? Internal teams, customers, contractors, regulators, investors. Prioritize customer and investor benefit.</td></tr>
   </table>
 </div>
 
