@@ -1,0 +1,856 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Interactive Process Map</title>
+  <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --surface: #ffffff;
+      --surface-2: #f2f4f8;
+      --ink: #172033;
+      --muted: #687386;
+      --line: #dfe4ec;
+      --line-strong: #c6ceda;
+      --shadow: 0 12px 30px rgba(23, 32, 51, 0.10);
+      --radius-lg: 18px;
+      --radius-md: 13px;
+      --radius-sm: 9px;
+      --critical-fill: #fee2e2;
+      --critical-band: #dc2626;
+      --output-fill: #dbeafe;
+      --output-band: #2563eb;
+      --control-fill: #ffedd5;
+      --control-band: #ea580c;
+      --workflow-fill: #e2e8f0;
+      --workflow-band: #475569;
+      --na-fill: #f3f4f6;
+      --na-band: #9ca3af;
+      --card-min: 170px;
+      --card-max: 230px;
+      --row-label-width: 132px;
+      --col-gap: 12px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #eef4ff 0, transparent 34rem), var(--bg);
+      color: var(--ink);
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .app-shell { min-height: 100vh; padding: 26px; }
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+    .eyebrow {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    h1 { margin: 0; font-size: clamp(26px, 3vw, 40px); line-height: 1.08; letter-spacing: -0.04em; }
+    .subtitle { margin: 10px 0 0; color: var(--muted); max-width: 920px; line-height: 1.5; }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 20px 0 18px;
+    }
+    .search-wrap { position: relative; flex: 1 1 420px; max-width: 760px; }
+    .search-wrap input {
+      width: 100%;
+      padding: 13px 15px 13px 42px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      outline: none;
+      background: var(--surface);
+      box-shadow: 0 4px 18px rgba(23, 32, 51, 0.05);
+    }
+    .search-wrap input:focus { border-color: #7aa2ff; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10); }
+    .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+    .pill-btn {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 11px 16px;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(23, 32, 51, 0.05);
+    }
+    .pill-btn:hover { border-color: var(--line-strong); transform: translateY(-1px); }
+    .status-card, .error-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      max-width: 920px;
+    }
+    .error-card { border-color: #fecaca; background: #fff7f7; }
+    .small-muted { color: var(--muted); font-size: 13px; }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin: 6px 0 18px;
+    }
+    .legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .legend-dot { width: 22px; height: 8px; border-radius: 999px; display: inline-block; }
+
+    .summary-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 16px;
+      align-items: start;
+    }
+    .stage-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+    .stage-card {
+      min-height: 260px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      box-shadow: 0 8px 22px rgba(23, 32, 51, 0.06);
+      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, opacity .16s ease;
+      text-align: left;
+      width: 100%;
+      color: inherit;
+    }
+    .stage-card:hover { transform: translateY(-2px); border-color: #b8c4d6; box-shadow: var(--shadow); }
+    .stage-card.is-dim { opacity: 0.42; }
+    .stage-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+    .stage-title { font-size: 20px; font-weight: 900; letter-spacing: -0.03em; }
+    .stage-total { background: #eef2ff; color: #3730a3; padding: 5px 9px; border-radius: 999px; font-size: 12px; font-weight: 900; white-space: nowrap; }
+    .stage-counts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
+    .mini-stat { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 8px 10px; background: #fbfcff; }
+    .mini-stat strong { display: block; font-size: 19px; }
+    .mini-stat span { color: var(--muted); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+    .category-counts { display: grid; gap: 7px; margin: 12px 0 14px; }
+    .category-count-row { display: grid; grid-template-columns: 86px 1fr 28px; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); }
+    .bar-track { height: 8px; background: #edf1f7; border-radius: 999px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 999px; min-width: 3px; }
+    .l1-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+    .l1-pill { display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid var(--line); background: var(--surface-2); padding: 8px 10px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.25; }
+    .l1-pill span:first-child { font-weight: 750; }
+    .l1-pill .l1-count { color: var(--muted); font-size: 11px; font-weight: 900; white-space: nowrap; }
+    .totals-panel {
+      position: sticky;
+      top: 18px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+    .totals-panel h2 { margin: 0 0 12px; font-size: 18px; letter-spacing: -0.02em; }
+    .total-big { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 14px; }
+    .total-box { border-radius: var(--radius-md); padding: 12px; background: #f8fafc; border: 1px solid var(--line); }
+    .total-box strong { display: block; font-size: 28px; letter-spacing: -0.04em; }
+    .total-box span { color: var(--muted); font-size: 12px; font-weight: 800; text-transform: uppercase; }
+
+    .swim-shell {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .swim-header {
+      padding: 15px 16px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff, #fbfcff);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .swim-title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .swim-title h2 { margin: 0; font-size: 22px; letter-spacing: -0.03em; }
+    .swim-meta { color: var(--muted); font-size: 13px; font-weight: 700; }
+    .scroll-hint { color: var(--muted); font-size: 12px; }
+    .swim-scroll { overflow: auto; max-height: calc(100vh - 230px); min-height: 480px; }
+    .swim-grid {
+      display: grid;
+      grid-template-columns: var(--row-label-width) repeat(var(--l1-count), minmax(var(--card-min), var(--card-max)));
+      gap: 0;
+      min-width: max-content;
+      align-items: stretch;
+    }
+    .corner-cell, .l1-head, .row-label, .lane-cell { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .corner-cell {
+      position: sticky;
+      top: 0;
+      left: 0;
+      z-index: 11;
+      background: #f8fafc;
+      padding: 12px;
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .l1-head {
+      position: sticky;
+      top: 0;
+      z-index: 8;
+      background: #f8fafc;
+      min-height: 104px;
+      padding: 12px;
+    }
+    .l1-head-title { font-size: 14px; line-height: 1.25; font-weight: 900; letter-spacing: -0.01em; display: flex; align-items: flex-start; gap: 6px; }
+    .l1-info {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      border: 1px solid #cbd5e1;
+      color: #64748b;
+      background: #fff;
+      font-size: 10px;
+      font-weight: 900;
+      opacity: .74;
+      margin-top: 1px;
+    }
+    .l1-info:hover { opacity: 1; border-color: #94a3b8; }
+    .l1-head-meta { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
+    .tiny-chip { padding: 4px 6px; border-radius: 999px; background: #fff; border: 1px solid var(--line); color: var(--muted); font-size: 11px; font-weight: 800; }
+    .row-label {
+      position: sticky;
+      left: 0;
+      z-index: 6;
+      padding: 14px 12px;
+      background: #fbfcff;
+      min-height: 116px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-weight: 950;
+    }
+    .row-label-bar { width: 7px; min-height: 36px; border-radius: 999px; flex: 0 0 auto; }
+    .lane-cell { padding: 10px; min-height: 116px; background: #fff; }
+    .lane-stack { display: flex; flex-direction: column; gap: 8px; }
+    .process-card {
+      position: relative;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      border-radius: var(--radius-md);
+      padding: 10px 10px 13px;
+      min-height: 76px;
+      box-shadow: 0 5px 12px rgba(23, 32, 51, 0.06);
+      transition: transform .14s ease, opacity .14s ease, box-shadow .14s ease;
+      overflow: hidden;
+      text-align: left;
+      width: 100%;
+      color: inherit;
+    }
+    .process-card:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(23, 32, 51, 0.12); }
+    .process-card.is-dim { opacity: .22; }
+    .process-card.is-match { outline: 2px solid rgba(37, 99, 235, .25); }
+    .process-card::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--cat-band); }
+    .card-serial { font-size: 11px; color: var(--muted); font-weight: 900; margin-bottom: 6px; }
+    .card-title { font-size: 13px; font-weight: 850; line-height: 1.25; word-break: normal; overflow-wrap: anywhere; }
+    .card-category { margin-top: 9px; display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+    .tooltip {
+      position: fixed;
+      z-index: 1000;
+      width: min(420px, calc(100vw - 36px));
+      max-height: min(360px, calc(100vh - 36px));
+      overflow: auto;
+      background: rgba(15, 23, 42, .96);
+      color: #fff;
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 20px 60px rgba(15, 23, 42, .32);
+      pointer-events: none;
+    }
+    .tooltip-title { font-weight: 900; margin-bottom: 8px; line-height: 1.25; }
+    .tooltip-body { font-size: 13px; line-height: 1.45; color: rgba(255,255,255,.88); }
+    .tooltip-hint { margin-top: 10px; font-size: 11px; color: rgba(255,255,255,.62); font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+    .panel-backdrop { position: fixed; inset: 0; z-index: 900; background: rgba(15, 23, 42, .18); }
+    .detail-panel {
+      position: fixed;
+      z-index: 901;
+      right: 22px;
+      top: 22px;
+      bottom: 22px;
+      width: min(520px, calc(100vw - 44px));
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: 0 28px 80px rgba(15, 23, 42, .28);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .detail-head { padding: 18px; border-bottom: 1px solid var(--line); background: #fbfcff; }
+    .detail-kicker { color: var(--muted); font-size: 12px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 8px; }
+    .detail-title { font-size: 21px; line-height: 1.2; font-weight: 950; letter-spacing: -0.03em; margin-right: 30px; }
+    .detail-close { position: absolute; right: 16px; top: 14px; border: 0; background: #eef2f7; width: 32px; height: 32px; border-radius: 999px; font-size: 18px; color: var(--muted); }
+    .detail-body { padding: 18px; overflow: auto; }
+    .field { margin-bottom: 18px; }
+    .field-label { font-size: 12px; color: var(--muted); font-weight: 950; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
+    .field-value { line-height: 1.5; white-space: pre-wrap; }
+    .badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .notice { background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; padding: 10px 12px; border-radius: var(--radius-md); margin: 0 0 16px; font-size: 13px; }
+    .empty-state { color: var(--muted); padding: 18px; text-align: center; border: 1px dashed var(--line-strong); border-radius: var(--radius-md); background: #fbfcff; }
+
+    @media (max-width: 1050px) {
+      .summary-layout { grid-template-columns: 1fr; }
+      .totals-panel { position: static; }
+      .topbar { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useEffect, useMemo, useState } = React;
+
+    // ===== DATA SOURCE CONFIG =====
+    const DATA_SOURCE = {
+      type: "googleSheetCsv",
+      url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ9YOMwNoR2Do0welsKj7stQwJpDCnFL9-BDvLBTyttn7v-kZRELmoft6_GeiOMVqL5b6hXq8w3Yyob/pub?gid=0&single=true&output=csv",
+      fallbackUrl: "data/process.csv"
+    };
+
+    // ===== CATEGORY CONFIG =====
+    const CATEGORIES = {
+      Critical: { label: "Critical", fill: "var(--critical-fill)", band: "var(--critical-band)", order: 1 },
+      Output: { label: "Output", fill: "var(--output-fill)", band: "var(--output-band)", order: 2 },
+      Control: { label: "Control", fill: "var(--control-fill)", band: "var(--control-band)", order: 3 },
+      Workflow: { label: "Workflow", fill: "var(--workflow-fill)", band: "var(--workflow-band)", order: 4 },
+      NA: { label: "NA", fill: "var(--na-fill)", band: "var(--na-band)", order: 99 }
+    };
+    const ANCHOR_PRIORITY = ["Critical", "Output", "Control", "Workflow"];
+    const SWIMLANE_ROWS = ["Critical", "Output", "Control", "Workflow"];
+
+    // ===== COLUMN / DETAIL CONFIG =====
+    const FIELD_ALIASES = {
+      serial: ["s no", "s no.", "s. no", "s. no.", "serial", "serial number"],
+      l0: ["l0", "l0 phase", "l0 process area", "phase", "lifecycle stage"],
+      l1: ["l1", "l1 item", "l1 process", "l1 group"],
+      l2: ["l2", "l2 item", "l2 process", "activity"],
+      l3: ["l3", "l3 activites representative", "l3 activities representative", "l3 activities", "l3 activity", "representative activities"],
+      category: ["l2 categorization", "critical output workflow control", "critical / output / workflow / control", "category", "process type"],
+      rationale: ["categorization rationale af on how", "categorization rationale", "rationale"],
+      optimizationPotential: ["optimization potential"],
+      optimizationLever: ["optimization lever"],
+      existingSolutions: ["existing solutions", "existing solution"],
+      predecessor: ["predecessor", "predecessors"]
+    };
+
+    const DETAIL_FIELDS = [
+      { key: "l3", label: "Activities" },
+      { key: "rationale", label: "Categorization Rationale" },
+      { key: "predecessor", label: "Predecessor" },
+      { key: "optimizationPotential", label: "Optimization Potential", optional: true },
+      { key: "optimizationLever", label: "Optimization Lever", optional: true },
+      { key: "existingSolutions", label: "Existing Solutions", optional: true }
+    ];
+    const SEARCH_FIELDS = ["serial", "l0", "l1", "l2", "l3", "category", "rationale", "predecessor"];
+
+    // ===== DATA LAYER =====
+    function normalizeHeader(value) {
+      return String(value || "")
+        .normalize("NFKC")
+        .replace(/[’‘]/g, "'")
+        .replace(/[“”]/g, '"')
+        .replace(/&/g, " and ")
+        .replace(/[^a-zA-Z0-9]+/g, " ")
+        .trim()
+        .toLowerCase();
+    }
+
+    function cleanText(value) {
+      return String(value ?? "")
+        .normalize("NFC")
+        .replace(/\uFFFD/g, "")
+        .replace(/[\t ]+/g, " ")
+        .replace(/\s+\n/g, "\n")
+        .replace(/\n\s+/g, "\n")
+        .trim();
+    }
+
+    function findColumn(row, aliases) {
+      const normalizedKeys = Object.keys(row).map(key => [key, normalizeHeader(key)]);
+      for (const alias of aliases) {
+        const target = normalizeHeader(alias);
+        const exact = normalizedKeys.find(([, norm]) => norm === target);
+        if (exact) return exact[0];
+      }
+      for (const alias of aliases) {
+        const target = normalizeHeader(alias);
+        const partial = normalizedKeys.find(([, norm]) => norm.includes(target) || target.includes(norm));
+        if (partial) return partial[0];
+      }
+      return null;
+    }
+
+    function canonicalCategory(value) {
+      const text = cleanText(value).toLowerCase();
+      if (!text || text === "n/a" || text === "na") return "NA";
+      if (text.includes("critical")) return "Critical";
+      if (text.includes("output")) return "Output";
+      if (text.includes("control")) return "Control";
+      if (text.includes("workflow")) return "Workflow";
+      return cleanText(value) || "NA";
+    }
+
+    function parseSerial(value) {
+      const raw = cleanText(value);
+      const parts = raw.match(/\d+/g)?.map(Number) || [];
+      return { raw, parts: parts.length ? parts : [Number.MAX_SAFE_INTEGER] };
+    }
+
+    function compareSerial(a, b) {
+      const ap = a.serialParts || [];
+      const bp = b.serialParts || [];
+      const len = Math.max(ap.length, bp.length);
+      for (let i = 0; i < len; i++) {
+        const av = ap[i] ?? 0;
+        const bv = bp[i] ?? 0;
+        if (av !== bv) return av - bv;
+      }
+      return String(a.serialRaw || "").localeCompare(String(b.serialRaw || ""), undefined, { numeric: true });
+    }
+
+    function normalizeRows(rawRows) {
+      if (!rawRows.length) return [];
+      return rawRows.map((raw, index) => {
+        const get = key => {
+          const col = findColumn(raw, FIELD_ALIASES[key] || [key]);
+          return cleanText(col ? raw[col] : "");
+        };
+        const serial = parseSerial(get("serial") || String(index + 1));
+        const l0 = get("l0") || "Unassigned";
+        const l1 = get("l1") || "Unassigned";
+        const l2 = get("l2") || "Untitled";
+        const category = canonicalCategory(get("category"));
+        const row = {
+          id: `${serial.raw || index + 1}-${index}`,
+          sourceIndex: index,
+          serialRaw: serial.raw || String(index + 1),
+          serialParts: serial.parts,
+          l0,
+          l1,
+          l1Key: `${l0}|||${l1}`.toLowerCase(),
+          l2,
+          l3: get("l3"),
+          category,
+          rationale: get("rationale"),
+          optimizationPotential: get("optimizationPotential"),
+          optimizationLever: get("optimizationLever"),
+          existingSolutions: get("existingSolutions"),
+          predecessor: get("predecessor")
+        };
+        row.searchText = SEARCH_FIELDS.map(k => row[k]).join(" ").toLowerCase();
+        row.isNA = category === "NA" || row.l2.toLowerCase() === "na";
+        return row;
+      }).sort(compareSerial);
+    }
+
+    async function fetchCsvText(url) {
+      const response = await fetch(url, { cache: "no-store" });
+      if (!response.ok) throw new Error(`Could not load CSV (${response.status}) from ${url}`);
+      return response.text();
+    }
+
+    async function loadRows() {
+      let csvText;
+      let loadedFrom = DATA_SOURCE.url;
+      try {
+        csvText = await fetchCsvText(DATA_SOURCE.url);
+      } catch (firstError) {
+        if (!DATA_SOURCE.fallbackUrl) throw firstError;
+        loadedFrom = DATA_SOURCE.fallbackUrl;
+        csvText = await fetchCsvText(DATA_SOURCE.fallbackUrl);
+      }
+      return new Promise((resolve, reject) => {
+        Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          transformHeader: h => cleanText(h),
+          complete: results => {
+            if (results.errors?.length) console.warn("CSV parse warnings", results.errors);
+            resolve({ rows: normalizeRows(results.data), loadedFrom });
+          },
+          error: reject
+        });
+      });
+    }
+
+    // ===== GROUPING / SEARCH HELPERS =====
+    function activeRows(rows) { return rows.filter(r => !r.isNA); }
+    function noteRows(rows) { return rows.filter(r => r.isNA && r.l3); }
+    function groupBy(rows, keyFn) {
+      const map = new Map();
+      rows.forEach(row => {
+        const key = keyFn(row);
+        if (!map.has(key)) map.set(key, []);
+        map.get(key).push(row);
+      });
+      return map;
+    }
+    function categoryCounts(rows) {
+      const counts = Object.fromEntries(Object.keys(CATEGORIES).map(k => [k, 0]));
+      rows.forEach(r => { counts[r.category] = (counts[r.category] || 0) + 1; });
+      return counts;
+    }
+    function matchesQuery(row, query) {
+      const q = query.trim().toLowerCase();
+      return !q || row.searchText.includes(q);
+    }
+    function l1NoteFor(l0, l1, notes) {
+      return notes.find(n => n.l0 === l0 && n.l1 === l1) || null;
+    }
+    function sortItemsForLane(items) {
+      return [...items].sort((a, b) => {
+        const catDelta = (CATEGORIES[a.category]?.order || 50) - (CATEGORIES[b.category]?.order || 50);
+        return compareSerial(a, b) || catDelta;
+      });
+    }
+    function sortedL1Groups(rows) {
+      const groups = Array.from(groupBy(rows, r => r.l1Key).entries()).map(([key, items]) => ({
+        key,
+        l0: items[0]?.l0,
+        l1: items[0]?.l1,
+        items: sortItemsForLane(items),
+        first: sortItemsForLane(items)[0]
+      }));
+      return groups.sort((a, b) => compareSerial(a.first, b.first));
+    }
+    function getStageStats(rows, l0) {
+      const stageRows = activeRows(rows).filter(r => r.l0 === l0);
+      const l1Count = new Set(stageRows.map(r => r.l1Key)).size;
+      return { l1Count, l2Count: stageRows.length, counts: categoryCounts(stageRows), rows: stageRows };
+    }
+    function getTotals(rows) {
+      const ar = activeRows(rows);
+      return {
+        l0: new Set(ar.map(r => r.l0)).size,
+        l1: new Set(ar.map(r => r.l1Key)).size,
+        l2: ar.length,
+        counts: categoryCounts(ar)
+      };
+    }
+
+    // ===== UI HELPERS =====
+    function categoryStyle(category) {
+      const cfg = CATEGORIES[category] || CATEGORIES.NA;
+      return { background: cfg.fill, "--cat-band": cfg.band };
+    }
+    function tooltipPosition(rect) {
+      const width = Math.min(420, window.innerWidth - 36);
+      const height = 250;
+      let left = rect.right + 12;
+      if (left + width > window.innerWidth - 18) left = rect.left - width - 12;
+      if (left < 18) left = 18;
+      let top = rect.top;
+      if (top + height > window.innerHeight - 18) top = Math.max(18, window.innerHeight - height - 18);
+      return { left, top };
+    }
+
+    // ===== COMPONENTS =====
+    function App() {
+      const [rows, setRows] = useState([]);
+      const [loadedFrom, setLoadedFrom] = useState("");
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState(null);
+      const [selectedL0, setSelectedL0] = useState(null);
+      const [query, setQuery] = useState("");
+      const [hovered, setHovered] = useState(null);
+      const [pinned, setPinned] = useState(null);
+
+      useEffect(() => {
+        loadRows()
+          .then(({ rows, loadedFrom }) => { setRows(rows); setLoadedFrom(loadedFrom); })
+          .catch(err => setError(err.message || String(err)))
+          .finally(() => setLoading(false));
+      }, []);
+
+      useEffect(() => {
+        function onKey(e) { if (e.key === "Escape") { setPinned(null); setHovered(null); } }
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+      }, []);
+
+      const l0s = useMemo(() => Array.from(new Set(activeRows(rows).map(r => r.l0))), [rows]);
+      const totals = useMemo(() => getTotals(rows), [rows]);
+      const matchCount = useMemo(() => activeRows(rows).filter(r => matchesQuery(r, query)).length, [rows, query]);
+
+      if (loading) return <Shell><div className="status-card"><strong>Loading process map...</strong><p className="small-muted">Fetching the published Google Sheet CSV and preparing the hierarchy.</p></div></Shell>;
+      if (error) return <Shell><div className="error-card"><strong>Could not load the CSV.</strong><p>{error}</p><p className="small-muted">Check that the Google Sheet is published to web as CSV, or place a CSV at <code>data/process.csv</code> and update the DATA_SOURCE config.</p></div></Shell>;
+
+      return (
+        <Shell>
+          <Header selectedL0={selectedL0} loadedFrom={loadedFrom} />
+          <Toolbar query={query} setQuery={setQuery} selectedL0={selectedL0} clearSelected={() => setSelectedL0(null)} matchCount={matchCount} />
+          <Legend />
+          {selectedL0 ? (
+            <SwimlaneView rows={rows} selectedL0={selectedL0} query={query} setSelectedL0={setSelectedL0} setHovered={setHovered} setPinned={setPinned} />
+          ) : (
+            <SummaryView rows={rows} l0s={l0s} totals={totals} query={query} setSelectedL0={setSelectedL0} />
+          )}
+          {hovered && <TooltipPortal item={hovered.item} position={hovered.position} />}
+          {pinned && <PinnedDetailPanel item={pinned} onClose={() => setPinned(null)} />}
+        </Shell>
+      );
+    }
+
+    function Shell({ children }) { return <main className="app-shell">{children}</main>; }
+
+    function Header({ selectedL0, loadedFrom }) {
+      return (
+        <div className="topbar">
+          <div>
+            <div className="eyebrow">Interactive process map</div>
+            <h1>{selectedL0 ? selectedL0 : "Lifecycle process catalogue"}</h1>
+            <p className="subtitle">
+              {selectedL0 ? "Swimlane detail view by process type and L1 grouping. Items are ordered by serial number with critical activities emphasized as the primary anchor." : "Summary view across L0 lifecycle stages. Click any stage to inspect the detailed swimlane map."}
+            </p>
+          </div>
+          <div className="small-muted">Data source<br /><strong>{loadedFrom.includes("docs.google") ? "Published Google Sheet CSV" : loadedFrom}</strong></div>
+        </div>
+      );
+    }
+
+    function Toolbar({ query, setQuery, selectedL0, clearSelected, matchCount }) {
+      return (
+        <div className="toolbar">
+          <div className="search-wrap">
+            <span className="search-icon">⌕</span>
+            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search L0, L1, L2, L3 activities, process type, rationale..." />
+          </div>
+          {query && <span className="small-muted">{matchCount} matching L2 item{matchCount === 1 ? "" : "s"}</span>}
+          {selectedL0 && <button className="pill-btn" onClick={clearSelected}>← Back to summary</button>}
+        </div>
+      );
+    }
+
+    function Legend() {
+      return (
+        <div className="legend">
+          {SWIMLANE_ROWS.map(cat => <span className="legend-chip" key={cat}><span className="legend-dot" style={{ background: CATEGORIES[cat].band }} />{cat}</span>)}
+        </div>
+      );
+    }
+
+    function SummaryView({ rows, l0s, totals, query, setSelectedL0 }) {
+      return (
+        <div className="summary-layout">
+          <div className="stage-grid">
+            {l0s.map(l0 => <StageCard key={l0} l0={l0} rows={rows} query={query} onClick={() => setSelectedL0(l0)} />)}
+          </div>
+          <TotalsPanel totals={totals} />
+        </div>
+      );
+    }
+
+    function StageCard({ l0, rows, query, onClick }) {
+      const stats = getStageStats(rows, l0);
+      const maxCount = Math.max(...Object.values(stats.counts), 1);
+      const matched = !query.trim() || stats.rows.some(r => matchesQuery(r, query));
+      const l1Groups = sortedL1Groups(stats.rows);
+      return (
+        <button className={`stage-card ${matched ? "" : "is-dim"}`} onClick={onClick}>
+          <div className="stage-head">
+            <div className="stage-title">{l0}</div>
+            <div className="stage-total">{stats.l2Count} L2</div>
+          </div>
+          <div className="stage-counts">
+            <div className="mini-stat"><strong>{stats.l1Count}</strong><span>L1 groups</span></div>
+            <div className="mini-stat"><strong>{stats.l2Count}</strong><span>L2 items</span></div>
+          </div>
+          <div className="category-counts">
+            {SWIMLANE_ROWS.map(cat => (
+              <div className="category-count-row" key={cat}>
+                <span>{cat}</span>
+                <span className="bar-track"><span className="bar-fill" style={{ width: `${(stats.counts[cat] || 0) / maxCount * 100}%`, background: CATEGORIES[cat].band }} /></span>
+                <strong>{stats.counts[cat] || 0}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="l1-list">
+            {l1Groups.map(g => <div className="l1-pill" key={g.key}><span>{g.l1}</span><span className="l1-count">{g.items.length}</span></div>)}
+          </div>
+        </button>
+      );
+    }
+
+    function TotalsPanel({ totals }) {
+      const maxCount = Math.max(...Object.values(totals.counts), 1);
+      return (
+        <aside className="totals-panel">
+          <h2>Overall totals</h2>
+          <div className="total-big">
+            <div className="total-box"><strong>{totals.l0}</strong><span>L0 stages</span></div>
+            <div className="total-box"><strong>{totals.l1}</strong><span>L1 groups</span></div>
+            <div className="total-box"><strong>{totals.l2}</strong><span>L2 items</span></div>
+            <div className="total-box"><strong>{totals.counts.Critical || 0}</strong><span>Critical</span></div>
+          </div>
+          <div className="category-counts">
+            {SWIMLANE_ROWS.map(cat => (
+              <div className="category-count-row" key={cat}>
+                <span>{cat}</span>
+                <span className="bar-track"><span className="bar-fill" style={{ width: `${(totals.counts[cat] || 0) / maxCount * 100}%`, background: CATEGORIES[cat].band }} /></span>
+                <strong>{totals.counts[cat] || 0}</strong>
+              </div>
+            ))}
+          </div>
+          <p className="small-muted">NA rows are excluded from L2 process counts and displayed as L1-level notes in the swimlane view.</p>
+        </aside>
+      );
+    }
+
+    function SwimlaneView({ rows, selectedL0, query, setHovered, setPinned }) {
+      const stageRows = activeRows(rows).filter(r => r.l0 === selectedL0);
+      const notes = noteRows(rows).filter(r => r.l0 === selectedL0);
+      const groups = sortedL1Groups(stageRows);
+      const visibleMatches = query.trim() ? stageRows.filter(r => matchesQuery(r, query)).length : stageRows.length;
+      return (
+        <section className="swim-shell">
+          <div className="swim-header">
+            <div className="swim-title"><h2>{selectedL0}</h2><span className="swim-meta">{groups.length} L1 groups · {stageRows.length} L2 items · {visibleMatches} visible matches</span></div>
+            <div className="scroll-hint">Scroll horizontally for wide lifecycle stages</div>
+          </div>
+          <div className="swim-scroll">
+            <div className="swim-grid" style={{ "--l1-count": groups.length }}>
+              <div className="corner-cell">Process type</div>
+              {groups.map(group => <L1Header key={group.key} group={group} note={l1NoteFor(group.l0, group.l1, notes)} setHovered={setHovered} setPinned={setPinned} />)}
+              {SWIMLANE_ROWS.map(cat => (
+                <React.Fragment key={cat}>
+                  <div className="row-label"><span className="row-label-bar" style={{ background: CATEGORIES[cat].band }} />{cat}</div>
+                  {groups.map(group => {
+                    const items = group.items.filter(r => r.category === cat);
+                    return <LaneCell key={`${cat}-${group.key}`} items={items} query={query} setHovered={setHovered} setPinned={setPinned} />;
+                  })}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    function L1Header({ group, note, setHovered, setPinned }) {
+      const counts = categoryCounts(group.items);
+      const infoItem = note ? { ...note, l2: `${group.l1} note`, category: "NA", isL1Note: true } : null;
+      function showInfo(e) {
+        if (!infoItem) return;
+        setHovered({ item: infoItem, position: tooltipPosition(e.currentTarget.getBoundingClientRect()) });
+      }
+      return (
+        <div className="l1-head">
+          <div className="l1-head-title">
+            <span>{group.l1}</span>
+            {note && <button className="l1-info" onMouseEnter={showInfo} onMouseLeave={() => setHovered(null)} onFocus={showInfo} onBlur={() => setHovered(null)} onClick={(e) => { e.stopPropagation(); setPinned(infoItem); }} title="L1 note">i</button>}
+          </div>
+          <div className="l1-head-meta">
+            <span className="tiny-chip">{group.items.length} L2</span>
+            {SWIMLANE_ROWS.map(cat => counts[cat] ? <span className="tiny-chip" key={cat}>{cat}: {counts[cat]}</span> : null)}
+          </div>
+        </div>
+      );
+    }
+
+    function LaneCell({ items, query, setHovered, setPinned }) {
+      return (
+        <div className="lane-cell">
+          {items.length ? <div className="lane-stack">{items.map(item => <ProcessCard key={item.id} item={item} query={query} setHovered={setHovered} setPinned={setPinned} />)}</div> : <div className="empty-state">—</div>}
+        </div>
+      );
+    }
+
+    function ProcessCard({ item, query, setHovered, setPinned }) {
+      const isMatch = matchesQuery(item, query);
+      function show(e) { setHovered({ item, position: tooltipPosition(e.currentTarget.getBoundingClientRect()) }); }
+      return (
+        <button className={`process-card ${query.trim() && !isMatch ? "is-dim" : ""} ${query.trim() && isMatch ? "is-match" : ""}`}
+          style={categoryStyle(item.category)}
+          onMouseEnter={show}
+          onMouseLeave={() => setHovered(null)}
+          onFocus={show}
+          onBlur={() => setHovered(null)}
+          onClick={() => setPinned(item)}>
+          <div className="card-serial">#{item.serialRaw}</div>
+          <div className="card-title">{item.l2}</div>
+          <div className="card-category">{item.category}</div>
+        </button>
+      );
+    }
+
+    function TooltipPortal({ item, position }) {
+      return ReactDOM.createPortal(
+        <div className="tooltip" style={{ left: position.left, top: position.top }}>
+          <div className="tooltip-title">{item.l2}</div>
+          <div className="tooltip-body">{item.l3 || item.rationale || "No detail available."}</div>
+          <div className="tooltip-hint">Click to pin details</div>
+        </div>,
+        document.body
+      );
+    }
+
+    function PinnedDetailPanel({ item, onClose }) {
+      const fields = DETAIL_FIELDS.filter(f => cleanText(item[f.key]));
+      return ReactDOM.createPortal(
+        <>
+          <div className="panel-backdrop" onClick={onClose}></div>
+          <aside className="detail-panel" role="dialog" aria-modal="true">
+            <button className="detail-close" onClick={onClose}>×</button>
+            <div className="detail-head">
+              <div className="detail-kicker">{item.isL1Note ? "L1 note" : `${item.l0} · ${item.l1}`}</div>
+              <div className="detail-title">{item.l2}</div>
+              <div className="badge-row">
+                <span className="legend-chip"><span className="legend-dot" style={{ background: (CATEGORIES[item.category] || CATEGORIES.NA).band }} />{item.category}</span>
+                {!item.isL1Note && <span className="legend-chip">S. No. {item.serialRaw}</span>}
+              </div>
+            </div>
+            <div className="detail-body">
+              {item.isL1Note && <p className="notice">This note came from an NA row and is attached to the L1 heading rather than shown as a process card.</p>}
+              {fields.length ? fields.map(field => <div className="field" key={field.key}><div className="field-label">{field.label}</div><div className="field-value">{item[field.key]}</div></div>) : <div className="empty-state">No detail fields populated.</div>}
+            </div>
+          </aside>
+        </>,
+        document.body
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
