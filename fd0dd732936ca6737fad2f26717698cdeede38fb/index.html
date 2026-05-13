@@ -448,7 +448,7 @@
       display: grid;
       grid-template-columns: repeat(var(--stage-col-count, 5), minmax(0, 1fr));
       gap: 12px;
-      align-items: start;
+      align-items: stretch;
     }
     /* Keep N-col across typical desktop widths; only wrap on very narrow screens. */
     @media (max-width: 720px) { .stage-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -600,6 +600,43 @@
       display: grid;
       min-width: max-content;
       /* grid-template-columns set inline based on per-column width classes */
+    }
+
+    /* Mini-map: thin strip below the swimlane scroll, click to jump, shows viewport position. */
+    .swimlane-minimap {
+      flex-shrink: 0;
+      height: 28px;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      padding: 4px 14px 5px;
+    }
+    .mm-rectangles {
+      position: relative;
+      display: flex;
+      gap: 2px;
+      height: 100%;
+    }
+    .mm-l1 {
+      background: var(--surface-muted);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      cursor: pointer;
+      min-width: 6px;
+      transition: background 120ms ease, border-color 120ms ease;
+    }
+    .mm-l1:hover {
+      background: var(--text-tertiary);
+      border-color: var(--accent);
+    }
+    .mm-viewport {
+      position: absolute;
+      top: -2px; bottom: -2px;
+      background: rgba(15, 23, 42, 0.10);
+      border: 1.5px solid var(--accent);
+      border-radius: 3px;
+      pointer-events: none;
+      z-index: 5;
+      transition: left 90ms linear, width 90ms linear;
     }
 
     /* Top-left corner, sticky on both axes, always visible. */
@@ -803,12 +840,22 @@
       padding: 0 14px;
       height: 100%;
       cursor: help;
-      transition: background 120ms ease;
+      transition: background 120ms ease, opacity 140ms ease;
       flex-shrink: 0;
       border-right: 1px solid rgba(255, 255, 255, 0.08);
     }
     .bb-seg:hover { background: rgba(255, 255, 255, 0.07); }
     .bb-seg:first-child { padding-left: 4px; }
+    .bb-seg.is-toggle { cursor: pointer; }
+    .bb-seg.is-toggle:hover { background: rgba(255, 255, 255, 0.12); }
+    .bb-seg.is-inactive { opacity: 0.38; }
+    .bb-seg.is-inactive:hover { opacity: 0.65; }
+    .bb-seg.is-toggle .bb-dot {
+      transition: box-shadow 140ms ease, transform 140ms ease;
+    }
+    .bb-seg.is-toggle:not(.is-inactive) .bb-dot {
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18);
+    }
     .bb-dot {
       width: 9px; height: 9px; border-radius: 50%;
       flex-shrink: 0;
@@ -1235,6 +1282,15 @@
       const [searchQuery, setSearchQuery] = useState("");
       const [pinned, setPinned] = useState(null);
       const [hover, setHover] = useState(null);
+      const [activeCategories, setActiveCategories] = useState(() => new Set(CATEGORY_ROW_ORDER));
+      const toggleCategory = useCallback((cat) => {
+        setActiveCategories(prev => {
+          const next = new Set(prev);
+          if (next.has(cat)) next.delete(cat);
+          else next.add(cat);
+          return next;
+        });
+      }, []);
       // Refs to L1 header DOM nodes within the swimlane, for the L1 dropdown's scroll-to behaviour.
       const l1RefsRef = useRef({});
 
@@ -1324,6 +1380,7 @@
                 onPin={setPinned}
                 onHover={setHover}
                 l1RefsRef={l1RefsRef}
+                activeCategories={activeCategories}
               />
             ) : (
               <SummaryView
@@ -1338,7 +1395,15 @@
             )}
           </div>
 
-          <BottomBar counts={bbCounts} contextLabel={selectedL0 ? `${selectedL0} only` : `Across ${l0List.length} phases`} onHover={setHover} scope={bbScope} l0={selectedL0} />
+          <BottomBar
+            counts={bbCounts}
+            contextLabel={selectedL0 ? `${selectedL0} only` : `Across ${l0List.length} phases`}
+            onHover={setHover}
+            scope={bbScope}
+            l0={selectedL0}
+            activeCategories={activeCategories}
+            onToggleCategory={toggleCategory}
+          />
 
           {pinned && <PinnedDetailPanel item={pinned} onClose={() => setPinned(null)} />}
           {hover && !pinned && <HoverTooltipRouter hover={hover} />}
@@ -1722,8 +1787,21 @@
     /* ===== SWIMLANE VIEW ================================================ */
     /* =================================================================== */
 
-    function SwimlaneView({ rows, l0, searchQuery, pinned, onPin, onHover, l1RefsRef }) {
-      const l0Rows = useMemo(() => rows.filter(r => r.l0 === l0), [rows, l0]);
+    function SwimlaneView({ rows, l0, searchQuery, pinned, onPin, onHover, l1RefsRef, activeCategories }) {
+      const scrollRef = useRef(null);
+
+      // Filter rows by active categories (preserving NA rows for L1-level notes).
+      const l0Rows = useMemo(() => {
+        const all = rows.filter(r => r.l0 === l0);
+        if (!activeCategories || activeCategories.size === CATEGORY_ROW_ORDER.length) return all;
+        return all.filter(r => r.isNARow || activeCategories.has(r.category));
+      }, [rows, l0, activeCategories]);
+
+      const visibleCategories = useMemo(
+        () => CATEGORY_ROW_ORDER.filter(c => !activeCategories || activeCategories.has(c)),
+        [activeCategories]
+      );
+
       const l1Groups = useMemo(() => groupByL1Ordered(l0Rows), [l0Rows]);
 
       const builtAll = useMemo(() => l1Groups.map(([l1, items]) => ({
@@ -1739,11 +1817,17 @@
         return builtAll.filter(g => g.items.some(it => rowMatchesSearch(it, searchQuery)));
       }, [builtAll, searchQuery]);
 
+      // Drop L1 groups left with no anchor columns after the category filter.
+      const builtVisible = useMemo(
+        () => built.filter(g => g.columns.length > 0 || g.naRows.length > 0),
+        [built]
+      );
+
       // Flatten columns and compute per-column width vars.
       const flatCols = useMemo(() => {
         const out = [];
         let i = 0;
-        built.forEach(group => {
+        builtVisible.forEach(group => {
           const cols = group.columns.length > 0 ? group.columns : [{ anchor: null, byCategory: {} }];
           cols.forEach((col, ci) => {
             out.push({
@@ -1759,7 +1843,7 @@
           });
         });
         return out;
-      }, [built]);
+      }, [builtVisible]);
 
       const totalCols = flatCols.length;
       const gridStyle = {
@@ -1768,15 +1852,21 @@
           flatCols.map(c => c.widthVar).join(" ")
       };
 
-      // Empty state when search filters everything out.
-      if (totalCols === 0 && searchQuery) {
+      // Empty state when search or category filter leaves nothing.
+      if (totalCols === 0 || visibleCategories.length === 0) {
+        const reason = visibleCategories.length === 0
+          ? "All categories are filtered out."
+          : (searchQuery ? `No L1 groups match “${searchQuery}”.` : "Nothing to show.");
+        const hint = visibleCategories.length === 0
+          ? "Click a category chip in the bottom bar to bring one back."
+          : (searchQuery ? `Clear search to see all L1 groups in ${l0}.` : "");
         return (
           <div className="swimlane">
             <div className="state-screen">
               <div>
-                <div style={{ fontWeight: 600, marginBottom: 4 }}>No L1 groups match “{searchQuery}”</div>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>{reason}</div>
                 <div style={{ fontFamily: "Geist Mono, monospace", fontSize: 11, color: "var(--text-tertiary)" }}>
-                  Clear search to see all L1 groups in {l0}.
+                  {hint}
                 </div>
               </div>
             </div>
@@ -1786,14 +1876,14 @@
 
       return (
         <div className="swimlane">
-          <div className="swimlane-scroll">
+          <div className="swimlane-scroll" ref={scrollRef}>
             <div className="swimlane-grid" style={gridStyle}>
               {/* Top-left corner */}
               <div className="lane-corner" style={{ gridRow: 1 }}>L1 group</div>
 
               {/* L1 group header row */}
-              {built.map((group, gi) => {
-                const startCol = built.slice(0, gi).reduce((s, g) => s + Math.max(g.columns.length, 1), 0);
+              {builtVisible.map((group, gi) => {
+                const startCol = builtVisible.slice(0, gi).reduce((s, g) => s + Math.max(g.columns.length, 1), 0);
                 const span = Math.max(group.columns.length, 1);
                 return (
                   <div
@@ -1829,8 +1919,8 @@
                 );
               })}
 
-              {/* Category rows */}
-              {CATEGORY_ROW_ORDER.map((cat, rowIdx) => {
+              {/* Category rows (only those still active) */}
+              {visibleCategories.map((cat, rowIdx) => {
                 const gridRowNum = rowIdx + 2;
                 return (
                   <React.Fragment key={cat}>
@@ -1864,6 +1954,76 @@
                 );
               })}
             </div>
+          </div>
+
+          <MiniMap built={builtVisible} scrollRef={scrollRef} l1RefsRef={l1RefsRef} />
+        </div>
+      );
+    }
+
+    /* =================================================================== */
+    /* ===== MINI-MAP (thin strip below the swimlane, click to jump) ====== */
+    /* =================================================================== */
+
+    function MiniMap({ built, scrollRef, l1RefsRef }) {
+      const [viewport, setViewport] = useState({ left: 0, width: 100 });
+
+      useEffect(() => {
+        const el = scrollRef.current;
+        if (!el) return;
+        let raf = 0;
+        const update = () => {
+          raf = 0;
+          const total = el.scrollWidth;
+          const visible = el.clientWidth;
+          if (total <= visible + 2) {
+            setViewport({ left: 0, width: 100 });
+          } else {
+            setViewport({
+              left: (el.scrollLeft / total) * 100,
+              width: (visible / total) * 100
+            });
+          }
+        };
+        const onScroll = () => {
+          if (raf) return;
+          raf = requestAnimationFrame(update);
+        };
+        update();
+        el.addEventListener("scroll", onScroll, { passive: true });
+        const ro = new ResizeObserver(update);
+        ro.observe(el);
+        return () => {
+          el.removeEventListener("scroll", onScroll);
+          ro.disconnect();
+          if (raf) cancelAnimationFrame(raf);
+        };
+      }, [scrollRef, built]);
+
+      return (
+        <div className="swimlane-minimap">
+          <div className="mm-rectangles">
+            {built.map(group => {
+              const span = Math.max(group.columns.length, 1);
+              return (
+                <div
+                  key={group.l1}
+                  className="mm-l1"
+                  style={{ flex: span }}
+                  onClick={() => {
+                    const el = l1RefsRef.current[group.l1];
+                    if (el && el.scrollIntoView) {
+                      el.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+                    }
+                  }}
+                  title={`${group.l1} (${group.items.filter(i => !i.isNARow).length})`}
+                />
+              );
+            })}
+            <div
+              className="mm-viewport"
+              style={{ left: `${viewport.left}%`, width: `${viewport.width}%` }}
+            />
           </div>
         </div>
       );
@@ -2041,7 +2201,7 @@
       return { byCat, l1: l1Set.size, l2 };
     }
 
-    function BottomBar({ counts, contextLabel, onHover, scope, l0 }) {
+    function BottomBar({ counts, contextLabel, onHover, scope, l0, activeCategories, onToggleCategory }) {
       const showListTip = (e, payload) => {
         const rect = e.currentTarget.getBoundingClientRect();
         onHover({ kind: "list", rect, ...payload });
@@ -2072,22 +2232,32 @@
       return (
         <div className="bottom-bar">
           <div className="bb-context">{contextLabel}</div>
-          {CATEGORY_ROW_ORDER.map(c => (
-            <div
-              key={c}
-              className="bb-seg"
-              onMouseEnter={(e) => showListTip(e, {
-                eyebrow: `${contextLabel} · ${counts.byCat[c]} items`,
-                title: `${CATEGORIES[c].label}`,
-                items: l2ByCat[c]
-              })}
-              onMouseLeave={hideTip}
-            >
-              <span className="bb-dot" style={{ background: CATEGORIES[c].bright }} />
-              <span className="bb-label">{CATEGORIES[c].label}</span>
-              <span className="bb-value">{counts.byCat[c]}</span>
-            </div>
-          ))}
+          {CATEGORY_ROW_ORDER.map(c => {
+            const isActive = !activeCategories || activeCategories.has(c);
+            const isToggle = !!onToggleCategory;
+            return (
+              <div
+                key={c}
+                className={
+                  "bb-seg" +
+                  (isToggle ? " is-toggle" : "") +
+                  (!isActive ? " is-inactive" : "")
+                }
+                onClick={isToggle ? () => onToggleCategory(c) : undefined}
+                onMouseEnter={(e) => showListTip(e, {
+                  eyebrow: `${contextLabel} · ${counts.byCat[c]} items${isToggle && !isActive ? " · filtered out" : ""}`,
+                  title: `${CATEGORIES[c].label}`,
+                  items: l2ByCat[c]
+                })}
+                onMouseLeave={hideTip}
+                title={isToggle ? (isActive ? `Click to hide ${CATEGORIES[c].label}` : `Click to show ${CATEGORIES[c].label}`) : undefined}
+              >
+                <span className="bb-dot" style={{ background: CATEGORIES[c].bright }} />
+                <span className="bb-label">{CATEGORIES[c].label}</span>
+                <span className="bb-value">{counts.byCat[c]}</span>
+              </div>
+            );
+          })}
           <div
             className="bb-seg"
             onMouseEnter={(e) => showListTip(e, {
