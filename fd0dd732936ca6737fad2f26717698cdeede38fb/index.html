@@ -1,0 +1,1912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Process Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap"
+  />
+  <style>
+    /* =================================================================== */
+    /* ===== DESIGN TOKENS (edit me first) ================================ */
+    /* =================================================================== */
+    :root {
+      /* Category palette: fill (card bg) / band (card stripe) / bright (legend dots, prominent UI) */
+      --cat-critical-fill:   #FEE2E2;
+      --cat-critical-band:   #DC2626;
+      --cat-critical-bright: #EF4444;
+      --cat-critical-text:   #991B1B;
+
+      --cat-output-fill:     #DBEAFE;
+      --cat-output-band:     #2563EB;
+      --cat-output-bright:   #3B82F6;
+      --cat-output-text:     #1E40AF;
+
+      --cat-control-fill:    #FEF3C7;
+      --cat-control-band:    #D97706;
+      --cat-control-bright:  #F59E0B;
+      --cat-control-text:    #92400E;
+
+      --cat-workflow-fill:   #D1FAE5;
+      --cat-workflow-band:   #059669;
+      --cat-workflow-bright: #10B981;
+      --cat-workflow-text:   #065F46;
+
+      /* Base palette */
+      --bg: #FAFAF9;
+      --surface: #FFFFFF;
+      --surface-muted: #F5F5F4;
+      --border: #E7E5E4;
+      --border-strong: #D6D3D1;
+      --text-primary: #0C0A09;
+      --text-secondary: #57534E;
+      --text-tertiary: #A8A29E;
+      --accent: #0F172A;
+
+      /* Layout — heights, widths, radii */
+      --top-bar-h: 52px;
+      --bottom-bar-h: 40px;
+      --col-narrow-w: 152px;
+      --col-default-w: 184px;
+      --col-wide-w: 232px;
+      --row-label-w: 132px;
+      --radius: 8px;
+      --radius-sm: 4px;
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.10);
+      --shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.16);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    body { height: 100vh; overflow: hidden; }
+    code, .mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+    button { font-family: inherit; }
+
+    /* =================================================================== */
+    /* ===== APP LAYOUT (100vh, top + content + bottom) =================== */
+    /* =================================================================== */
+    .app {
+      height: 100vh;
+      display: grid;
+      grid-template-rows: var(--top-bar-h) 1fr var(--bottom-bar-h);
+      overflow: hidden;
+    }
+
+    /* =================================================================== */
+    /* ===== TOP BAR ====================================================== */
+    /* =================================================================== */
+    .top-bar {
+      grid-row: 1;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 22px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      min-width: 0;
+    }
+    .brand {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+      white-space: nowrap;
+      padding-right: 14px;
+      border-right: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .crumbs {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .crumb-back {
+      background: transparent;
+      border: 1px solid transparent;
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: var(--radius-sm);
+      font-family: 'Geist Mono', monospace;
+      font-size: 10.5px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+    }
+    .crumb-back:hover {
+      background: var(--surface-muted);
+      color: var(--text-primary);
+      border-color: var(--border);
+    }
+    .crumb-back.current {
+      color: var(--text-tertiary);
+      cursor: default;
+    }
+    .crumb-back.current:hover { background: transparent; border-color: transparent; }
+
+    .crumb-sep {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin: 0 2px;
+      user-select: none;
+    }
+
+    /* Custom dropdown (used for both L0 and L1 selectors) */
+    .crumb-dd { position: relative; display: inline-flex; }
+    .crumb-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      border: 1px solid transparent;
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: var(--radius-sm);
+      transition: background 120ms ease, border-color 120ms ease;
+      white-space: nowrap;
+    }
+    .crumb-trigger:hover { background: var(--surface-muted); border-color: var(--border); }
+    .crumb-trigger .chev { font-size: 9px; opacity: 0.55; }
+
+    .crumb-dd.prominent .crumb-trigger {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      color: var(--text-primary);
+    }
+    .crumb-dd.muted .crumb-trigger {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      font-weight: 400;
+    }
+    .crumb-dd.muted .crumb-trigger:hover { color: var(--text-secondary); }
+
+    .crumb-menu {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      min-width: 240px;
+      max-height: 380px;
+      overflow-y: auto;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      z-index: 100;
+      padding: 4px;
+      animation: ddIn 140ms ease;
+    }
+    @keyframes ddIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .crumb-menu button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 8px 10px;
+      font-size: 12.5px;
+      color: var(--text-primary);
+      border-radius: var(--radius-sm);
+      transition: background 120ms ease;
+    }
+    .crumb-menu button:hover { background: var(--surface-muted); }
+    .crumb-menu button.is-active {
+      background: var(--accent);
+      color: var(--surface);
+    }
+    .crumb-menu .menu-meta {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px;
+      color: var(--text-tertiary);
+      padding: 6px 10px 4px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* Search input — visible styling: accent border + subtle bg + icon */
+    .top-search {
+      position: relative;
+      flex-shrink: 0;
+    }
+    .top-search input {
+      font-family: inherit;
+      font-size: 12.5px;
+      padding: 7px 12px 7px 32px;
+      border: 1.5px solid var(--accent);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      width: 260px;
+      color: var(--text-primary);
+      transition: box-shadow 140ms ease, background 140ms ease;
+    }
+    .top-search input:focus {
+      outline: none;
+      background: var(--surface-muted);
+      box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.12);
+    }
+    .top-search input::placeholder { color: var(--text-tertiary); }
+    .top-search .icon {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 13px;
+      height: 13px;
+      color: var(--accent);
+      pointer-events: none;
+    }
+    .top-search .count-pill {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px;
+      color: var(--surface);
+      background: var(--accent);
+      padding: 2px 6px;
+      border-radius: 9px;
+      pointer-events: none;
+    }
+
+    /* =================================================================== */
+    /* ===== VIEW CONTENT (between top + bottom bars) ===================== */
+    /* =================================================================== */
+    .view-content {
+      grid-row: 2;
+      min-height: 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* =================================================================== */
+    /* ===== LOADING / ERROR STATES ======================================= */
+    /* =================================================================== */
+    .state-screen {
+      height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      padding: 40px;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+    .state-screen .pulse {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent);
+      margin-right: 10px;
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.2; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+
+    /* =================================================================== */
+    /* ===== SUMMARY VIEW ================================================= */
+    /* =================================================================== */
+    .summary {
+      height: 100%;
+      overflow-y: auto;
+      padding: 24px 28px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .summary-intro h2 {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.018em;
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+    .summary-intro p {
+      color: var(--text-secondary);
+      font-size: 13px;
+      line-height: 1.5;
+      max-width: none;
+    }
+
+    .stage-row {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 14px;
+      align-items: stretch;
+    }
+    /* No horizontal scroll: at narrow widths cards wrap to multiple rows. */
+    @media (max-width: 1280px) { .stage-row { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 880px)  { .stage-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 560px)  { .stage-row { grid-template-columns: 1fr; } }
+
+    .stage-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 16px 14px;
+      cursor: pointer;
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+      display: flex; flex-direction: column; gap: 12px;
+      position: relative;
+      overflow: hidden;
+      min-width: 0;
+    }
+    .stage-card::before {
+      content: ""; position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; background: var(--accent); opacity: 0.92;
+    }
+    .stage-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--border-strong);
+    }
+    .stage-card .stage-head {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+    }
+    .stage-card .stage-name {
+      font-size: 14.5px; font-weight: 600; letter-spacing: -0.01em;
+      word-break: break-word;
+    }
+    .stage-card .stage-index {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10.5px; color: var(--text-tertiary); letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+
+    .stage-card .l1-list {
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .stage-card .l1-list.two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 14px;
+      row-gap: 4px;
+    }
+    .stage-card .l1-item {
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex; align-items: center; gap: 5px;
+      line-height: 1.35;
+      cursor: help;
+      padding: 1px 0;
+      min-width: 0;
+      transition: color 120ms ease;
+    }
+    .stage-card .l1-item:hover { color: var(--text-primary); }
+    .stage-card .l1-item .l1-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+      flex: 1;
+    }
+    .stage-card .l1-na-indicator {
+      width: 13px; height: 13px; flex-shrink: 0;
+      border-radius: 50%;
+      background: var(--surface-muted);
+      color: var(--text-tertiary);
+      font-size: 9px;
+      font-family: 'Geist Mono', monospace;
+      font-weight: 600;
+      display: inline-flex; align-items: center; justify-content: center;
+      opacity: 0.75;
+    }
+    .stage-card .l1-item.is-search-dim { opacity: 0.32; }
+
+    .stage-card .counts {
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px;
+    }
+    .stage-card .count-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 6px;
+      cursor: help;
+      padding: 1px 0;
+      transition: color 120ms ease;
+    }
+    .stage-card .count-row:hover .count-value { color: var(--text-primary); }
+    .stage-card .count-label {
+      display: flex; align-items: center; gap: 6px;
+      color: var(--text-secondary);
+      font-family: 'Geist Mono', monospace;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 10px;
+    }
+    .stage-card .count-dot {
+      width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+    }
+    .stage-card .count-value {
+      font-family: 'Geist Mono', monospace;
+      font-weight: 500;
+      font-size: 12.5px;
+      color: var(--text-secondary);
+    }
+
+    .stage-card .totals-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border);
+    }
+    .stage-card .total-cell {
+      display: flex; flex-direction: column; gap: 1px;
+      cursor: help;
+      transition: color 120ms ease;
+    }
+    .stage-card .total-cell:hover .total-value { color: var(--text-primary); }
+    .stage-card .total-cell .total-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: 9.5px; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+    .stage-card .total-cell .total-value {
+      font-family: 'Geist Mono', monospace;
+      font-size: 17px; font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    /* =================================================================== */
+    /* ===== SWIMLANE VIEW ================================================ */
+    /* =================================================================== */
+    .swimlane {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* The single scroll container for both horizontal AND vertical scroll
+       so the scrollbar is always visible above the bottom bar (not below the page fold). */
+    .swimlane-scroll {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      position: relative;
+    }
+    .swimlane-grid {
+      display: grid;
+      min-width: max-content;
+      /* grid-template-columns set inline based on per-column width classes */
+    }
+
+    /* Top-left corner — sticky both top and left, always visible. */
+    .lane-corner {
+      position: sticky;
+      top: 0;
+      left: 0;
+      z-index: 40;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      padding: 10px 12px 10px 24px;
+      display: flex; align-items: center;
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      grid-column: 1;
+    }
+
+    /* L1 group header row — sticky top only (scrolls horizontally with content). */
+    .lane-l1-header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 12px;
+      display: flex; align-items: center; gap: 7px;
+      min-width: 0;
+    }
+    .lane-l1-header.has-divider-left { border-left: 1px solid var(--border); }
+    .lane-l1-header .l1-name {
+      font-size: 12.5px; font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.005em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+    }
+    .lane-l1-header .l1-count {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px;
+      color: var(--text-tertiary);
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+    }
+    .lane-l1-na {
+      width: 13px; height: 13px; border-radius: 50%;
+      background: var(--surface-muted);
+      color: var(--text-secondary);
+      font-size: 9px; font-family: 'Geist Mono', monospace;
+      font-weight: 600;
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: background 120ms ease, color 120ms ease;
+      flex-shrink: 0;
+    }
+    .lane-l1-na:hover { background: var(--accent); color: var(--surface); }
+
+    /* Category row labels — sticky left, scroll vertically with content. */
+    .lane-row-label {
+      position: sticky;
+      left: 0;
+      z-index: 20;
+      background: var(--bg);
+      padding: 8px 12px 8px 24px;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      display: flex; align-items: center; gap: 9px;
+      grid-column: 1;
+    }
+    .lane-row-label .label-dot {
+      width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+    }
+    .lane-row-label .label-text {
+      font-size: 11.5px; font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .lane-cell {
+      padding: 6px 5px;
+      border-bottom: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 5px;
+      min-width: 0;
+    }
+    .lane-cell.has-divider-left { border-left: 1px solid var(--border); }
+
+    /* =================================================================== */
+    /* ===== PROCESS CARD — compact (#N + tag inline, tight padding) ====== */
+    /* =================================================================== */
+    .pcard {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 8px 5px;
+      cursor: pointer;
+      transition: border-color 120ms ease, transform 120ms ease, box-shadow 120ms ease, opacity 160ms ease;
+      position: relative;
+      overflow: hidden;
+      min-width: 0;
+    }
+    .pcard::after {
+      content: "";
+      position: absolute; left: 0; right: 0; bottom: 0;
+      height: 2px;
+    }
+    .pcard:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+      border-color: var(--border-strong);
+    }
+    .pcard.is-pinned {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.10);
+    }
+    .pcard.is-search-match {
+      box-shadow: 0 0 0 1.5px var(--accent);
+    }
+    .pcard-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 6px;
+      margin-bottom: 2px;
+    }
+    .pcard-sno {
+      font-family: 'Geist Mono', monospace;
+      font-size: 9.5px;
+      color: var(--text-tertiary);
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+    .pcard-tag {
+      font-family: 'Geist Mono', monospace;
+      font-size: 8.5px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .pcard-l2 {
+      font-size: 11.5px;
+      font-weight: 500;
+      line-height: 1.32;
+      color: var(--text-primary);
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
+      padding-bottom: 3px;
+    }
+
+    /* Category card styles */
+    .pcard.cat-Critical { background: var(--cat-critical-fill); }
+    .pcard.cat-Critical::after { background: var(--cat-critical-band); }
+    .pcard.cat-Critical .pcard-tag { color: var(--cat-critical-band); }
+
+    .pcard.cat-Output { background: var(--cat-output-fill); }
+    .pcard.cat-Output::after { background: var(--cat-output-band); }
+    .pcard.cat-Output .pcard-tag { color: var(--cat-output-band); }
+
+    .pcard.cat-Control { background: var(--cat-control-fill); }
+    .pcard.cat-Control::after { background: var(--cat-control-band); }
+    .pcard.cat-Control .pcard-tag { color: var(--cat-control-band); }
+
+    .pcard.cat-Workflow { background: var(--cat-workflow-fill); }
+    .pcard.cat-Workflow::after { background: var(--cat-workflow-band); }
+    .pcard.cat-Workflow .pcard-tag { color: var(--cat-workflow-band); }
+
+    /* =================================================================== */
+    /* ===== BOTTOM BAR (thin, bright legend dots) ======================== */
+    /* =================================================================== */
+    .bottom-bar {
+      grid-row: 3;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 0 18px;
+      background: var(--accent);
+      color: var(--surface);
+      border-top: 1px solid var(--accent);
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+    .bb-seg {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 0 14px;
+      height: 100%;
+      cursor: help;
+      transition: background 120ms ease;
+      flex-shrink: 0;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .bb-seg:hover { background: rgba(255, 255, 255, 0.07); }
+    .bb-seg:first-child { padding-left: 4px; }
+    .bb-dot {
+      width: 9px; height: 9px; border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.06);
+    }
+    .bb-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      opacity: 0.65;
+      white-space: nowrap;
+    }
+    .bb-value {
+      font-family: 'Geist Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .bb-spacer { flex: 1; min-width: 8px; }
+    .bb-context {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      opacity: 0.55;
+      padding-right: 6px;
+      white-space: nowrap;
+    }
+
+    /* =================================================================== */
+    /* ===== HOVER TOOLTIPS (card + list variants) ======================== */
+    /* =================================================================== */
+    .tt {
+      position: fixed;
+      z-index: 200;
+      background: var(--accent);
+      color: var(--surface);
+      border-radius: var(--radius);
+      padding: 11px 13px;
+      max-width: 360px;
+      max-height: 380px;
+      box-shadow: var(--shadow-lg);
+      pointer-events: none;
+      font-size: 12px;
+      line-height: 1.45;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow: hidden;
+    }
+    .tt .tt-eyebrow {
+      font-family: 'Geist Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      opacity: 0.55;
+    }
+    .tt .tt-title {
+      font-weight: 500;
+      font-size: 12.5px;
+      line-height: 1.3;
+    }
+    .tt .tt-body {
+      opacity: 0.86;
+      font-size: 11.5px;
+    }
+    .tt .tt-hint {
+      margin-top: 4px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      font-family: 'Geist Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      opacity: 0.42;
+    }
+
+    /* List tooltip — scrollable internal list */
+    .tt .tt-list {
+      list-style: none;
+      padding: 0; margin: 0;
+      display: flex; flex-direction: column; gap: 3px;
+      overflow-y: auto;
+      max-height: 280px;
+      padding-right: 4px;
+      margin-right: -4px;
+    }
+    .tt .tt-list li {
+      display: flex; gap: 8px; align-items: flex-start;
+      font-size: 11px;
+      line-height: 1.4;
+      padding: 2px 0;
+    }
+    .tt .tt-list li .tt-sno {
+      opacity: 0.45;
+      font-family: 'Geist Mono', monospace;
+      font-size: 9.5px;
+      flex-shrink: 0;
+      padding-top: 1px;
+      min-width: 24px;
+    }
+    .tt .tt-list li .tt-l1 {
+      opacity: 0.55;
+      font-size: 10px;
+      display: block;
+      margin-top: 1px;
+      font-style: italic;
+    }
+    .tt .tt-list li .tt-cat-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+
+    /* =================================================================== */
+    /* ===== PINNED DETAIL PANEL ========================================== */
+    /* =================================================================== */
+    .pinned-panel {
+      position: fixed;
+      right: 18px;
+      bottom: calc(var(--bottom-bar-h) + 14px);
+      width: 380px;
+      max-width: calc(100vw - 36px);
+      max-height: calc(100vh - var(--top-bar-h) - var(--bottom-bar-h) - 36px);
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      z-index: 150;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      animation: panelIn 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .pinned-panel .pp-head {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+      position: relative;
+    }
+    .pinned-panel .pp-head::after {
+      content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+    }
+    .pinned-panel.cat-Critical .pp-head::after { background: var(--cat-critical-band); }
+    .pinned-panel.cat-Output   .pp-head::after { background: var(--cat-output-band); }
+    .pinned-panel.cat-Control  .pp-head::after { background: var(--cat-control-band); }
+    .pinned-panel.cat-Workflow .pp-head::after { background: var(--cat-workflow-band); }
+    .pinned-panel.cat-NA       .pp-head::after { background: var(--text-tertiary); }
+
+    .pinned-panel .pp-eyebrow {
+      font-family: 'Geist Mono', monospace;
+      font-size: 9.5px; letter-spacing: 0.07em; text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 3px;
+    }
+    .pinned-panel .pp-title {
+      font-size: 14px; font-weight: 600; letter-spacing: -0.008em;
+      line-height: 1.3;
+    }
+    .pinned-panel .pp-close {
+      background: transparent;
+      border: 1px solid var(--border);
+      width: 24px; height: 24px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      color: var(--text-secondary);
+      font-size: 14px;
+      transition: background 120ms ease, color 120ms ease;
+    }
+    .pinned-panel .pp-close:hover {
+      background: var(--accent); color: var(--surface); border-color: var(--accent);
+    }
+    .pinned-panel .pp-body {
+      overflow-y: auto;
+      padding: 14px 16px 16px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .pinned-panel .pp-field {
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .pinned-panel .pp-field-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: 9.5px; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+    .pinned-panel .pp-field-value {
+      font-size: 12.5px; line-height: 1.5;
+      color: var(--text-primary);
+      word-wrap: break-word;
+    }
+    .pinned-panel .pp-chip {
+      display: inline-flex;
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      align-self: flex-start;
+      font-weight: 500;
+    }
+    .pinned-panel.cat-Critical .pp-chip { background: var(--cat-critical-fill); color: var(--cat-critical-band); }
+    .pinned-panel.cat-Output   .pp-chip { background: var(--cat-output-fill);   color: var(--cat-output-band); }
+    .pinned-panel.cat-Control  .pp-chip { background: var(--cat-control-fill);  color: var(--cat-control-band); }
+    .pinned-panel.cat-Workflow .pp-chip { background: var(--cat-workflow-fill); color: var(--cat-workflow-band); }
+    .pinned-panel.cat-NA       .pp-chip { background: var(--surface-muted);     color: var(--text-secondary); }
+  </style>
+
+  <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="react">
+    const { useState, useEffect, useMemo, useRef, useCallback } = React;
+
+    /* =================================================================== */
+    /* ===== CONFIG (edit me first for behavior changes) ================== */
+    /* =================================================================== */
+
+    const APP_TITLE = "Interactive Process Map";
+
+    const DATA_SOURCE = {
+      type: "googleSheetCsv",
+      url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ9YOMwNoR2Do0welsKj7stQwJpDCnFL9-BDvLBTyttn7v-kZRELmoft6_GeiOMVqL5b6hXq8w3Yyob/pub?gid=0&single=true&output=csv"
+    };
+
+    const CATEGORIES = {
+      Critical: { label: "Critical", band: "var(--cat-critical-band)", bright: "var(--cat-critical-bright)" },
+      Output:   { label: "Output",   band: "var(--cat-output-band)",   bright: "var(--cat-output-bright)" },
+      Control:  { label: "Control",  band: "var(--cat-control-band)",  bright: "var(--cat-control-bright)" },
+      Workflow: { label: "Workflow", band: "var(--cat-workflow-band)", bright: "var(--cat-workflow-bright)" }
+    };
+    const CATEGORY_ROW_ORDER = ["Critical", "Output", "Control", "Workflow"];
+    const ANCHOR_PRIORITY = ["Critical", "Output", "Control", "Workflow"];
+    const L0_ORDER = ["TDD", "Preconstruction", "Construction", "Handover", "Post Construction"];
+
+    // L1-list two-column threshold. If an L0 has more L1 groups than this, the
+    // summary card renders the list in two columns to control card height.
+    const TWO_COL_L1_THRESHOLD = 6;
+
+    const DETAIL_FIELDS = [
+      { key: "l3",                    label: "L3 Activities (representative)" },
+      { key: "rationale",             label: "Categorization Rationale" },
+      { key: "optimizationPotential", label: "Optimization Potential" },
+      { key: "optimizationLever",     label: "Optimization Lever" },
+      { key: "existingSolutions",     label: "Existing Solutions" },
+      { key: "predecessor",           label: "Predecessor" }
+    ];
+
+    const HEADER_MAP = {
+      "s. no.": "sNo",
+      "s.no.": "sNo",
+      "sno": "sNo",
+      "l0 phase": "l0",
+      "l1": "l1",
+      "l2": "l2",
+      "l3 activites (representative)": "l3",
+      "l3 activities (representative)": "l3",
+      "l2 categorization": "category",
+      "categorization rationale / af on 'how'": "rationale",
+      "optimization potential": "optimizationPotential",
+      "optimization lever": "optimizationLever",
+      "existing solutions": "existingSolutions",
+      "predecessor": "predecessor"
+    };
+
+    /* =================================================================== */
+    /* ===== DATA LAYER =================================================== */
+    /* =================================================================== */
+
+    function normalizeText(t) {
+      if (t == null) return "";
+      return String(t).normalize("NFC").replace(/\u00A0/g, " ").trim();
+    }
+    function isNAValue(v) {
+      if (v == null) return true;
+      const s = String(v).trim().toLowerCase();
+      return s === "" || s === "na" || s === "n/a" || s === "-";
+    }
+    function canonicalCategory(raw) {
+      if (isNAValue(raw)) return "NA";
+      const lower = String(raw).trim().toLowerCase();
+      if (lower === "critical") return "Critical";
+      if (lower === "output")   return "Output";
+      if (lower === "control")  return "Control";
+      if (lower === "workflow") return "Workflow";
+      return "NA";
+    }
+    function normalizeRow(rawRow) {
+      const row = {};
+      for (const k in rawRow) {
+        const cleanKey = k.toLowerCase().trim().replace(/\s+/g, " ");
+        const mapped = HEADER_MAP[cleanKey];
+        if (mapped) row[mapped] = normalizeText(rawRow[k]);
+      }
+      const snoParsed = parseInt(row.sNo, 10);
+      row.sNo = isNaN(snoParsed) ? null : snoParsed;
+      row.category = canonicalCategory(row.category);
+      row.isNARow = isNAValue(row.l2);
+      row.id = row.sNo != null ? `r-${row.sNo}` : `r-${row.l0}-${row.l1}-${row.l2}`;
+      return row;
+    }
+    async function loadData(source) {
+      const response = await fetch(source.url);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const csvText = await response.text();
+      return new Promise((resolve, reject) => {
+        Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            try {
+              const rows = results.data
+                .map(normalizeRow)
+                .filter(r => r.l0 && r.l1 && r.sNo != null);
+              resolve(rows);
+            } catch (e) { reject(e); }
+          },
+          error: reject
+        });
+      });
+    }
+
+    /* =================================================================== */
+    /* ===== GROUPING + SORTING HELPERS =================================== */
+    /* =================================================================== */
+
+    function groupByL0(rows) {
+      const groups = {};
+      rows.forEach(r => { if (!groups[r.l0]) groups[r.l0] = []; groups[r.l0].push(r); });
+      const ordered = [];
+      L0_ORDER.forEach(l0 => { if (groups[l0]) ordered.push([l0, groups[l0]]); });
+      Object.keys(groups).forEach(l0 => { if (!L0_ORDER.includes(l0)) ordered.push([l0, groups[l0]]); });
+      return ordered;
+    }
+    function groupByL1Ordered(rowsForL0) {
+      const map = new Map();
+      const firstSNo = new Map();
+      rowsForL0.forEach(r => {
+        if (!map.has(r.l1)) map.set(r.l1, []);
+        map.get(r.l1).push(r);
+        if (!firstSNo.has(r.l1) || firstSNo.get(r.l1) > r.sNo) firstSNo.set(r.l1, r.sNo);
+      });
+      const orderedL1s = [...firstSNo.entries()].sort((a, b) => a[1] - b[1]).map(([l1]) => l1);
+      return orderedL1s.map(l1 => [l1, map.get(l1)]);
+    }
+    function determineAnchorCategory(items) {
+      const nonNA = items.filter(i => !i.isNARow);
+      for (const cat of ANCHOR_PRIORITY) {
+        if (nonNA.some(i => i.category === cat)) return cat;
+      }
+      return null;
+    }
+    function buildSwimlaneColumns(items) {
+      const nonNA = items.filter(i => !i.isNARow).slice().sort((a, b) => a.sNo - b.sNo);
+      const anchorCat = determineAnchorCategory(nonNA);
+      if (!anchorCat) return [];
+      const columns = [];
+      let current = null;
+      for (const item of nonNA) {
+        if (item.category === anchorCat) {
+          if (current) columns.push(current);
+          current = { anchor: item, byCategory: {} };
+          current.byCategory[item.category] = [item];
+        } else {
+          if (!current) current = { anchor: null, byCategory: {} };
+          if (!current.byCategory[item.category]) current.byCategory[item.category] = [];
+          current.byCategory[item.category].push(item);
+        }
+      }
+      if (current) columns.push(current);
+      return columns;
+    }
+    function getNARowsForL1(items) {
+      return items.filter(i => i.isNARow);
+    }
+
+    // Pick a column width class based on max L2 text length in that column.
+    // Returns a CSS var name that maps to a width value.
+    function columnWidthVar(col) {
+      let maxLen = 0;
+      for (const cat in col.byCategory) {
+        for (const it of col.byCategory[cat]) {
+          if (it.l2 && it.l2.length > maxLen) maxLen = it.l2.length;
+        }
+      }
+      if (maxLen >= 48) return "var(--col-wide-w)";
+      if (maxLen <= 22) return "var(--col-narrow-w)";
+      return "var(--col-default-w)";
+    }
+
+    /* =================================================================== */
+    /* ===== SEARCH ======================================================= */
+    /* =================================================================== */
+
+    function rowMatchesSearch(row, query) {
+      if (!query) return true;
+      const q = query.toLowerCase();
+      const haystack = [row.l0, row.l1, row.l2, row.l3, row.category, String(row.sNo)]
+        .filter(Boolean).join(" ").toLowerCase();
+      return haystack.includes(q);
+    }
+
+    /* =================================================================== */
+    /* ===== APP ROOT ===================================================== */
+    /* =================================================================== */
+
+    function App() {
+      const [rows, setRows] = useState(null);
+      const [error, setError] = useState(null);
+      const [selectedL0, setSelectedL0] = useState(null);
+      const [searchQuery, setSearchQuery] = useState("");
+      const [pinned, setPinned] = useState(null);
+      const [hover, setHover] = useState(null);
+      // Refs to L1 header DOM nodes within the swimlane, for the L1 dropdown's scroll-to behaviour.
+      const l1RefsRef = useRef({});
+
+      useEffect(() => {
+        loadData(DATA_SOURCE).then(setRows).catch(err => setError(String(err.message || err)));
+      }, []);
+      useEffect(() => {
+        const onKey = (e) => { if (e.key === "Escape") setPinned(null); };
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+      }, []);
+
+      const goToSummary = () => {
+        setSelectedL0(null);
+        setSearchQuery("");
+        setPinned(null);
+      };
+      const goToL0 = (l0) => {
+        setSelectedL0(l0);
+        setSearchQuery("");
+        setPinned(null);
+        l1RefsRef.current = {};
+      };
+      const scrollToL1 = (l1) => {
+        setSearchQuery(""); // clear search so the L1 is rendered
+        // Wait one tick for the DOM to update if search was clearing items.
+        setTimeout(() => {
+          const el = l1RefsRef.current[l1];
+          if (el && el.scrollIntoView) {
+            el.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+          }
+        }, 0);
+      };
+
+      if (error) return <div className="app"><ErrorState message={error} /></div>;
+      if (!rows) return <div className="app"><LoadingState /></div>;
+
+      // Derive L0 list and (when in swimlane view) the L1 list for the current L0.
+      const l0Groups = groupByL0(rows);
+      const l0List = l0Groups.map(([l0]) => l0);
+      const l1List = selectedL0
+        ? groupByL1Ordered(rows.filter(r => r.l0 === selectedL0)).map(([l1]) => l1)
+        : [];
+
+      // Counts for the bottom bar: contextual to the current view.
+      const bbScope = selectedL0 ? rows.filter(r => r.l0 === selectedL0) : rows;
+      const bbCounts = computeCounts(bbScope);
+
+      return (
+        <div className="app">
+          <TopBar
+            selectedL0={selectedL0}
+            l0List={l0List}
+            l1List={l1List}
+            onGoSummary={goToSummary}
+            onGoL0={goToL0}
+            onJumpL1={scrollToL1}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchMatchCount={
+              selectedL0 && searchQuery
+                ? rows.filter(r => r.l0 === selectedL0 && !r.isNARow && rowMatchesSearch(r, searchQuery)).length
+                : (!selectedL0 && searchQuery
+                    ? rows.filter(r => !r.isNARow && rowMatchesSearch(r, searchQuery)).length
+                    : null)
+            }
+          />
+
+          <div className="view-content">
+            {selectedL0 ? (
+              <SwimlaneView
+                rows={rows}
+                l0={selectedL0}
+                searchQuery={searchQuery}
+                pinned={pinned}
+                onPin={setPinned}
+                onHover={setHover}
+                l1RefsRef={l1RefsRef}
+              />
+            ) : (
+              <SummaryView
+                rows={rows}
+                l0Groups={l0Groups}
+                onSelectL0={goToL0}
+                searchQuery={searchQuery}
+                onHover={setHover}
+              />
+            )}
+          </div>
+
+          <BottomBar counts={bbCounts} contextLabel={selectedL0 ? `${selectedL0} only` : `Across ${l0List.length} phases`} onHover={setHover} scope={bbScope} l0={selectedL0} />
+
+          {pinned && <PinnedDetailPanel item={pinned} onClose={() => setPinned(null)} />}
+          {hover && !pinned && <HoverTooltipRouter hover={hover} />}
+        </div>
+      );
+    }
+
+    function LoadingState() {
+      return (
+        <div className="state-screen"><span className="pulse" /> Loading process data…</div>
+      );
+    }
+    function ErrorState({ message }) {
+      return (
+        <div className="state-screen">
+          <div>
+            <div style={{ fontWeight: 600, marginBottom: 6, color: "var(--text-primary)" }}>
+              Could not load data
+            </div>
+            <div style={{ fontFamily: "Geist Mono, monospace", fontSize: 12, color: "var(--text-tertiary)" }}>
+              {message}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* =================================================================== */
+    /* ===== TOP BAR ====================================================== */
+    /* =================================================================== */
+
+    function TopBar({ selectedL0, l0List, l1List, onGoSummary, onGoL0, onJumpL1, searchQuery, onSearchChange, searchMatchCount }) {
+      return (
+        <div className="top-bar">
+          <div className="brand">{APP_TITLE}</div>
+
+          <div className="crumbs">
+            <button
+              className={"crumb-back" + (selectedL0 ? "" : " current")}
+              onClick={selectedL0 ? onGoSummary : undefined}
+              disabled={!selectedL0}
+            >
+              {selectedL0 ? "← Summary" : "Summary"}
+            </button>
+
+            {selectedL0 && (
+              <>
+                <span className="crumb-sep">/</span>
+                <CrumbDropdown
+                  prominent
+                  value={selectedL0}
+                  options={l0List.map(l0 => ({ value: l0, label: l0 }))}
+                  onChange={onGoL0}
+                  menuMeta="Switch phase"
+                />
+                <span className="crumb-sep">/</span>
+                <CrumbDropdown
+                  muted
+                  value={null}
+                  placeholder={`${l1List.length} L1 groups`}
+                  options={l1List.map(l1 => ({ value: l1, label: l1 }))}
+                  onChange={onJumpL1}
+                  menuMeta="Jump to L1 group"
+                />
+              </>
+            )}
+          </div>
+
+          <div className="top-search">
+            <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+              <circle cx="11" cy="11" r="7" />
+              <path d="M21 21l-4.3-4.3" strokeLinecap="round" />
+            </svg>
+            <input
+              placeholder="Search L0 / L1 / L2 / L3…"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+            />
+            {searchQuery && searchMatchCount != null && (
+              <span className="count-pill">{searchMatchCount}</span>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    function CrumbDropdown({ value, placeholder, options, onChange, prominent, muted, menuMeta }) {
+      const [open, setOpen] = useState(false);
+      const wrapRef = useRef(null);
+
+      useEffect(() => {
+        if (!open) return;
+        const onDoc = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
+        const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
+        document.addEventListener("mousedown", onDoc);
+        document.addEventListener("keydown", onKey);
+        return () => {
+          document.removeEventListener("mousedown", onDoc);
+          document.removeEventListener("keydown", onKey);
+        };
+      }, [open]);
+
+      const cls =
+        "crumb-dd" +
+        (prominent ? " prominent" : "") +
+        (muted ? " muted" : "");
+
+      return (
+        <div className={cls} ref={wrapRef}>
+          <button className="crumb-trigger" onClick={() => setOpen(o => !o)}>
+            <span>{value || placeholder}</span>
+            <span className="chev">▾</span>
+          </button>
+          {open && (
+            <div className="crumb-menu">
+              {menuMeta && <div className="menu-meta">{menuMeta}</div>}
+              {options.map(opt => (
+                <button
+                  key={opt.value}
+                  className={opt.value === value ? "is-active" : ""}
+                  onClick={() => { onChange(opt.value); setOpen(false); }}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    /* =================================================================== */
+    /* ===== SUMMARY VIEW ================================================= */
+    /* =================================================================== */
+
+    function SummaryView({ rows, l0Groups, onSelectL0, searchQuery, onHover }) {
+      return (
+        <div className="summary">
+          <div className="summary-intro">
+            <h2>Summary view</h2>
+            <p>Click any phase to drill into its swim lane view.</p>
+          </div>
+
+          <div className="stage-row">
+            {l0Groups.map(([l0, items], idx) => (
+              <StageCard
+                key={l0}
+                l0={l0}
+                index={idx + 1}
+                items={items}
+                allRows={rows}
+                searchQuery={searchQuery}
+                onClick={() => onSelectL0(l0)}
+                onHover={onHover}
+              />
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    function StageCard({ l0, index, items, searchQuery, onClick, onHover }) {
+      const l1Groups = useMemo(() => groupByL1Ordered(items), [items]);
+
+      const counts = useMemo(() => {
+        const byCat = {};
+        CATEGORY_ROW_ORDER.forEach(c => byCat[c] = 0);
+        let l2 = 0;
+        items.forEach(r => {
+          if (r.isNARow) return;
+          l2 += 1;
+          if (byCat[r.category] != null) byCat[r.category] += 1;
+        });
+        return { byCat, l1: l1Groups.length, l2 };
+      }, [items, l1Groups]);
+
+      const l1HasNA = useMemo(() => {
+        const set = new Set();
+        items.forEach(r => { if (r.isNARow) set.add(r.l1); });
+        return set;
+      }, [items]);
+
+      const l1Match = useMemo(() => {
+        if (!searchQuery) return null;
+        const m = {};
+        l1Groups.forEach(([l1, rows]) => {
+          m[l1] = rows.some(r => rowMatchesSearch(r, searchQuery));
+        });
+        return m;
+      }, [l1Groups, searchQuery]);
+
+      // L2 items per L1 (for hover-list tooltip on L1 items).
+      const l2ByL1 = useMemo(() => {
+        const m = {};
+        l1Groups.forEach(([l1, rs]) => {
+          m[l1] = rs.filter(r => !r.isNARow);
+        });
+        return m;
+      }, [l1Groups]);
+
+      // L2 items per category (for hover-list tooltip on category counts).
+      const l2ByCat = useMemo(() => {
+        const m = {};
+        CATEGORY_ROW_ORDER.forEach(c => m[c] = []);
+        items.forEach(r => {
+          if (r.isNARow) return;
+          if (m[r.category]) m[r.category].push(r);
+        });
+        return m;
+      }, [items]);
+
+      const useTwoCol = l1Groups.length > TWO_COL_L1_THRESHOLD;
+
+      // Helpers for hover with anchor element.
+      const showListTip = (e, payload) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        onHover({ kind: "list", rect, ...payload });
+      };
+      const hideTip = () => onHover(null);
+
+      return (
+        <div className="stage-card" onClick={onClick}>
+          <div className="stage-head">
+            <div className="stage-name">{l0}</div>
+            <div className="stage-index">{String(index).padStart(2, "0")}</div>
+          </div>
+
+          <div className={"l1-list" + (useTwoCol ? " two-col" : "")}>
+            {l1Groups.map(([l1]) => {
+              const dimmed = l1Match && !l1Match[l1];
+              return (
+                <div
+                  key={l1}
+                  className={"l1-item" + (dimmed ? " is-search-dim" : "")}
+                  onMouseEnter={(e) => showListTip(e, {
+                    eyebrow: `${l0} · ${l2ByL1[l1].length} items`,
+                    title: l1,
+                    items: l2ByL1[l1]
+                  })}
+                  onMouseLeave={hideTip}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <span className="l1-text">{l1}</span>
+                  {l1HasNA.has(l1) && <span className="l1-na-indicator" title="L1-level note">i</span>}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="counts">
+            {CATEGORY_ROW_ORDER.map(c => (
+              <div
+                key={c}
+                className="count-row"
+                onMouseEnter={(e) => showListTip(e, {
+                  eyebrow: `${l0} · ${counts.byCat[c]} items`,
+                  title: `${CATEGORIES[c].label} in ${l0}`,
+                  items: l2ByCat[c]
+                })}
+                onMouseLeave={hideTip}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <span className="count-label">
+                  <span className="count-dot" style={{ background: CATEGORIES[c].bright }} />
+                  {CATEGORIES[c].label}
+                </span>
+                <span className="count-value">{counts.byCat[c]}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="totals-row">
+            <div
+              className="total-cell"
+              onMouseEnter={(e) => showListTip(e, {
+                eyebrow: `${l0} · ${counts.l1} L1 groups`,
+                title: `L1 groups in ${l0}`,
+                items: l1Groups.map(([l1, rs]) => ({
+                  sNo: rs.filter(r => !r.isNARow)[0]?.sNo,
+                  l2: l1,
+                  category: null
+                }))
+              })}
+              onMouseLeave={hideTip}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <span className="total-label">L1 groups</span>
+              <span className="total-value">{counts.l1}</span>
+            </div>
+            <div
+              className="total-cell"
+              onMouseEnter={(e) => showListTip(e, {
+                eyebrow: `${l0} · ${counts.l2} items`,
+                title: `All L2 items in ${l0}`,
+                items: items.filter(r => !r.isNARow)
+              })}
+              onMouseLeave={hideTip}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <span className="total-label">L2 items</span>
+              <span className="total-value">{counts.l2}</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* =================================================================== */
+    /* ===== SWIMLANE VIEW ================================================ */
+    /* =================================================================== */
+
+    function SwimlaneView({ rows, l0, searchQuery, pinned, onPin, onHover, l1RefsRef }) {
+      const l0Rows = useMemo(() => rows.filter(r => r.l0 === l0), [rows, l0]);
+      const l1Groups = useMemo(() => groupByL1Ordered(l0Rows), [l0Rows]);
+
+      const builtAll = useMemo(() => l1Groups.map(([l1, items]) => ({
+        l1,
+        items,
+        columns: buildSwimlaneColumns(items),
+        naRows: getNARowsForL1(items)
+      })), [l1Groups]);
+
+      // Filter L1 groups by search: drop any group with zero matching rows.
+      const built = useMemo(() => {
+        if (!searchQuery) return builtAll;
+        return builtAll.filter(g => g.items.some(it => rowMatchesSearch(it, searchQuery)));
+      }, [builtAll, searchQuery]);
+
+      // Flatten columns and compute per-column width vars.
+      const flatCols = useMemo(() => {
+        const out = [];
+        let i = 0;
+        built.forEach(group => {
+          const cols = group.columns.length > 0 ? group.columns : [{ anchor: null, byCategory: {} }];
+          cols.forEach((col, ci) => {
+            out.push({
+              colIndex: i,
+              groupIndex: ci,
+              l1: group.l1,
+              column: col,
+              widthVar: group.columns.length > 0 ? columnWidthVar(col) : "var(--col-narrow-w)",
+              isGroupStart: ci === 0,
+              isGroupEnd: ci === cols.length - 1
+            });
+            i += 1;
+          });
+        });
+        return out;
+      }, [built]);
+
+      const totalCols = flatCols.length;
+      const gridStyle = {
+        gridTemplateColumns:
+          `var(--row-label-w) ` +
+          flatCols.map(c => c.widthVar).join(" ")
+      };
+
+      // Empty state when search filters everything out.
+      if (totalCols === 0 && searchQuery) {
+        return (
+          <div className="swimlane">
+            <div className="state-screen">
+              <div>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>No L1 groups match “{searchQuery}”</div>
+                <div style={{ fontFamily: "Geist Mono, monospace", fontSize: 11, color: "var(--text-tertiary)" }}>
+                  Clear search to see all L1 groups in {l0}.
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="swimlane">
+          <div className="swimlane-scroll">
+            <div className="swimlane-grid" style={gridStyle}>
+              {/* Top-left corner */}
+              <div className="lane-corner" style={{ gridRow: 1 }}>L1 group</div>
+
+              {/* L1 group header row */}
+              {built.map((group, gi) => {
+                const startCol = built.slice(0, gi).reduce((s, g) => s + Math.max(g.columns.length, 1), 0);
+                const span = Math.max(group.columns.length, 1);
+                return (
+                  <div
+                    key={group.l1}
+                    ref={(el) => { if (el) l1RefsRef.current[group.l1] = el; }}
+                    className={"lane-l1-header" + (gi > 0 ? " has-divider-left" : "")}
+                    style={{ gridRow: 1, gridColumn: `${startCol + 2} / span ${span}` }}
+                  >
+                    <span className="l1-name">{group.l1}</span>
+                    <span className="l1-count">
+                      ({group.items.filter(i => !i.isNARow).length})
+                    </span>
+                    {group.naRows.length > 0 && (
+                      <span
+                        className="lane-l1-na"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onPin({
+                            __na: true,
+                            id: `na-${l0}-${group.l1}`,
+                            l0,
+                            l1: group.l1,
+                            l2: "L1-level note",
+                            category: "NA",
+                            l3: group.naRows.map(r => r.l3).filter(Boolean).join("\n\n"),
+                            rationale: group.naRows.map(r => r.rationale).filter(Boolean).join("\n\n")
+                          });
+                        }}
+                        title="L1-level note — click to open"
+                      >i</span>
+                    )}
+                  </div>
+                );
+              })}
+
+              {/* Category rows */}
+              {CATEGORY_ROW_ORDER.map((cat, rowIdx) => {
+                const gridRowNum = rowIdx + 2;
+                return (
+                  <React.Fragment key={cat}>
+                    <div className="lane-row-label" style={{ gridRow: gridRowNum }}>
+                      <span className="label-dot" style={{ background: CATEGORIES[cat].bright }} />
+                      <span className="label-text">{CATEGORIES[cat].label}</span>
+                    </div>
+                    {flatCols.map((fc) => {
+                      const itemsInCell = fc.column.byCategory[cat] || [];
+                      return (
+                        <div
+                          key={`${cat}-${fc.colIndex}`}
+                          className={"lane-cell" + (fc.isGroupStart && fc.colIndex > 0 ? " has-divider-left" : "")}
+                          style={{ gridRow: gridRowNum, gridColumn: fc.colIndex + 2 }}
+                        >
+                          {itemsInCell.map(item => (
+                            <ProcessCard
+                              key={item.id}
+                              row={item}
+                              category={cat}
+                              isSearchMatch={searchQuery && rowMatchesSearch(item, searchQuery)}
+                              pinned={pinned && pinned.id === item.id}
+                              onPin={onPin}
+                              onHover={onHover}
+                            />
+                          ))}
+                        </div>
+                      );
+                    })}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* =================================================================== */
+    /* ===== PROCESS CARD ================================================= */
+    /* =================================================================== */
+
+    function ProcessCard({ row, category, isSearchMatch, pinned, onPin, onHover }) {
+      const ref = useRef(null);
+      const handleEnter = () => {
+        const el = ref.current;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        onHover({ kind: "card", row, rect });
+      };
+      const handleLeave = () => onHover(null);
+      const handleClick = (e) => {
+        e.stopPropagation();
+        onPin(row);
+      };
+      return (
+        <div
+          ref={ref}
+          className={
+            "pcard cat-" + category +
+            (pinned ? " is-pinned" : "") +
+            (isSearchMatch ? " is-search-match" : "")
+          }
+          onMouseEnter={handleEnter}
+          onMouseLeave={handleLeave}
+          onClick={handleClick}
+        >
+          <div className="pcard-head">
+            <span className="pcard-sno">#{row.sNo}</span>
+            <span className="pcard-tag">{category}</span>
+          </div>
+          <div className="pcard-l2">{row.l2}</div>
+        </div>
+      );
+    }
+
+    /* =================================================================== */
+    /* ===== HOVER TOOLTIP ROUTER ========================================= */
+    /* =================================================================== */
+
+    function HoverTooltipRouter({ hover }) {
+      if (hover.kind === "card") return <CardTooltip hover={hover} />;
+      if (hover.kind === "list") return <ListTooltip hover={hover} />;
+      return null;
+    }
+
+    function positionTooltip(anchorRect, ttRect) {
+      const margin = 10;
+      let left = anchorRect.right + margin;
+      let top = anchorRect.top;
+      if (left + ttRect.width > window.innerWidth - 8) {
+        left = anchorRect.left - ttRect.width - margin;
+      }
+      if (left < 8) left = 8;
+      if (top + ttRect.height > window.innerHeight - 8) {
+        top = Math.max(8, window.innerHeight - ttRect.height - 8);
+      }
+      if (top < 8) top = 8;
+      return { left, top };
+    }
+
+    function CardTooltip({ hover }) {
+      const { row, rect } = hover;
+      const [pos, setPos] = useState({ left: -9999, top: -9999 });
+      const ref = useRef(null);
+      useEffect(() => {
+        if (!ref.current) return;
+        const tt = ref.current.getBoundingClientRect();
+        setPos(positionTooltip(rect, tt));
+      }, [rect]);
+      return (
+        <div ref={ref} className="tt" style={{ left: pos.left, top: pos.top }}>
+          <div className="tt-eyebrow">#{row.sNo} · {row.category}</div>
+          <div className="tt-title">{row.l2}</div>
+          {row.l3 ? (
+            <div className="tt-body">{row.l3}</div>
+          ) : (
+            <div className="tt-body" style={{ opacity: 0.5, fontStyle: "italic" }}>No L3 detail.</div>
+          )}
+          <div className="tt-hint">Click to pin →</div>
+        </div>
+      );
+    }
+
+    function ListTooltip({ hover }) {
+      const { rect, eyebrow, title, items } = hover;
+      const [pos, setPos] = useState({ left: -9999, top: -9999 });
+      const ref = useRef(null);
+      useEffect(() => {
+        if (!ref.current) return;
+        const tt = ref.current.getBoundingClientRect();
+        setPos(positionTooltip(rect, tt));
+      }, [rect]);
+      return (
+        <div ref={ref} className="tt" style={{ left: pos.left, top: pos.top }}>
+          {eyebrow && <div className="tt-eyebrow">{eyebrow}</div>}
+          {title && <div className="tt-title">{title}</div>}
+          {items && items.length > 0 && (
+            <ul className="tt-list">
+              {items.map((it, idx) => (
+                <li key={`${it.sNo || ""}-${idx}`}>
+                  {it.category && CATEGORIES[it.category] && (
+                    <span className="tt-cat-dot" style={{ background: CATEGORIES[it.category].bright }} />
+                  )}
+                  {it.sNo != null && <span className="tt-sno">#{it.sNo}</span>}
+                  <span>
+                    {it.l2}
+                    {it.l1 && it.l1 !== title && <span className="tt-l1">{it.l1}</span>}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {(!items || items.length === 0) && (
+            <div className="tt-body" style={{ opacity: 0.6, fontStyle: "italic" }}>No items.</div>
+          )}
+        </div>
+      );
+    }
+
+    /* =================================================================== */
+    /* ===== PINNED DETAIL PANEL ========================================== */
+    /* =================================================================== */
+
+    function PinnedDetailPanel({ item, onClose }) {
+      const isNA = item.__na;
+      const cat = isNA ? "NA" : item.category;
+      const fields = DETAIL_FIELDS.map(f => ({ ...f, value: item[f.key] })).filter(f => f.value);
+      return (
+        <div className={"pinned-panel cat-" + cat}>
+          <div className="pp-head">
+            <div>
+              <div className="pp-eyebrow">
+                {isNA ? `L1-level note · ${item.l0}` : `#${item.sNo} · ${item.l0} · ${item.l1}`}
+              </div>
+              <div className="pp-title">{item.l2}</div>
+            </div>
+            <button className="pp-close" onClick={onClose} aria-label="Close">×</button>
+          </div>
+          <div className="pp-body">
+            <span className="pp-chip">{isNA ? "L1 Note" : cat}</span>
+            {fields.map(f => (
+              <div key={f.key} className="pp-field">
+                <div className="pp-field-label">{f.label}</div>
+                <div className="pp-field-value" style={{ whiteSpace: "pre-wrap" }}>{f.value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    /* =================================================================== */
+    /* ===== BOTTOM BAR =================================================== */
+    /* =================================================================== */
+
+    function computeCounts(rows) {
+      const byCat = {};
+      CATEGORY_ROW_ORDER.forEach(c => byCat[c] = 0);
+      const l1Set = new Set();
+      let l2 = 0;
+      rows.forEach(r => {
+        if (r.isNARow) return;
+        l2 += 1;
+        l1Set.add(`${r.l0}::${r.l1}`);
+        if (byCat[r.category] != null) byCat[r.category] += 1;
+      });
+      return { byCat, l1: l1Set.size, l2 };
+    }
+
+    function BottomBar({ counts, contextLabel, onHover, scope, l0 }) {
+      const showListTip = (e, payload) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        onHover({ kind: "list", rect, ...payload });
+      };
+      const hideTip = () => onHover(null);
+
+      const l2ByCat = useMemo(() => {
+        const m = {};
+        CATEGORY_ROW_ORDER.forEach(c => m[c] = []);
+        scope.forEach(r => { if (!r.isNARow && m[r.category]) m[r.category].push(r); });
+        return m;
+      }, [scope]);
+
+      const l1List = useMemo(() => {
+        // Unique L1s across the scope.
+        const seen = new Set();
+        const out = [];
+        scope.forEach(r => {
+          const key = `${r.l0}::${r.l1}`;
+          if (!seen.has(key) && !r.isNARow) {
+            seen.add(key);
+            out.push({ sNo: r.sNo, l2: r.l1, l1: l0 ? null : r.l0 });
+          }
+        });
+        return out;
+      }, [scope, l0]);
+
+      return (
+        <div className="bottom-bar">
+          {CATEGORY_ROW_ORDER.map(c => (
+            <div
+              key={c}
+              className="bb-seg"
+              onMouseEnter={(e) => showListTip(e, {
+                eyebrow: `${contextLabel} · ${counts.byCat[c]} items`,
+                title: `${CATEGORIES[c].label}`,
+                items: l2ByCat[c]
+              })}
+              onMouseLeave={hideTip}
+            >
+              <span className="bb-dot" style={{ background: CATEGORIES[c].bright }} />
+              <span className="bb-label">{CATEGORIES[c].label}</span>
+              <span className="bb-value">{counts.byCat[c]}</span>
+            </div>
+          ))}
+          <div
+            className="bb-seg"
+            onMouseEnter={(e) => showListTip(e, {
+              eyebrow: `${contextLabel} · ${counts.l1} L1 groups`,
+              title: "L1 groups",
+              items: l1List
+            })}
+            onMouseLeave={hideTip}
+          >
+            <span className="bb-label">L1 groups</span>
+            <span className="bb-value">{counts.l1}</span>
+          </div>
+          <div
+            className="bb-seg"
+            onMouseEnter={(e) => showListTip(e, {
+              eyebrow: `${contextLabel} · ${counts.l2} items`,
+              title: "All L2 items",
+              items: scope.filter(r => !r.isNARow)
+            })}
+            onMouseLeave={hideTip}
+          >
+            <span className="bb-label">L2 items</span>
+            <span className="bb-value">{counts.l2}</span>
+          </div>
+          <div className="bb-spacer" />
+          <div className="bb-context">{contextLabel}</div>
+        </div>
+      );
+    }
+
+    /* =================================================================== */
+    /* ===== MOUNT ======================================================== */
+    /* =================================================================== */
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</body>
+</html>
