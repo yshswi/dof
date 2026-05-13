@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Process Architecture Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap"
+  />
+  <style>
+    /* =================================================================== */
+    /* ===== DESIGN TOKENS (edit colors / spacing here) =================== */
+    /* =================================================================== */
+    :root {
+      /* Category palette — light fill + dark band */
+      --cat-critical-fill: #FEF2F2;
+      --cat-critical-band: #B91C1C;
+      --cat-critical-text: #7F1D1D;
+
+      --cat-output-fill: #EFF6FF;
+      --cat-output-band: #1D4ED8;
+      --cat-output-text: #1E3A8A;
+
+      --cat-control-fill: #FFFBEB;
+      --cat-control-band: #B45309;
+      --cat-control-text: #78350F;
+
+      --cat-workflow-fill: #F8FAFC;
+      --cat-workflow-band: #475569;
+      --cat-workflow-text: #1E293B;
+
+      /* Base palette */
+      --bg: #FAFAF9;
+      --surface: #FFFFFF;
+      --surface-muted: #F5F5F4;
+      --border: #E7E5E4;
+      --border-strong: #D6D3D1;
+      --text-primary: #0C0A09;
+      --text-secondary: #57534E;
+      --text-tertiary: #A8A29E;
+      --accent: #0F172A;
+      --highlight-bg: rgba(250, 204, 21, 0.18);
+
+      /* Layout */
+      --col-min-width: 230px;
+      --row-label-width: 160px;
+      --header-h: 64px;
+      --radius: 8px;
+      --radius-sm: 4px;
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.08);
+      --shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.14);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    code, .mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+
+    /* =================================================================== */
+    /* ===== APP CHROME =================================================== */
+    /* =================================================================== */
+    .app { min-height: 100vh; display: flex; flex-direction: column; }
+
+    .app-header {
+      position: sticky; top: 0; z-index: 60;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 28px;
+      display: flex; align-items: center; gap: 20px;
+    }
+    .app-header h1 {
+      font-size: 15px; font-weight: 600; letter-spacing: -0.01em;
+      color: var(--text-primary);
+    }
+    .app-header .crumbs {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+    .app-header .spacer { flex: 1; }
+
+    .search-input {
+      font-family: inherit;
+      font-size: 13px;
+      padding: 7px 12px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      width: 280px;
+      color: var(--text-primary);
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+    }
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
+    }
+    .search-input::placeholder { color: var(--text-tertiary); }
+
+    .back-btn {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase;
+      background: transparent;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 6px 12px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: background 120ms ease, color 120ms ease;
+    }
+    .back-btn:hover { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+
+    /* =================================================================== */
+    /* ===== LOADING / ERROR ============================================== */
+    /* =================================================================== */
+    .state-screen {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      padding: 60px; color: var(--text-secondary);
+      font-size: 13px;
+    }
+    .state-screen .pulse {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent);
+      margin-right: 10px;
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.2; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+
+    /* =================================================================== */
+    /* ===== SUMMARY VIEW ================================================= */
+    /* =================================================================== */
+    .summary {
+      padding: 32px 28px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .summary-intro {
+      max-width: 720px;
+    }
+    .summary-intro .eyebrow {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 8px;
+    }
+    .summary-intro h2 {
+      font-size: 28px; font-weight: 600; letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 10px;
+    }
+    .summary-intro p { color: var(--text-secondary); font-size: 14px; }
+
+    .stage-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .stage-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      cursor: pointer;
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+      display: flex; flex-direction: column; gap: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stage-card::before {
+      content: ""; position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; background: var(--accent);
+      opacity: 0.92;
+    }
+    .stage-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--border-strong);
+    }
+    .stage-card.is-totals {
+      background: var(--accent);
+      color: var(--surface);
+      cursor: default;
+    }
+    .stage-card.is-totals::before { background: var(--surface); opacity: 0.18; }
+    .stage-card.is-totals:hover { transform: none; box-shadow: var(--shadow-sm); border-color: var(--border); }
+
+    .stage-card .stage-head {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+    }
+    .stage-card .stage-name {
+      font-size: 15px; font-weight: 600; letter-spacing: -0.01em;
+    }
+    .stage-card .stage-index {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px; color: var(--text-tertiary); letter-spacing: 0.04em;
+    }
+    .stage-card.is-totals .stage-index { color: rgba(255, 255, 255, 0.4); }
+
+    .stage-card .l1-list {
+      display: flex; flex-direction: column; gap: 5px;
+      padding-top: 4px;
+    }
+    .stage-card .l1-item {
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      display: flex; align-items: center; gap: 6px;
+      line-height: 1.4;
+    }
+    .stage-card .l1-item.is-dimmed { opacity: 0.32; }
+    .stage-card.is-totals .l1-item { color: rgba(255,255,255,0.85); }
+    .stage-card .l1-na-indicator {
+      width: 14px; height: 14px; flex-shrink: 0;
+      border-radius: 50%;
+      background: var(--border);
+      color: var(--text-tertiary);
+      font-size: 9px;
+      font-family: 'Geist Mono', monospace;
+      font-weight: 600;
+      display: inline-flex; align-items: center; justify-content: center;
+      opacity: 0.6;
+    }
+
+    .stage-card .counts {
+      margin-top: auto;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px;
+    }
+    .stage-card.is-totals .counts { border-top-color: rgba(255,255,255,0.18); }
+    .stage-card .count-row {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 11.5px;
+      gap: 8px;
+    }
+    .stage-card .count-label {
+      display: flex; align-items: center; gap: 6px;
+      color: var(--text-secondary);
+      font-family: 'Geist Mono', monospace;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      font-size: 10.5px;
+    }
+    .stage-card.is-totals .count-label { color: rgba(255,255,255,0.7); }
+    .stage-card .count-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .stage-card .count-value {
+      font-family: 'Geist Mono', monospace;
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+    .stage-card.is-totals .count-value { color: var(--surface); }
+
+    .stage-card .totals-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      padding-top: 10px; margin-top: 10px;
+      border-top: 1px dashed var(--border);
+    }
+    .stage-card.is-totals .totals-row { border-top-color: rgba(255,255,255,0.18); }
+    .stage-card .total-cell { display: flex; flex-direction: column; gap: 2px; }
+    .stage-card .total-cell .total-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: 9.5px; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+    .stage-card.is-totals .total-cell .total-label { color: rgba(255,255,255,0.6); }
+    .stage-card .total-cell .total-value {
+      font-family: 'Geist Mono', monospace;
+      font-size: 18px; font-weight: 500;
+    }
+
+    /* =================================================================== */
+    /* ===== SWIMLANE VIEW ================================================ */
+    /* =================================================================== */
+    .swimlane {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .swimlane-toolbar {
+      padding: 18px 28px;
+      display: flex; align-items: center; gap: 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .swimlane-toolbar .l0-title {
+      font-size: 20px; font-weight: 600; letter-spacing: -0.015em;
+    }
+    .swimlane-toolbar .l0-meta {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px; color: var(--text-tertiary);
+      letter-spacing: 0.04em;
+    }
+
+    .swimlane-scroll {
+      /* Horizontal scroll only — the swimlane is only 5 grid rows tall,
+         so vertical scroll belongs to the page, not this container.
+         This keeps sticky-left positioning anchored to the right ancestor. */
+      overflow-x: auto;
+      overflow-y: visible;
+      padding-bottom: 40px;
+    }
+
+    .swimlane-grid {
+      display: grid;
+      /* grid-template-columns set inline via style */
+      min-width: 100%;
+      /* No padding here: sticky cells (lane-corner, lane-row-label) must flush to
+         the scroll container's left edge. Inner padding lives inside each cell. */
+    }
+
+    .lane-corner {
+      position: sticky; left: 0; z-index: 30;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 12px 16px 28px;
+      grid-column: 1;
+    }
+
+    .lane-l1-header {
+      padding: 16px 16px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      display: flex; align-items: center; gap: 8px;
+      min-width: 0;
+    }
+    .lane-l1-header .l1-name {
+      font-size: 13px; font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.005em;
+    }
+    .lane-l1-header .l1-count {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10.5px;
+      color: var(--text-tertiary);
+      letter-spacing: 0.04em;
+    }
+    .lane-l1-header.has-divider-left {
+      border-left: 1px solid var(--border);
+    }
+
+    .lane-l1-na {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--surface-muted);
+      color: var(--text-secondary);
+      font-size: 9px; font-family: 'Geist Mono', monospace;
+      font-weight: 600;
+      display: inline-flex; align-items: center; justify-content: center;
+      cursor: help;
+      transition: background 120ms ease;
+    }
+    .lane-l1-na:hover { background: var(--accent); color: var(--surface); }
+
+    .lane-row-label {
+      position: sticky; left: 0; z-index: 20;
+      background: var(--bg);
+      padding: 14px 12px 14px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+      grid-column: 1;
+    }
+    .lane-row-label .label-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .lane-row-label .label-text {
+      font-size: 12px; font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .lane-cell {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 8px;
+      min-width: 0;
+    }
+    .lane-cell.has-divider-left {
+      border-left: 1px solid var(--border);
+    }
+
+    /* Process cards */
+    .pcard {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px 8px;
+      cursor: pointer;
+      transition: border-color 120ms ease, transform 120ms ease, box-shadow 120ms ease, opacity 160ms ease;
+      position: relative;
+      overflow: hidden;
+      min-width: 0;
+    }
+    .pcard::after {
+      content: "";
+      position: absolute; left: 0; right: 0; bottom: 0;
+      height: 3px;
+    }
+    .pcard:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+      border-color: var(--border-strong);
+    }
+    .pcard.is-pinned {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.06);
+    }
+    .pcard.is-dimmed { opacity: 0.22; }
+    .pcard .pcard-head {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 6px;
+      margin-bottom: 4px;
+    }
+    .pcard .pcard-sno {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px;
+      color: var(--text-tertiary);
+      letter-spacing: 0.05em;
+    }
+    .pcard .pcard-l2 {
+      font-size: 12.5px;
+      font-weight: 500;
+      line-height: 1.35;
+      color: var(--text-primary);
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+    .pcard .pcard-meta {
+      margin-top: 6px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding-bottom: 4px;
+    }
+
+    /* Category-specific card styles */
+    .pcard.cat-Critical { background: var(--cat-critical-fill); }
+    .pcard.cat-Critical::after { background: var(--cat-critical-band); }
+    .pcard.cat-Critical .pcard-meta { color: var(--cat-critical-band); }
+
+    .pcard.cat-Output { background: var(--cat-output-fill); }
+    .pcard.cat-Output::after { background: var(--cat-output-band); }
+    .pcard.cat-Output .pcard-meta { color: var(--cat-output-band); }
+
+    .pcard.cat-Control { background: var(--cat-control-fill); }
+    .pcard.cat-Control::after { background: var(--cat-control-band); }
+    .pcard.cat-Control .pcard-meta { color: var(--cat-control-band); }
+
+    .pcard.cat-Workflow { background: var(--cat-workflow-fill); }
+    .pcard.cat-Workflow::after { background: var(--cat-workflow-band); }
+    .pcard.cat-Workflow .pcard-meta { color: var(--cat-workflow-band); }
+
+    /* =================================================================== */
+    /* ===== HOVER TOOLTIP ================================================ */
+    /* =================================================================== */
+    .tooltip-floater {
+      position: fixed;
+      z-index: 200;
+      background: var(--accent);
+      color: var(--surface);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      max-width: 340px;
+      box-shadow: var(--shadow-lg);
+      pointer-events: none;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .tooltip-floater .tt-eyebrow {
+      font-family: 'Geist Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.55;
+      margin-bottom: 4px;
+    }
+    .tooltip-floater .tt-title {
+      font-weight: 500;
+      margin-bottom: 6px;
+      font-size: 12.5px;
+    }
+    .tooltip-floater .tt-body { opacity: 0.88; }
+    .tooltip-floater .tt-hint {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255,255,255,0.14);
+      font-family: 'Geist Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      opacity: 0.45;
+    }
+
+    /* =================================================================== */
+    /* ===== PINNED DETAIL PANEL ========================================== */
+    /* =================================================================== */
+    .pinned-panel {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      width: 420px;
+      max-width: calc(100vw - 48px);
+      max-height: calc(100vh - 120px);
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      z-index: 150;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      animation: panelIn 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .pinned-panel .pp-head {
+      padding: 16px 18px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+      position: relative;
+    }
+    .pinned-panel .pp-head::after {
+      content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+    }
+    .pinned-panel.cat-Critical .pp-head::after { background: var(--cat-critical-band); }
+    .pinned-panel.cat-Output   .pp-head::after { background: var(--cat-output-band); }
+    .pinned-panel.cat-Control  .pp-head::after { background: var(--cat-control-band); }
+    .pinned-panel.cat-Workflow .pp-head::after { background: var(--cat-workflow-band); }
+    .pinned-panel.cat-NA       .pp-head::after { background: var(--text-tertiary); }
+
+    .pinned-panel .pp-eyebrow {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 4px;
+    }
+    .pinned-panel .pp-title {
+      font-size: 15px; font-weight: 600; letter-spacing: -0.01em;
+      line-height: 1.3;
+    }
+    .pinned-panel .pp-close {
+      background: transparent;
+      border: 1px solid var(--border);
+      width: 26px; height: 26px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      color: var(--text-secondary);
+      font-size: 14px;
+      transition: background 120ms ease, color 120ms ease;
+    }
+    .pinned-panel .pp-close:hover {
+      background: var(--accent); color: var(--surface); border-color: var(--accent);
+    }
+    .pinned-panel .pp-body {
+      overflow-y: auto;
+      padding: 16px 18px 18px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .pinned-panel .pp-field {
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .pinned-panel .pp-field-label {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+    .pinned-panel .pp-field-value {
+      font-size: 13px; line-height: 1.55;
+      color: var(--text-primary);
+      word-wrap: break-word;
+    }
+    .pinned-panel .pp-chip {
+      display: inline-flex;
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      align-self: flex-start;
+      font-weight: 500;
+    }
+    .pinned-panel.cat-Critical .pp-chip { background: var(--cat-critical-fill); color: var(--cat-critical-band); }
+    .pinned-panel.cat-Output   .pp-chip { background: var(--cat-output-fill);   color: var(--cat-output-band); }
+    .pinned-panel.cat-Control  .pp-chip { background: var(--cat-control-fill);  color: var(--cat-control-band); }
+    .pinned-panel.cat-Workflow .pp-chip { background: var(--cat-workflow-fill); color: var(--cat-workflow-band); }
+    .pinned-panel.cat-NA       .pp-chip { background: var(--surface-muted);     color: var(--text-secondary); }
+  </style>
+
+  <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="react">
+    const { useState, useEffect, useMemo, useRef, useCallback } = React;
+
+    /* =================================================================== */
+    /* ===== CONFIG (edit me first for behavior changes) ================== */
+    /* =================================================================== */
+
+    const APP_TITLE = "Process Architecture Map";
+
+    const DATA_SOURCE = {
+      type: "googleSheetCsv",
+      url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ9YOMwNoR2Do0welsKj7stQwJpDCnFL9-BDvLBTyttn7v-kZRELmoft6_GeiOMVqL5b6hXq8w3Yyob/pub?gid=0&single=true&output=csv"
+    };
+
+    // Visual + label config for the four process categories.
+    const CATEGORIES = {
+      Critical: { label: "Critical", fill: "var(--cat-critical-fill)", band: "var(--cat-critical-band)" },
+      Output:   { label: "Output",   fill: "var(--cat-output-fill)",   band: "var(--cat-output-band)" },
+      Control:  { label: "Control",  fill: "var(--cat-control-fill)",  band: "var(--cat-control-band)" },
+      Workflow: { label: "Workflow", fill: "var(--cat-workflow-fill)", band: "var(--cat-workflow-band)" }
+    };
+
+    // Display order for category rows in the swimlane.
+    const CATEGORY_ROW_ORDER = ["Critical", "Output", "Control", "Workflow"];
+
+    // Priority order for anchoring (which category drives column placement
+    // when its items are present; falls back down the list).
+    const ANCHOR_PRIORITY = ["Critical", "Output", "Control", "Workflow"];
+
+    // L0 phase display order. Phases not in this list appear at the end.
+    const L0_ORDER = ["TDD", "Preconstruction", "Construction", "Handover", "Post Construction"];
+
+    // Fields shown in the pinned detail panel. Fields with empty values
+    // are auto-hidden, so adding rows here is safe even before data is filled.
+    const DETAIL_FIELDS = [
+      { key: "l3",                   label: "L3 Activities (representative)" },
+      { key: "rationale",            label: "Categorization Rationale" },
+      { key: "optimizationPotential", label: "Optimization Potential" },
+      { key: "optimizationLever",    label: "Optimization Lever" },
+      { key: "existingSolutions",    label: "Existing Solutions" },
+      { key: "predecessor",          label: "Predecessor" }
+    ];
+
+    // CSV header -> internal key. Headers are lowercased and trimmed before lookup
+    // so trailing spaces / casing changes in the source are tolerated.
+    const HEADER_MAP = {
+      "s. no.": "sNo",
+      "s.no.": "sNo",
+      "sno": "sNo",
+      "l0 phase": "l0",
+      "l1": "l1",
+      "l2": "l2",
+      "l3 activites (representative)": "l3",
+      "l3 activities (representative)": "l3",
+      "l2 categorization": "category",
+      "categorization rationale / af on 'how'": "rationale",
+      "optimization potential": "optimizationPotential",
+      "optimization lever": "optimizationLever",
+      "existing solutions": "existingSolutions",
+      "predecessor": "predecessor"
+    };
+
+    /* =================================================================== */
+    /* ===== DATA LAYER =================================================== */
+    /* =================================================================== */
+
+    // Clean a string: NFC normalize (fixes things like "Fa\xe7ade"), collapse
+    // non-breaking spaces, trim. Never returns null/undefined.
+    function normalizeText(t) {
+      if (t == null) return "";
+      return String(t).normalize("NFC").replace(/\u00A0/g, " ").trim();
+    }
+
+    function isNAValue(v) {
+      if (v == null) return true;
+      const s = String(v).trim().toLowerCase();
+      return s === "" || s === "na" || s === "n/a" || s === "-";
+    }
+
+    function canonicalCategory(raw) {
+      if (isNAValue(raw)) return "NA";
+      const lower = String(raw).trim().toLowerCase();
+      if (lower === "critical") return "Critical";
+      if (lower === "output")   return "Output";
+      if (lower === "control")  return "Control";
+      if (lower === "workflow") return "Workflow";
+      return "NA"; // unknown values treated as NA
+    }
+
+    function normalizeRow(rawRow) {
+      const row = {};
+      for (const k in rawRow) {
+        const cleanKey = k.toLowerCase().trim().replace(/\s+/g, " ");
+        const mapped = HEADER_MAP[cleanKey];
+        if (mapped) {
+          row[mapped] = normalizeText(rawRow[k]);
+        }
+      }
+      const snoParsed = parseInt(row.sNo, 10);
+      row.sNo = isNaN(snoParsed) ? null : snoParsed;
+      row.category = canonicalCategory(row.category);
+      row.isNARow = isNAValue(row.l2);
+      // Unique id for selection/pin state.
+      row.id = row.sNo != null ? `r-${row.sNo}` : `r-${row.l0}-${row.l1}-${row.l2}`;
+      return row;
+    }
+
+    async function loadData(source) {
+      const response = await fetch(source.url);
+      if (!response.ok) throw new Error(`Failed to fetch (HTTP ${response.status})`);
+      const csvText = await response.text();
+      return new Promise((resolve, reject) => {
+        Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            try {
+              const rows = results.data
+                .map(normalizeRow)
+                .filter(r => r.l0 && r.l1 && r.sNo != null);
+              resolve(rows);
+            } catch (e) { reject(e); }
+          },
+          error: reject
+        });
+      });
+    }
+
+    /* =================================================================== */
+    /* ===== GROUPING + SORTING HELPERS =================================== */
+    /* =================================================================== */
+
+    // Group rows by L0 phase, preserving the first-occurrence order
+    // for any phases not in L0_ORDER.
+    function groupByL0(rows) {
+      const groups = {};
+      rows.forEach(r => {
+        if (!groups[r.l0]) groups[r.l0] = [];
+        groups[r.l0].push(r);
+      });
+      const ordered = [];
+      L0_ORDER.forEach(l0 => { if (groups[l0]) ordered.push([l0, groups[l0]]); });
+      Object.keys(groups).forEach(l0 => {
+        if (!L0_ORDER.includes(l0)) ordered.push([l0, groups[l0]]);
+      });
+      return ordered;
+    }
+
+    // Within an L0, group rows by L1 in order of the earliest S.No. in each L1.
+    function groupByL1Ordered(rowsForL0) {
+      const map = new Map();
+      const firstSNo = new Map();
+      rowsForL0.forEach(r => {
+        if (!map.has(r.l1)) map.set(r.l1, []);
+        map.get(r.l1).push(r);
+        if (!firstSNo.has(r.l1) || firstSNo.get(r.l1) > r.sNo) firstSNo.set(r.l1, r.sNo);
+      });
+      const orderedL1s = [...firstSNo.entries()].sort((a, b) => a[1] - b[1]).map(([l1]) => l1);
+      return orderedL1s.map(l1 => [l1, map.get(l1)]);
+    }
+
+    // Pick the anchor category for an L1 group: the first category in
+    // ANCHOR_PRIORITY that actually has non-NA items in the group.
+    function determineAnchorCategory(items) {
+      const nonNA = items.filter(i => !i.isNARow);
+      for (const cat of ANCHOR_PRIORITY) {
+        if (nonNA.some(i => i.category === cat)) return cat;
+      }
+      return null;
+    }
+
+    // Build the column structure for one L1 group:
+    //   - each anchor item creates a new column
+    //   - non-anchor items pack into the most recent anchor's column,
+    //     under their own category row (stacking if multiple)
+    //   - items appearing before any anchor get a pre-anchor column
+    function buildSwimlaneColumns(items) {
+      const nonNA = items.filter(i => !i.isNARow).slice().sort((a, b) => a.sNo - b.sNo);
+      const anchorCat = determineAnchorCategory(nonNA);
+      if (!anchorCat) return [];
+
+      const columns = [];
+      let current = null;
+
+      for (const item of nonNA) {
+        if (item.category === anchorCat) {
+          if (current) columns.push(current);
+          current = { anchor: item, byCategory: {} };
+          current.byCategory[item.category] = [item];
+        } else {
+          if (!current) current = { anchor: null, byCategory: {} };
+          if (!current.byCategory[item.category]) current.byCategory[item.category] = [];
+          current.byCategory[item.category].push(item);
+        }
+      }
+      if (current) columns.push(current);
+      return columns;
+    }
+
+    function getNARowsForL1(items) {
+      return items.filter(i => i.isNARow);
+    }
+
+    /* =================================================================== */
+    /* ===== SEARCH ======================================================= */
+    /* =================================================================== */
+
+    function rowMatchesSearch(row, query) {
+      if (!query) return true;
+      const q = query.toLowerCase();
+      const haystack = [row.l0, row.l1, row.l2, row.l3, row.category, String(row.sNo)]
+        .filter(Boolean).join(" ").toLowerCase();
+      return haystack.includes(q);
+    }
+
+    /* =================================================================== */
+    /* ===== APP ROOT ===================================================== */
+    /* =================================================================== */
+
+    function App() {
+      const [rows, setRows] = useState(null);
+      const [error, setError] = useState(null);
+      const [selectedL0, setSelectedL0] = useState(null);
+      const [searchQuery, setSearchQuery] = useState("");
+      const [pinned, setPinned] = useState(null); // a row, or { __na: true, l1, l0, l3 }
+      const [hover, setHover] = useState(null);   // { row, x, y }
+
+      useEffect(() => {
+        loadData(DATA_SOURCE).then(setRows).catch(err => setError(String(err.message || err)));
+      }, []);
+
+      // Close pinned on Escape.
+      useEffect(() => {
+        const onKey = (e) => { if (e.key === "Escape") setPinned(null); };
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+      }, []);
+
+      // Reset search/pin on view change.
+      const handleSelectL0 = (l0) => {
+        setSelectedL0(l0);
+        setSearchQuery("");
+        setPinned(null);
+      };
+      const handleBack = () => {
+        setSelectedL0(null);
+        setSearchQuery("");
+        setPinned(null);
+      };
+
+      if (error) return <ErrorState message={error} />;
+      if (!rows) return <LoadingState />;
+
+      return (
+        <div className="app">
+          <header className="app-header">
+            <h1>{APP_TITLE}</h1>
+            <span className="crumbs">
+              {selectedL0 ? `Summary / ${selectedL0}` : "Summary"}
+            </span>
+            <div className="spacer" />
+            {selectedL0 && (
+              <input
+                className="search-input"
+                placeholder="Search L0 / L1 / L2 / L3…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            )}
+            {selectedL0 && (
+              <button className="back-btn" onClick={handleBack}>← Summary</button>
+            )}
+          </header>
+
+          {selectedL0 ? (
+            <SwimlaneView
+              rows={rows}
+              l0={selectedL0}
+              searchQuery={searchQuery}
+              pinned={pinned}
+              onPin={setPinned}
+              hover={hover}
+              onHover={setHover}
+            />
+          ) : (
+            <SummaryView
+              rows={rows}
+              onSelectL0={handleSelectL0}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+            />
+          )}
+
+          {pinned && <PinnedDetailPanel item={pinned} onClose={() => setPinned(null)} />}
+          {hover && !pinned && <HoverTooltip data={hover} />}
+        </div>
+      );
+    }
+
+    function LoadingState() {
+      return (
+        <div className="state-screen">
+          <span className="pulse" /> Loading process data…
+        </div>
+      );
+    }
+
+    function ErrorState({ message }) {
+      return (
+        <div className="state-screen">
+          <div>
+            <div style={{ fontWeight: 600, marginBottom: 6, color: "var(--text-primary)" }}>
+              Could not load data
+            </div>
+            <div style={{ fontFamily: "Geist Mono, monospace", fontSize: 12, color: "var(--text-tertiary)" }}>
+              {message}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* =================================================================== */
+    /* ===== SUMMARY VIEW ================================================= */
+    /* =================================================================== */
+
+    function SummaryView({ rows, onSelectL0, searchQuery, onSearchChange }) {
+      const l0Groups = useMemo(() => groupByL0(rows), [rows]);
+
+      // Grand totals across all L0s (non-NA rows only).
+      const totals = useMemo(() => {
+        const out = { l1: new Set(), l2: 0, byCat: {} };
+        CATEGORY_ROW_ORDER.forEach(c => out.byCat[c] = 0);
+        rows.forEach(r => {
+          if (r.isNARow) return;
+          out.l1.add(`${r.l0}::${r.l1}`);
+          out.l2 += 1;
+          if (out.byCat[r.category] != null) out.byCat[r.category] += 1;
+        });
+        return { l1: out.l1.size, l2: out.l2, byCat: out.byCat };
+      }, [rows]);
+
+      return (
+        <div className="summary">
+          <div className="summary-intro">
+            <div className="eyebrow">Lifecycle overview</div>
+            <h2>Five phases. {totals.l2} processes. One map.</h2>
+            <p>
+              Each phase below summarises its L1 process groups and the mix of process types
+              within. Click any phase to drill into its swim lane view.
+            </p>
+            <div style={{ marginTop: 16 }}>
+              <input
+                className="search-input"
+                placeholder="Search L0 / L1 / L2 / L3…"
+                value={searchQuery}
+                onChange={(e) => onSearchChange(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="stage-row">
+            {l0Groups.map(([l0, items], idx) => (
+              <StageCard
+                key={l0}
+                l0={l0}
+                index={idx + 1}
+                items={items}
+                searchQuery={searchQuery}
+                onClick={() => onSelectL0(l0)}
+              />
+            ))}
+            <TotalsCard totals={totals} stageCount={l0Groups.length} />
+          </div>
+        </div>
+      );
+    }
+
+    function StageCard({ l0, index, items, searchQuery, onClick }) {
+      const l1Groups = useMemo(() => groupByL1Ordered(items), [items]);
+
+      // Counts (exclude NA L2 rows; those become L1 tooltip content).
+      const counts = useMemo(() => {
+        const byCat = {};
+        CATEGORY_ROW_ORDER.forEach(c => byCat[c] = 0);
+        let l2 = 0;
+        items.forEach(r => {
+          if (r.isNARow) return;
+          l2 += 1;
+          if (byCat[r.category] != null) byCat[r.category] += 1;
+        });
+        return { byCat, l1: l1Groups.length, l2 };
+      }, [items, l1Groups]);
+
+      // Which L1s have at least one NA row (rendered as tooltip indicator).
+      const l1HasNA = useMemo(() => {
+        const set = new Set();
+        items.forEach(r => { if (r.isNARow) set.add(r.l1); });
+        return set;
+      }, [items]);
+
+      // Search dim: dim an L1 if no rows in it match.
+      const l1Match = useMemo(() => {
+        if (!searchQuery) return null;
+        const m = {};
+        l1Groups.forEach(([l1, rows]) => {
+          m[l1] = rows.some(r => rowMatchesSearch(r, searchQuery));
+        });
+        return m;
+      }, [l1Groups, searchQuery]);
+
+      return (
+        <div className="stage-card" onClick={onClick}>
+          <div className="stage-head">
+            <div className="stage-name">{l0}</div>
+            <div className="stage-index">{String(index).padStart(2, "0")}</div>
+          </div>
+
+          <div className="l1-list">
+            {l1Groups.map(([l1]) => {
+              const dimmed = l1Match && !l1Match[l1];
+              return (
+                <div key={l1} className={"l1-item" + (dimmed ? " is-dimmed" : "")}>
+                  <span>{l1}</span>
+                  {l1HasNA.has(l1) && <span className="l1-na-indicator" title="Has L1-level note">i</span>}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="counts">
+            {CATEGORY_ROW_ORDER.map(c => (
+              <div key={c} className="count-row">
+                <span className="count-label">
+                  <span className="count-dot" style={{ background: CATEGORIES[c].band }} />
+                  {CATEGORIES[c].label}
+                </span>
+                <span className="count-value">{counts.byCat[c]}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="totals-row">
+            <div className="total-cell">
+              <span className="total-label">L1 groups</span>
+              <span className="total-value">{counts.l1}</span>
+            </div>
+            <div className="total-cell">
+              <span className="total-label">L2 items</span>
+              <span className="total-value">{counts.l2}</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function TotalsCard({ totals, stageCount }) {
+      return (
+        <div className="stage-card is-totals">
+          <div className="stage-head">
+            <div className="stage-name">Totals</div>
+            <div className="stage-index">∑</div>
+          </div>
+          <div className="l1-list">
+            <div className="l1-item">Across {stageCount} phases</div>
+          </div>
+          <div className="counts">
+            {CATEGORY_ROW_ORDER.map(c => (
+              <div key={c} className="count-row">
+                <span className="count-label">
+                  <span className="count-dot" style={{ background: CATEGORIES[c].band }} />
+                  {CATEGORIES[c].label}
+                </span>
+                <span className="count-value">{totals.byCat[c]}</span>
+              </div>
+            ))}
+          </div>
+          <div className="totals-row">
+            <div className="total-cell">
+              <span className="total-label">L1 groups</span>
+              <span className="total-value">{totals.l1}</span>
+            </div>
+            <div className="total-cell">
+              <span className="total-label">L2 items</span>
+              <span className="total-value">{totals.l2}</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* =================================================================== */
+    /* ===== SWIMLANE VIEW ================================================ */
+    /* =================================================================== */
+
+    function SwimlaneView({ rows, l0, searchQuery, pinned, onPin, hover, onHover }) {
+      // Rows scoped to this L0.
+      const l0Rows = useMemo(() => rows.filter(r => r.l0 === l0), [rows, l0]);
+      const l1Groups = useMemo(() => groupByL1Ordered(l0Rows), [l0Rows]);
+
+      // Build column structure per L1.
+      const built = useMemo(() => l1Groups.map(([l1, items]) => ({
+        l1,
+        items,
+        columns: buildSwimlaneColumns(items),
+        naRows: getNARowsForL1(items)
+      })), [l1Groups]);
+
+      // Total data columns (across all L1s).
+      const totalCols = useMemo(() => built.reduce((sum, g) => sum + Math.max(g.columns.length, 1), 0), [built]);
+
+      // Header counts.
+      const l2Count = useMemo(() => l0Rows.filter(r => !r.isNARow).length, [l0Rows]);
+
+      // Grid template: row-label column (sticky) + N data columns at fixed min width.
+      const gridStyle = {
+        gridTemplateColumns: `var(--row-label-width) repeat(${totalCols}, minmax(var(--col-min-width), 1fr))`
+      };
+
+      // Flatten columns with cumulative index so each cell can compute its grid-column.
+      // Also pre-compute which columns sit on an L1 boundary (for divider line).
+      const flatCols = useMemo(() => {
+        const out = [];
+        let i = 0;
+        built.forEach(group => {
+          const cols = group.columns.length > 0 ? group.columns : [{ anchor: null, byCategory: {} }];
+          cols.forEach((col, ci) => {
+            out.push({
+              colIndex: i,        // 0-based among data cols
+              groupIndex: ci,     // 0-based within its L1 group
+              groupSize: cols.length,
+              l1: group.l1,
+              column: col,
+              isGroupStart: ci === 0,
+              isGroupEnd: ci === cols.length - 1
+            });
+            i += 1;
+          });
+        });
+        return out;
+      }, [built]);
+
+      return (
+        <div className="swimlane">
+          <div className="swimlane-toolbar">
+            <div>
+              <div className="l0-title">{l0}</div>
+              <div className="l0-meta">
+                {built.length} L1 groups · {l2Count} L2 items
+              </div>
+            </div>
+          </div>
+
+          <div className="swimlane-scroll">
+            <div className="swimlane-grid" style={gridStyle}>
+              {/* Row 1: L1 group headers (one per L1, spanning its columns) */}
+              <div className="lane-corner" style={{ gridRow: 1 }}>
+                <div className="l0-meta">L1 group</div>
+              </div>
+              {built.map((group, gi) => {
+                // Compute the starting column index for this L1 group's header span.
+                const startCol = built.slice(0, gi).reduce((s, g) => s + Math.max(g.columns.length, 1), 0);
+                const span = Math.max(group.columns.length, 1);
+                return (
+                  <div
+                    key={group.l1}
+                    className={"lane-l1-header" + (gi > 0 ? " has-divider-left" : "")}
+                    style={{
+                      gridRow: 1,
+                      gridColumn: `${startCol + 2} / span ${span}`
+                    }}
+                  >
+                    <span className="l1-name">{group.l1}</span>
+                    <span className="l1-count">
+                      ({group.items.filter(i => !i.isNARow).length})
+                    </span>
+                    {group.naRows.length > 0 && (
+                      <span
+                        className="lane-l1-na"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onPin({
+                            __na: true,
+                            id: `na-${l0}-${group.l1}`,
+                            l0,
+                            l1: group.l1,
+                            l2: "L1-level note",
+                            category: "NA",
+                            l3: group.naRows.map(r => r.l3).filter(Boolean).join("\n\n"),
+                            rationale: group.naRows.map(r => r.rationale).filter(Boolean).join("\n\n")
+                          });
+                        }}
+                        title="L1-level note — click to open"
+                      >i</span>
+                    )}
+                  </div>
+                );
+              })}
+
+              {/* Rows 2-5: process-type rows */}
+              {CATEGORY_ROW_ORDER.map((cat, rowIdx) => {
+                const gridRowNum = rowIdx + 2;
+                return (
+                  <React.Fragment key={cat}>
+                    <div className="lane-row-label" style={{ gridRow: gridRowNum }}>
+                      <span className="label-dot" style={{ background: CATEGORIES[cat].band }} />
+                      <span className="label-text">{CATEGORIES[cat].label}</span>
+                    </div>
+                    {flatCols.map((fc) => {
+                      const itemsInCell = fc.column.byCategory[cat] || [];
+                      return (
+                        <div
+                          key={`${cat}-${fc.colIndex}`}
+                          className={"lane-cell" + (fc.isGroupStart && fc.colIndex > 0 ? " has-divider-left" : "")}
+                          style={{
+                            gridRow: gridRowNum,
+                            gridColumn: fc.colIndex + 2
+                          }}
+                        >
+                          {itemsInCell.map(item => (
+                            <ProcessCard
+                              key={item.id}
+                              row={item}
+                              category={cat}
+                              dimmed={searchQuery && !rowMatchesSearch(item, searchQuery)}
+                              pinned={pinned && pinned.id === item.id}
+                              onPin={onPin}
+                              onHover={onHover}
+                            />
+                          ))}
+                        </div>
+                      );
+                    })}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* =================================================================== */
+    /* ===== PROCESS CARD ================================================= */
+    /* =================================================================== */
+
+    function ProcessCard({ row, category, dimmed, pinned, onPin, onHover }) {
+      const ref = useRef(null);
+
+      const handleEnter = () => {
+        const el = ref.current;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        onHover({ row, rect });
+      };
+      const handleLeave = () => onHover(null);
+
+      const handleClick = (e) => {
+        e.stopPropagation();
+        onPin(row);
+      };
+
+      return (
+        <div
+          ref={ref}
+          className={
+            "pcard cat-" + category +
+            (pinned ? " is-pinned" : "") +
+            (dimmed ? " is-dimmed" : "")
+          }
+          onMouseEnter={handleEnter}
+          onMouseLeave={handleLeave}
+          onClick={handleClick}
+        >
+          <div className="pcard-head">
+            <span className="pcard-sno">#{row.sNo}</span>
+          </div>
+          <div className="pcard-l2">{row.l2}</div>
+          <div className="pcard-meta">{category}</div>
+        </div>
+      );
+    }
+
+    /* =================================================================== */
+    /* ===== HOVER TOOLTIP ================================================ */
+    /* =================================================================== */
+
+    function HoverTooltip({ data }) {
+      const { row, rect } = data;
+      const [pos, setPos] = useState({ left: -9999, top: -9999 });
+      const ref = useRef(null);
+
+      useEffect(() => {
+        if (!ref.current) return;
+        const tt = ref.current.getBoundingClientRect();
+        const margin = 10;
+        // Default: place to the right of the card.
+        let left = rect.right + margin;
+        let top = rect.top;
+        // Flip to left side if it would overflow right edge.
+        if (left + tt.width > window.innerWidth - 8) {
+          left = rect.left - tt.width - margin;
+        }
+        // If still off-screen left, clamp.
+        if (left < 8) left = 8;
+        // Adjust top so tooltip stays inside the viewport.
+        if (top + tt.height > window.innerHeight - 8) {
+          top = Math.max(8, window.innerHeight - tt.height - 8);
+        }
+        if (top < 8) top = 8;
+        setPos({ left, top });
+      }, [rect]);
+
+      if (!row.l3 && !row.rationale) {
+        return (
+          <div ref={ref} className="tooltip-floater" style={{ left: pos.left, top: pos.top }}>
+            <div className="tt-eyebrow">#{row.sNo} · {row.category}</div>
+            <div className="tt-title">{row.l2}</div>
+            <div className="tt-body" style={{ opacity: 0.6, fontStyle: "italic" }}>No L3 detail available.</div>
+            <div className="tt-hint">Click to pin →</div>
+          </div>
+        );
+      }
+
+      return (
+        <div ref={ref} className="tooltip-floater" style={{ left: pos.left, top: pos.top }}>
+          <div className="tt-eyebrow">#{row.sNo} · {row.category}</div>
+          <div className="tt-title">{row.l2}</div>
+          {row.l3 && <div className="tt-body">{row.l3}</div>}
+          <div className="tt-hint">Click to pin →</div>
+        </div>
+      );
+    }
+
+    /* =================================================================== */
+    /* ===== PINNED DETAIL PANEL ========================================== */
+    /* =================================================================== */
+
+    function PinnedDetailPanel({ item, onClose }) {
+      const isNA = item.__na;
+      const cat = isNA ? "NA" : item.category;
+
+      // Render only fields with values.
+      const fields = DETAIL_FIELDS.map(f => ({ ...f, value: item[f.key] })).filter(f => f.value);
+
+      return (
+        <div className={"pinned-panel cat-" + cat}>
+          <div className="pp-head">
+            <div>
+              <div className="pp-eyebrow">
+                {isNA ? `L1-level note · ${item.l0}` : `#${item.sNo} · ${item.l0} · ${item.l1}`}
+              </div>
+              <div className="pp-title">{item.l2}</div>
+            </div>
+            <button className="pp-close" onClick={onClose} aria-label="Close">×</button>
+          </div>
+          <div className="pp-body">
+            {!isNA && <span className="pp-chip">{cat}</span>}
+            {isNA && <span className="pp-chip">L1 Note</span>}
+            {fields.map(f => (
+              <div key={f.key} className="pp-field">
+                <div className="pp-field-label">{f.label}</div>
+                <div className="pp-field-value" style={{ whiteSpace: "pre-wrap" }}>{f.value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    /* =================================================================== */
+    /* ===== MOUNT ======================================================== */
+    /* =================================================================== */
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</body>
+</html>
