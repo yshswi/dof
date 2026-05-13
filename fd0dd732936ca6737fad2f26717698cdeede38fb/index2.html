@@ -110,7 +110,7 @@ button{font-family:inherit}
 .level-section{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
 .view-summary .level-section{padding:26px 28px 30px;justify-content:center;gap:20px}
 .view-intermediate .level-section{padding:20px 28px 22px;gap:22px}
-.view-expand .level-section{padding:14px 28px 14px;gap:16px}
+.view-expand .level-section{padding:10px 28px 14px;gap:8px}
 
 .phase-chev-row{flex-shrink:0;min-width:0}
 .view-summary .phase-chev-row{margin-bottom:0}
@@ -119,10 +119,13 @@ button{font-family:inherit}
 .view-intermediate .cat-counts-row,.view-expand .cat-counts-row{max-height:0;opacity:0}
 
 .l1-section{flex:1;min-height:0;display:flex;flex-direction:column;gap:14px;max-height:0;opacity:0;overflow:hidden;transition:max-height var(--t-slow) var(--ease),opacity var(--t-mid) var(--ease) 60ms}
-.view-intermediate .l1-section{max-height:100vh;opacity:1}
+.view-intermediate .l1-section{max-height:100vh;opacity:1;justify-content:center}
 
 .l1-chev-grid{display:flex;flex-wrap:nowrap;align-items:stretch;min-width:0;overflow-x:auto;overflow-y:hidden;padding-bottom:4px}
 .l1-chev-grid>.chevron-cell{flex:1 1 auto;min-width:188px;display:flex}
+.l1-chev-stack{display:flex;flex-direction:column;gap:6px;width:100%}
+.l1-chev-stack .l1-chev-grid{overflow-x:visible}
+.top-label{font-family:'Geist Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text-primary);padding-right:14px;border-right:1px solid var(--border);height:100%;display:flex;align-items:center;white-space:nowrap}
 
 .expand-toggle-wrap{display:flex;justify-content:flex-end;flex-shrink:0}
 .expand-toggle{display:inline-flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--border-strong);border-radius:999px;cursor:pointer;padding:8px 16px 8px 14px;font-size:12px;font-weight:500;color:var(--text-primary);transition:background var(--t-fast) var(--ease),border-color var(--t-fast) var(--ease),transform var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
@@ -136,9 +139,9 @@ button{font-family:inherit}
 .chevron-row>.chevron-cell .chevron{flex:1}
 .chevron{background:var(--chev-dark-a);color:var(--surface);padding:14px 22px 14px 36px;cursor:pointer;position:relative;transition:opacity var(--t-mid) var(--ease),padding var(--t-mid) var(--ease),transform var(--t-fast) var(--ease),filter var(--t-fast) var(--ease);clip-path:polygon(0 0,calc(100% - var(--chev-arrow)) 0,100% 50%,calc(100% - var(--chev-arrow)) 100%,0 100%,var(--chev-arrow) 50%);min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;overflow:hidden}
 .chevron.first{padding-left:24px;clip-path:polygon(0 0,calc(100% - var(--chev-arrow)) 0,100% 50%,calc(100% - var(--chev-arrow)) 100%,0 100%)}
-.chevron-row>.chevron-cell:nth-child(even) .chevron{background:var(--chev-dark-b)}
+.chevron-row>.chevron-cell.shade-b .chevron{background:var(--chev-dark-b)}
 .chevron:hover{filter:brightness(1.18);transform:translateY(-1px)}
-.chevron.is-selected{filter:brightness(1.15)}
+.chevron.is-selected{background:var(--chev-bright-edge)}
 .chevron.is-washed{opacity:.26}
 .chevron.is-washed:hover{opacity:.5}
 
@@ -148,7 +151,7 @@ button{font-family:inherit}
 
 .phase-chevron{padding:26px 26px 26px 40px}
 .phase-chevron.first{padding-left:26px}
-.view-intermediate .phase-chevron,.view-expand .phase-chevron{padding:12px 22px 12px 32px}
+.view-intermediate .phase-chevron,.view-expand .phase-chevron{padding:10px 22px 10px 32px}
 .view-intermediate .phase-chevron.first,.view-expand .phase-chevron.first{padding-left:20px}
 .view-summary .phase-chevron .chev-title{font-size:18px}
 .view-intermediate .phase-chevron .chev-title,.view-expand .phase-chevron .chev-title{font-size:13px}
@@ -166,6 +169,8 @@ button{font-family:inherit}
 .cat-row .cat-label{display:flex;align-items:center;gap:7px;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-secondary)}
 .cat-row .cat-dot{width:8px;height:8px;border-radius:50%}
 .cat-row .cat-value{font-family:'Geist Mono',monospace;font-weight:600;font-size:13px;color:var(--text-primary)}
+.cat-row.is-zero{opacity:.32}
+.cat-row.is-zero:hover{opacity:.55}
 
 .swimlane-area{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;max-height:0;opacity:0;transition:max-height var(--t-slow) var(--ease),opacity var(--t-mid) var(--ease) 80ms}
 .view-expand .swimlane-area{max-height:100vh;opacity:1}
@@ -174,9 +179,9 @@ button{font-family:inherit}
 .swimlane-grid{display:grid;min-width:max-content}
 .lane-corner{position:sticky;top:0;left:0;z-index:40;background:var(--bg);border-bottom:1px solid var(--border-strong);padding:10px 14px 10px 12px;display:flex;align-items:center;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-tertiary);grid-column:1}
 .lane-l1-header{position:sticky;top:0;z-index:30;background:var(--bg);padding:0;min-width:0;scroll-margin-left:calc(var(--row-label-w, 132px) + 12px);display:flex;align-items:stretch}
-.lane-l1-header .l1-chev-inner{flex:1;background:var(--chev-dark-a);color:var(--surface);padding:10px 16px 10px 30px;display:flex;flex-direction:column;justify-content:center;gap:3px;clip-path:polygon(0 0,calc(100% - var(--chev-arrow)) 0,100% 50%,calc(100% - var(--chev-arrow)) 100%,0 100%,var(--chev-arrow) 50%)}
+.lane-l1-header .l1-chev-inner{flex:1;background:var(--chev-dark-a);color:var(--surface);padding:6px 16px 6px 30px;display:flex;flex-direction:column;justify-content:center;gap:0;clip-path:polygon(0 0,calc(100% - var(--chev-arrow)) 0,100% 50%,calc(100% - var(--chev-arrow)) 100%,0 100%,var(--chev-arrow) 50%)}
 .lane-l1-header.first .l1-chev-inner{padding-left:18px;clip-path:polygon(0 0,calc(100% - var(--chev-arrow)) 0,100% 50%,calc(100% - var(--chev-arrow)) 100%,0 100%)}
-.lane-l1-header:nth-child(even) .l1-chev-inner{background:var(--chev-dark-b)}
+.lane-l1-header.shade-b .l1-chev-inner{background:var(--chev-dark-b)}
 .lane-l1-header .l1-name{font-size:12px;font-weight:600;color:var(--surface);letter-spacing:-.005em;word-break:break-word;overflow-wrap:break-word;line-height:1.25;max-height:calc(3 * 1.25 * 12px);overflow:hidden}
 .lane-l1-header .l1-count{font-family:'Geist Mono',monospace;font-size:9.5px;color:rgba(255,255,255,.55);letter-spacing:.05em}
 .lane-l1-na{position:absolute;top:6px;right:18px;width:15px;height:15px;border-radius:50%;background:rgba(255,255,255,.18);color:var(--surface);font-size:9px;font-family:'Geist Mono',monospace;font-weight:600;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background var(--t-fast) var(--ease);z-index:5}
@@ -464,12 +469,17 @@ function UsageGuideButton() {
 }
 
 function TopBar({ viewMode, onGoSummary, searchQuery, onSearchChange, searchMatchCount }) {
-  const showBrand = viewMode !== "summary";
-  const showBack = viewMode !== "summary";
+  const isSummary = viewMode === "summary";
   return (
     <div className="top-bar">
-      {showBrand && <div className="brand">{APP_TITLE}</div>}
-      {showBack && <button className="crumb-back" onClick={onGoSummary}>← Summary</button>}
+      {isSummary ? (
+        <span className="top-label">Summary view</span>
+      ) : (
+        <React.Fragment>
+          <div className="brand">{APP_TITLE}</div>
+          <button className="crumb-back" onClick={onGoSummary}>← Summary</button>
+        </React.Fragment>
+      )}
       <div className="top-spacer" />
       <SearchInput value={searchQuery} onChange={onSearchChange} matchCount={searchMatchCount} />
     </div>
@@ -486,18 +496,18 @@ function Chevron({ title, sub, first, washed, selected, kind, onClick, onMouseEn
   );
 }
 
-function PhaseRow({ phases, selectedL0, onSelectL0, onHover }) {
+function PhaseRow({ phases, selectedL0, onSelectL0, onHover, showCatCounts }) {
   const showListTip = (e, payload) => { const rect = e.currentTarget.getBoundingClientRect(); onHover({ kind: "list", rect, ...payload }); };
   const hideTip = () => onHover(null);
   return (
     <React.Fragment>
       <div className="chevron-row phase-chev-row">
         {phases.map((p, i) => (
-          <div className="chevron-cell" key={p.l0}>
+          <div className={"chevron-cell" + (i % 2 === 1 ? " shade-b" : "")} key={p.l0}>
             <Chevron
               kind="phase-chevron"
               title={p.l0}
-              sub={`${p.l1Count} L1 · ${p.counts.l2} L2`}
+              sub={`${p.l1Count} L1 groups · ${p.counts.l2} processes`}
               first={i === 0}
               selected={selectedL0 === p.l0}
               washed={selectedL0 && selectedL0 !== p.l0}
@@ -506,24 +516,29 @@ function PhaseRow({ phases, selectedL0, onSelectL0, onHover }) {
           </div>
         ))}
       </div>
-      <div className="cat-counts-row">
-        <div className="cat-counts-grid">
-          {phases.map((p) => (
-            <div className="cat-counts-cell" key={p.l0}>
-              <div className="cat-counts-box">
-                {CATEGORY_ROW_ORDER.map(c => (
-                  <div key={c} className="cat-row"
-                    onMouseEnter={(e) => showListTip(e, { eyebrow: `${p.l0} · ${p.counts.byCat[c]} items`, title: `${CATEGORIES[c].label} in ${p.l0}`, items: p.items.filter(r => !r.isNARow && r.category === c) })}
-                    onMouseLeave={hideTip}>
-                    <span className="cat-label"><span className="cat-dot" style={{ background: CATEGORIES[c].bright }} />{CATEGORIES[c].label}</span>
-                    <span className="cat-value">{p.counts.byCat[c]}</span>
-                  </div>
-                ))}
+      {showCatCounts && (
+        <div className="cat-counts-row">
+          <div className="cat-counts-grid">
+            {phases.map((p) => (
+              <div className="cat-counts-cell" key={p.l0}>
+                <div className="cat-counts-box">
+                  {CATEGORY_ROW_ORDER.map(c => {
+                    const value = p.counts.byCat[c];
+                    return (
+                      <div key={c} className={"cat-row" + (value === 0 ? " is-zero" : "")}
+                        onMouseEnter={(e) => showListTip(e, { eyebrow: `${p.l0} · ${value} processes`, title: `${CATEGORIES[c].label} in ${p.l0}`, items: p.items.filter(r => !r.isNARow && r.category === c) })}
+                        onMouseLeave={hideTip}>
+                        <span className="cat-label"><span className="cat-dot" style={{ background: CATEGORIES[c].bright }} />{CATEGORIES[c].label}</span>
+                        <span className="cat-value">{value}</span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </React.Fragment>
   );
 }
@@ -531,24 +546,40 @@ function PhaseRow({ phases, selectedL0, onSelectL0, onHover }) {
 function L1ChevronRow({ l1Groups, onClick, onHover, l0 }) {
   const showListTip = (e, payload) => { const rect = e.currentTarget.getBoundingClientRect(); onHover({ kind: "list", rect, ...payload }); };
   const hideTip = () => onHover(null);
+  const buildCell = (entry, localIdx, globalIdx) => {
+    const [l1, items] = entry;
+    const l2Count = items.filter(r => !r.isNARow).length;
+    return (
+      <div className={"chevron-cell" + (globalIdx % 2 === 1 ? " shade-b" : "")} key={l1}>
+        <Chevron
+          kind="l1-chevron"
+          title={l1}
+          first={localIdx === 0}
+          onClick={() => onClick(l1)}
+          onMouseEnter={(e) => showListTip(e, { eyebrow: `${l0} · ${l2Count} processes`, title: l1, items: items.filter(r => !r.isNARow) })}
+          onMouseLeave={hideTip}
+        />
+      </div>
+    );
+  };
+  if (l1Groups.length > 8) {
+    const half = Math.ceil(l1Groups.length / 2);
+    const top = l1Groups.slice(0, half);
+    const bottom = l1Groups.slice(half);
+    return (
+      <div className="l1-chev-stack">
+        <div className="chevron-row l1-chev-grid">
+          {top.map((entry, i) => buildCell(entry, i, i))}
+        </div>
+        <div className="chevron-row l1-chev-grid">
+          {bottom.map((entry, i) => buildCell(entry, i, half + i))}
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="chevron-row l1-chev-grid">
-      {l1Groups.map(([l1, items], i) => {
-        const l2Count = items.filter(r => !r.isNARow).length;
-        return (
-          <div className="chevron-cell" key={l1}>
-            <Chevron
-              kind="l1-chevron"
-              title={l1}
-              sub={`${l2Count} L2`}
-              first={i === 0}
-              onClick={() => onClick(l1)}
-              onMouseEnter={(e) => showListTip(e, { eyebrow: `${l0} · ${l2Count} items`, title: l1, items: items.filter(r => !r.isNARow) })}
-              onMouseLeave={hideTip}
-            />
-          </div>
-        );
-      })}
+      {l1Groups.map((entry, i) => buildCell(entry, i, i))}
     </div>
   );
 }
@@ -631,11 +662,10 @@ function SwimlaneView({ rows, l0, searchQuery, pinned, onPin, onHover, l1RefsRef
             return (
               <div key={group.l1}
                 ref={(el) => { if (el) l1RefsRef.current[group.l1] = el; }}
-                className={"lane-l1-header" + (gi === 0 ? " first" : "") + (gi > 0 ? " has-divider-left" : "")}
+                className={"lane-l1-header" + (gi === 0 ? " first" : "") + (gi > 0 ? " has-divider-left" : "") + (gi % 2 === 1 ? " shade-b" : "")}
                 style={{ gridRow: 1, gridColumn: `${startCol + 2} / span ${span}`, position: "sticky" }}>
                 <div className="l1-chev-inner">
                   <span className="l1-name">{group.l1}</span>
-                  <span className="l1-count">({group.items.filter(i => !i.isNARow).length} L2)</span>
                 </div>
                 {group.naRows.length > 0 && (
                   <span className="lane-l1-na"
@@ -803,9 +833,9 @@ function TotalBar({ tall, counts, overallLabel, contextLabel, phasesCount, onHov
             <span className="tb-stat-value">{counts.l1}</span>
           </div>
           <div className="tb-stat"
-            onMouseEnter={(e) => showListTip(e, { eyebrow: `${counts.l2} items`, title: "All L2 items", items: scope.filter(r => !r.isNARow) })}
+            onMouseEnter={(e) => showListTip(e, { eyebrow: `${counts.l2} processes`, title: "All processes", items: scope.filter(r => !r.isNARow) })}
             onMouseLeave={hideTip}>
-            <span className="tb-stat-label">L2 items</span>
+            <span className="tb-stat-label">Processes</span>
             <span className="tb-stat-value">{counts.l2}</span>
           </div>
           <div className="tb-divider" />
@@ -816,7 +846,7 @@ function TotalBar({ tall, counts, overallLabel, contextLabel, phasesCount, onHov
               return (
                 <div key={c} className={"tb-cat" + (dim ? " is-dim" : "")}
                   onClick={() => onToggleCategory && onToggleCategory(c)}
-                  onMouseEnter={(e) => showListTip(e, { eyebrow: `${counts.byCat[c]} items`, title: CATEGORIES[c].label, items: l2ByCat[c] })}
+                  onMouseEnter={(e) => showListTip(e, { eyebrow: `${counts.byCat[c]} processes`, title: CATEGORIES[c].label, items: l2ByCat[c] })}
                   onMouseLeave={hideTip}
                   title={isAllActive ? `Click to solo ${CATEGORIES[c].label}` : (isActive ? `Click to restore all` : `Click to switch to ${CATEGORIES[c].label}`)}>
                   <span className="tb-cat-label"><span className="tb-cat-dot" style={{ background: CATEGORIES[c].bright }} />{CATEGORIES[c].label}</span>
@@ -835,13 +865,13 @@ function TotalBar({ tall, counts, overallLabel, contextLabel, phasesCount, onHov
       <div className="tb-seg"
         onMouseEnter={(e) => showListTip(e, { eyebrow: `${contextLabel} · ${counts.l1} L1 groups`, title: "L1 groups", items: l1List })}
         onMouseLeave={hideTip}>
-        <span className="tb-seg-label">L1</span>
+        <span className="tb-seg-label">L1 groups</span>
         <span className="tb-seg-value">{counts.l1}</span>
       </div>
       <div className="tb-seg"
-        onMouseEnter={(e) => showListTip(e, { eyebrow: `${contextLabel} · ${counts.l2} items`, title: "All L2 items", items: scope.filter(r => !r.isNARow) })}
+        onMouseEnter={(e) => showListTip(e, { eyebrow: `${contextLabel} · ${counts.l2} processes`, title: "All processes", items: scope.filter(r => !r.isNARow) })}
         onMouseLeave={hideTip}>
-        <span className="tb-seg-label">L2</span>
+        <span className="tb-seg-label">Processes</span>
         <span className="tb-seg-value">{counts.l2}</span>
       </div>
       {CATEGORY_ROW_ORDER.map(c => {
@@ -850,7 +880,7 @@ function TotalBar({ tall, counts, overallLabel, contextLabel, phasesCount, onHov
         return (
           <div key={c} className={"tb-seg is-toggle" + (dim ? " is-dim" : "")}
             onClick={() => onToggleCategory && onToggleCategory(c)}
-            onMouseEnter={(e) => showListTip(e, { eyebrow: `${contextLabel} · ${counts.byCat[c]} items`, title: CATEGORIES[c].label, items: l2ByCat[c] })}
+            onMouseEnter={(e) => showListTip(e, { eyebrow: `${contextLabel} · ${counts.byCat[c]} processes`, title: CATEGORIES[c].label, items: l2ByCat[c] })}
             onMouseLeave={hideTip}
             title={isAllActive ? `Click to solo ${CATEGORIES[c].label}` : (isActive ? `Click to restore all` : `Click to switch to ${CATEGORIES[c].label}`)}>
             <span className="tb-dot" style={{ background: CATEGORIES[c].bright }} />
@@ -876,6 +906,22 @@ function App() {
   const dismissTimerRef = useRef(null);
 
   useEffect(() => { loadData(DATA_SOURCE).then(setRows).catch(err => setError(String(err.message || err))); }, []);
+  useEffect(() => {
+    if (!rows) return;
+    if (!searchQuery || searchQuery.trim().length < 2) return;
+    if (expandMode) return;
+    const counts = {};
+    rows.forEach(r => {
+      if (r.isNARow) return;
+      if (rowMatchesSearch(r, searchQuery)) counts[r.l0] = (counts[r.l0] || 0) + 1;
+    });
+    const ranked = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    if (ranked.length === 0) return;
+    const bestL0 = ranked[0][0];
+    setSelectedL0(bestL0);
+    setExpandMode(true);
+    setPinned(null);
+  }, [searchQuery, rows]);
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") setPinned(null);
@@ -968,29 +1014,29 @@ function App() {
           onHover={onHover} scope={bbScope} l0={selectedL0}
           activeCategories={activeCategories} onToggleCategory={toggleCategory} />
         <div className="level-section">
-          <PhaseRow phases={phaseEntries} selectedL0={selectedL0} onSelectL0={goToL0} onHover={onHover} />
-          <div className="l1-section">
-            {selectedL0 && (
-              <React.Fragment>
-                <L1ChevronRow l1Groups={l1GroupsCurrent}
-                  onClick={(l1) => { setExpandMode(true); scrollToL1Inside(l1); }}
-                  onHover={onHover} l0={selectedL0} />
-                <div className="expand-toggle-wrap">
-                  <button className={"expand-toggle" + (expandMode ? " is-on" : "")} onClick={() => setExpandMode(e => !e)}>
-                    <span>{expandMode ? "Collapse swimlane" : "Expand to swimlane"}</span>
-                    <span className="chev" />
-                  </button>
-                </div>
-              </React.Fragment>
-            )}
-          </div>
-          <div className="swimlane-area">
-            {selectedL0 && expandMode && (
+          <PhaseRow phases={phaseEntries} selectedL0={selectedL0} onSelectL0={goToL0} onHover={onHover} showCatCounts={isSummary} />
+          {selectedL0 && !expandMode && (
+            <div className="l1-section">
+              <L1ChevronRow l1Groups={l1GroupsCurrent}
+                onClick={(l1) => { setExpandMode(true); scrollToL1Inside(l1); }}
+                onHover={onHover} l0={selectedL0} />
+            </div>
+          )}
+          {selectedL0 && (
+            <div className="expand-toggle-wrap">
+              <button className={"expand-toggle" + (expandMode ? " is-on" : "")} onClick={() => setExpandMode(e => !e)}>
+                <span>{expandMode ? "Collapse swimlane" : "Expand to swimlane"}</span>
+                <span className="chev" />
+              </button>
+            </div>
+          )}
+          {selectedL0 && expandMode && (
+            <div className="swimlane-area">
               <SwimlaneView rows={rows} l0={selectedL0} searchQuery={searchQuery}
                 pinned={pinned} onPin={setPinned} onHover={onHover}
                 l1RefsRef={l1RefsRef} activeCategories={activeCategories} />
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
       {pinned && <PinnedDetailPanel item={pinned} onClose={() => setPinned(null)} />}
