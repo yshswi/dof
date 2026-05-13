@@ -349,20 +349,108 @@
       line-height: 1.2;
       color: var(--text-primary);
     }
-    .summary-titles p {
+    .summary-titles .subtitle {
       font-size: 12.5px;
       color: var(--text-secondary);
       margin-top: 3px;
       line-height: 1.4;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Usage-guide button: pulses to invite attention; popover panel on click. */
+    .guide-wrap { position: relative; display: inline-flex; }
+    .guide-btn {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: var(--surface);
+      border: none;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: 'Geist', sans-serif;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      animation: guidePulse 2.4s ease-in-out infinite;
+      transition: transform 120ms ease, animation 120ms ease;
+      flex-shrink: 0;
+    }
+    .guide-btn:hover {
+      animation: none;
+      transform: scale(1.08);
+    }
+    .guide-btn.is-open {
+      animation: none;
+      transform: scale(1.08);
+    }
+    @keyframes guidePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(15, 23, 42, 0.45); }
+      50% { box-shadow: 0 0 0 7px rgba(15, 23, 42, 0); }
+    }
+    .guide-panel {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 0;
+      width: 340px;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      z-index: 150;
+      padding: 12px 14px 13px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--text-primary);
+      animation: ddIn 160ms ease;
+    }
+    .guide-panel .guide-eyebrow {
+      font-family: 'Geist Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 8px;
+    }
+    .guide-panel ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .guide-panel li {
+      padding-left: 14px;
+      position: relative;
+      color: var(--text-secondary);
+    }
+    .guide-panel li::before {
+      content: "•";
+      position: absolute;
+      left: 2px;
+      color: var(--text-tertiary);
+    }
+    .guide-panel li b { color: var(--text-primary); font-weight: 600; }
+    .guide-panel code {
+      font-family: 'Geist Mono', monospace;
+      background: var(--surface-muted);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 10.5px;
+      color: var(--text-primary);
     }
 
     .stage-row {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 10px;
-      align-items: stretch;
+      grid-template-columns: repeat(var(--stage-col-count, 5), minmax(0, 1fr));
+      gap: 12px;
+      align-items: start;
     }
-    /* Keep 5-col across typical desktop widths; only wrap on very narrow screens. */
+    /* Keep N-col across typical desktop widths; only wrap on very narrow screens. */
     @media (max-width: 720px) { .stage-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 480px) { .stage-row { grid-template-columns: 1fr; } }
 
@@ -370,10 +458,10 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 11px 13px 10px;
+      padding: 14px 14px 12px;
       cursor: pointer;
       transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
-      display: flex; flex-direction: column; gap: 9px;
+      display: flex; flex-direction: column; gap: 11px;
       position: relative;
       overflow: hidden;
       min-width: 0;
@@ -391,23 +479,24 @@
       display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
     }
     .stage-card .stage-name {
-      font-size: 14px; font-weight: 600; letter-spacing: -0.01em;
+      font-size: 15px; font-weight: 600; letter-spacing: -0.012em;
       word-break: break-word;
+      line-height: 1.2;
     }
 
     .stage-card .l1-list {
-      display: flex; flex-direction: column; gap: 3px;
+      display: flex; flex-direction: column; gap: 4px;
     }
     .stage-card .l1-list.two-col {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      column-gap: 12px;
-      row-gap: 3px;
+      column-gap: 14px;
+      row-gap: 4px;
     }
     .stage-card .l1-item {
-      font-size: 11.5px;
+      font-size: 12px;
       color: var(--text-secondary);
-      display: flex; align-items: center; gap: 5px;
+      display: flex; align-items: flex-start; gap: 6px;
       line-height: 1.35;
       cursor: help;
       padding: 0;
@@ -416,11 +505,12 @@
     }
     .stage-card .l1-item:hover { color: var(--text-primary); }
     .stage-card .l1-item .l1-text {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      hyphens: auto;
       min-width: 0;
       flex: 1;
+      line-height: 1.32;
     }
     .stage-card .l1-na-indicator {
       width: 13px; height: 13px; flex-shrink: 0;
@@ -437,14 +527,14 @@
 
     .stage-card .counts {
       margin-top: auto;
-      padding-top: 9px;
+      padding-top: 10px;
       border-top: 1px solid var(--border);
-      display: grid; grid-template-columns: 1fr 1fr; gap: 3px 12px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px;
     }
     .stage-card .count-row {
       display: flex; align-items: center; justify-content: space-between; gap: 6px;
       cursor: help;
-      padding: 0;
+      padding: 1px 0;
       transition: color 120ms ease;
     }
     .stage-card .count-row:hover .count-value { color: var(--text-primary); }
@@ -467,8 +557,8 @@
     }
 
     .stage-card .totals-row {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
-      padding-top: 8px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      padding-top: 10px;
       border-top: 1px dashed var(--border);
     }
     .stage-card .total-cell {
@@ -484,7 +574,7 @@
     }
     .stage-card .total-cell .total-value {
       font-family: 'Geist Mono', monospace;
-      font-size: 15px; font-weight: 500;
+      font-size: 16px; font-weight: 500;
       color: var(--text-secondary);
     }
 
@@ -541,6 +631,8 @@
       padding: 8px 10px;
       display: flex; align-items: center; gap: 7px;
       min-width: 0;
+      /* Offset for scrollIntoView so the L1 is not parked behind the sticky left sidebar */
+      scroll-margin-left: calc(var(--row-label-w) + 12px);
     }
     .lane-l1-header.has-divider-left { border-left: 1px solid var(--border); }
     .lane-l1-header .l1-name {
@@ -681,6 +773,14 @@
     .pcard.cat-Workflow { background: var(--cat-workflow-fill); }
     .pcard.cat-Workflow::after { background: var(--cat-workflow-band); }
     .pcard.cat-Workflow .pcard-tag { color: var(--cat-workflow-band); }
+
+    /* Compact swimlane cards when vertical space is limited (typical laptops).
+       Color stripe + L2 name carry the meaning; #N and tag remain available on hover/pin. */
+    @media (max-height: 920px) {
+      .swimlane .pcard-head { display: none; }
+      .swimlane .pcard { padding: 6px 9px 5px; }
+      .swimlane .pcard-l2 { padding-bottom: 2px; line-height: 1.28; }
+    }
 
     /* =================================================================== */
     /* ===== BOTTOM BAR (thin, bright legend dots) ======================== */
@@ -1142,7 +1242,16 @@
         loadData(DATA_SOURCE).then(setRows).catch(err => setError(String(err.message || err)));
       }, []);
       useEffect(() => {
-        const onKey = (e) => { if (e.key === "Escape") setPinned(null); };
+        const onKey = (e) => {
+          if (e.key === "Escape") setPinned(null);
+          if (e.key === "/") {
+            const tag = document.activeElement && document.activeElement.tagName;
+            if (tag !== "INPUT" && tag !== "TEXTAREA") {
+              const inp = document.querySelector(".top-search input");
+              if (inp) { e.preventDefault(); inp.focus(); inp.select(); }
+            }
+          }
+        };
         window.addEventListener("keydown", onKey);
         return () => window.removeEventListener("keydown", onKey);
       }, []);
@@ -1293,6 +1402,52 @@
     /* ===== TOP BAR ====================================================== */
     /* =================================================================== */
 
+    /* =================================================================== */
+    /* ===== USAGE GUIDE BUTTON (pulsing question mark, popover panel) ==== */
+    /* =================================================================== */
+
+    function UsageGuideButton() {
+      const [open, setOpen] = useState(false);
+      const wrapRef = useRef(null);
+
+      useEffect(() => {
+        if (!open) return;
+        const onDoc = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
+        const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
+        document.addEventListener("mousedown", onDoc);
+        document.addEventListener("keydown", onKey);
+        return () => {
+          document.removeEventListener("mousedown", onDoc);
+          document.removeEventListener("keydown", onKey);
+        };
+      }, [open]);
+
+      return (
+        <span className="guide-wrap" ref={wrapRef}>
+          <button
+            className={"guide-btn" + (open ? " is-open" : "")}
+            onClick={() => setOpen(o => !o)}
+            aria-label="Open usage guide"
+            title="Quick guide"
+          >?</button>
+          {open && (
+            <div className="guide-panel" role="dialog" aria-label="Usage guide">
+              <div className="guide-eyebrow">Quick guide</div>
+              <ul>
+                <li><b>Click</b> any phase card to open its swim-lane view.</li>
+                <li><b>Hover</b> an L1 name or a category count to peek at what is inside.</li>
+                <li><b>Search</b> across L0, L1, L2, and L3 keywords. Non-matching items dim; empty L1 groups disappear.</li>
+                <li><b>Click</b> any process card to pin its full detail panel.</li>
+                <li>The <b>i</b> badge marks L1-level notes (no specific L2 owner).</li>
+                <li>The <b>bottom bar</b> shows live totals for the current view.</li>
+                <li>Press <code>/</code> to focus search. Press <code>Esc</code> to close pins and panels.</li>
+              </ul>
+            </div>
+          )}
+        </span>
+      );
+    }
+
     function TopBar({ selectedL0, l0List, l1List, onGoSummary, onGoL0, onJumpL1, searchQuery, onSearchChange, searchMatchCount }) {
       return (
         <div className="top-bar">
@@ -1390,12 +1545,18 @@
           <div className="summary-page-head">
             <div className="summary-titles">
               <h1>{APP_TITLE}</h1>
-              <p>Click any phase to drill into its swim lane view.</p>
+              <div className="subtitle">
+                <span>Click any phase to drill into its swim lane view.</span>
+                <UsageGuideButton />
+              </div>
             </div>
             <SearchInput value={searchQuery} onChange={onSearchChange} matchCount={searchMatchCount} />
           </div>
 
-          <div className="stage-row">
+          <div
+            className="stage-row"
+            style={{ "--stage-col-count": Math.min(l0Groups.length, 5) }}
+          >
             {l0Groups.map(([l0, items]) => (
               <StageCard
                 key={l0}
