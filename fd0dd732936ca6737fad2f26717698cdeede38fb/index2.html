@@ -118,8 +118,12 @@ button{font-family:inherit}
 .cat-counts-row{flex-shrink:0;max-height:200px;opacity:1;overflow:hidden;transition:max-height var(--t-mid) var(--ease),opacity var(--t-fast) var(--ease),margin var(--t-mid) var(--ease)}
 .view-intermediate .cat-counts-row,.view-expand .cat-counts-row{max-height:0;opacity:0}
 
-.l1-section{flex:1;min-height:0;display:flex;flex-direction:column;gap:14px;max-height:0;opacity:0;overflow:hidden;transition:max-height var(--t-slow) var(--ease),opacity var(--t-mid) var(--ease) 60ms}
+.l1-section{flex:1;min-height:0;display:flex;flex-direction:row;align-items:center;gap:10px;max-height:0;opacity:0;overflow:hidden;transition:max-height var(--t-slow) var(--ease),opacity var(--t-mid) var(--ease) 60ms}
 .view-intermediate .l1-section{max-height:100vh;opacity:1;justify-content:center}
+.l1-section>.l1-chev-stack,.l1-section>.chevron-row{flex:1;min-width:0}
+.lv-row{display:flex;flex-direction:row;align-items:center;gap:10px;min-width:0;flex-shrink:0}
+.lv-row>.chevron-row,.lv-row>.l1-chev-stack{flex:1;min-width:0}
+.lv-label{font-family:'Geist Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-tertiary);width:22px;flex-shrink:0;text-align:center;align-self:center}
 
 .l1-chev-grid{display:flex;flex-wrap:nowrap;align-items:stretch;min-width:0;overflow-x:auto;overflow-y:hidden;padding-bottom:4px}
 .l1-chev-grid>.chevron-cell{flex:1 1 auto;min-width:188px;display:flex}
@@ -177,7 +181,10 @@ button{font-family:inherit}
 .swimlane-inner{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
 .swimlane-scroll{flex:1;min-height:0;overflow:auto;position:relative}
 .swimlane-grid{display:grid;min-width:max-content}
-.lane-corner{position:sticky;top:0;left:0;z-index:40;background:var(--bg);border-bottom:1px solid var(--border-strong);padding:10px 14px 10px 12px;display:flex;align-items:center;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-tertiary);grid-column:1}
+.lane-corner{position:sticky;top:0;left:22px;z-index:40;background:var(--bg);border-bottom:1px solid var(--border-strong);padding:10px 14px 10px 12px;display:flex;align-items:center;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-tertiary)}
+.lane-level-label{position:sticky;left:0;background:var(--bg);font-family:'Geist Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-tertiary);display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border)}
+.lane-level-l1{top:0;z-index:50;border-bottom:1px solid var(--border-strong)}
+.lane-level-l2{z-index:35}
 .lane-l1-header{position:sticky;top:0;z-index:30;background:var(--bg);padding:0;min-width:0;scroll-margin-left:calc(var(--row-label-w, 132px) + 12px);display:flex;align-items:stretch}
 .lane-l1-header .l1-chev-inner{flex:1;background:var(--chev-dark-a);color:var(--surface);padding:6px 16px 6px 30px;display:flex;flex-direction:column;justify-content:center;gap:0;clip-path:polygon(0 0,calc(100% - var(--chev-arrow)) 0,100% 50%,calc(100% - var(--chev-arrow)) 100%,0 100%,var(--chev-arrow) 50%)}
 .lane-l1-header.first .l1-chev-inner{padding-left:18px;clip-path:polygon(0 0,calc(100% - var(--chev-arrow)) 0,100% 50%,calc(100% - var(--chev-arrow)) 100%,0 100%)}
@@ -187,7 +194,7 @@ button{font-family:inherit}
 .lane-l1-na{position:absolute;top:6px;right:18px;width:15px;height:15px;border-radius:50%;background:rgba(255,255,255,.18);color:var(--surface);font-size:9px;font-family:'Geist Mono',monospace;font-weight:600;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background var(--t-fast) var(--ease);z-index:5}
 .lane-l1-na:hover{background:rgba(255,255,255,.35)}
 
-.lane-row-label{position:sticky;left:0;z-index:20;background:var(--bg);padding:8px 14px 8px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;grid-column:1}
+.lane-row-label{position:sticky;left:22px;z-index:20;background:var(--bg);padding:8px 14px 8px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px}
 .lane-row-label .label-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .lane-row-label .label-text{font-size:11.5px;font-weight:500;letter-spacing:.02em}
 .lane-cell{padding:6px 5px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:5px;min-width:0}
@@ -554,7 +561,7 @@ function L1ChevronRow({ l1Groups, onClick, onHover, l0 }) {
         <Chevron
           kind="l1-chevron"
           title={l1}
-          first={localIdx === 0}
+          first={globalIdx === 0}
           onClick={() => onClick(l1)}
           onMouseEnter={(e) => showListTip(e, { eyebrow: `${l0} · ${l2Count} processes`, title: l1, items: items.filter(r => !r.isNARow) })}
           onMouseLeave={hideTip}
@@ -634,7 +641,7 @@ function SwimlaneView({ rows, l0, searchQuery, pinned, onPin, onHover, l1RefsRef
     return out;
   }, [builtVisible]);
   const totalCols = flatCols.length;
-  const gridStyle = { gridTemplateColumns: `132px ` + flatCols.map(c => c.widthVar).join(" ") };
+  const gridStyle = { gridTemplateColumns: `22px 132px ` + flatCols.map(c => c.widthVar).join(" ") };
 
   if (totalCols === 0 || visibleCategories.length === 0) {
     const reason = visibleCategories.length === 0 ? "All categories are filtered out." : (searchQuery ? `No L1 groups match "${searchQuery}".` : "Nothing to show.");
@@ -655,7 +662,9 @@ function SwimlaneView({ rows, l0, searchQuery, pinned, onPin, onHover, l1RefsRef
     <div className="swimlane-inner">
       <div className="swimlane-scroll">
         <div className="swimlane-grid" style={gridStyle}>
-          <div className="lane-corner" style={{ gridRow: 1 }}>L1 group</div>
+          <div className="lane-level-label lane-level-l1" style={{ gridRow: 1, gridColumn: 1 }}>L1</div>
+          <div className="lane-level-label lane-level-l2" style={{ gridRow: `2 / span ${visibleCategories.length}`, gridColumn: 1 }}>L2</div>
+          <div className="lane-corner" style={{ gridRow: 1, gridColumn: 2 }} />
           {builtVisible.map((group, gi) => {
             const startCol = builtVisible.slice(0, gi).reduce((s, g) => s + Math.max(g.columns.length, 1), 0);
             const span = Math.max(group.columns.length, 1);
@@ -663,7 +672,7 @@ function SwimlaneView({ rows, l0, searchQuery, pinned, onPin, onHover, l1RefsRef
               <div key={group.l1}
                 ref={(el) => { if (el) l1RefsRef.current[group.l1] = el; }}
                 className={"lane-l1-header" + (gi === 0 ? " first" : "") + (gi > 0 ? " has-divider-left" : "") + (gi % 2 === 1 ? " shade-b" : "")}
-                style={{ gridRow: 1, gridColumn: `${startCol + 2} / span ${span}`, position: "sticky" }}>
+                style={{ gridRow: 1, gridColumn: `${startCol + 3} / span ${span}`, position: "sticky" }}>
                 <div className="l1-chev-inner">
                   <span className="l1-name">{group.l1}</span>
                 </div>
@@ -681,7 +690,7 @@ function SwimlaneView({ rows, l0, searchQuery, pinned, onPin, onHover, l1RefsRef
             const gridRowNum = rowIdx + 2;
             return (
               <React.Fragment key={cat}>
-                <div className="lane-row-label" style={{ gridRow: gridRowNum }}>
+                <div className="lane-row-label" style={{ gridRow: gridRowNum, gridColumn: 2 }}>
                   <span className="label-dot" style={{ background: CATEGORIES[cat].bright }} />
                   <span className="label-text">{CATEGORIES[cat].label}</span>
                 </div>
@@ -690,7 +699,7 @@ function SwimlaneView({ rows, l0, searchQuery, pinned, onPin, onHover, l1RefsRef
                   return (
                     <div key={`${cat}-${fc.colIndex}`}
                       className={"lane-cell" + (fc.isGroupStart && fc.colIndex > 0 ? " has-divider-left" : "")}
-                      style={{ gridRow: gridRowNum, gridColumn: fc.colIndex + 2 }}>
+                      style={{ gridRow: gridRowNum, gridColumn: fc.colIndex + 3 }}>
                       {itemsInCell.map(item => (
                         <ProcessCard key={item.id} row={item} category={cat}
                           isSearchNonMatch={searchQuery && !rowMatchesSearch(item, searchQuery)}
@@ -1014,9 +1023,17 @@ function App() {
           onHover={onHover} scope={bbScope} l0={selectedL0}
           activeCategories={activeCategories} onToggleCategory={toggleCategory} />
         <div className="level-section">
-          <PhaseRow phases={phaseEntries} selectedL0={selectedL0} onSelectL0={goToL0} onHover={onHover} showCatCounts={isSummary} />
+          {isSummary ? (
+            <PhaseRow phases={phaseEntries} selectedL0={selectedL0} onSelectL0={goToL0} onHover={onHover} showCatCounts={true} />
+          ) : (
+            <div className="lv-row">
+              <div className="lv-label">L0</div>
+              <PhaseRow phases={phaseEntries} selectedL0={selectedL0} onSelectL0={goToL0} onHover={onHover} showCatCounts={false} />
+            </div>
+          )}
           {selectedL0 && !expandMode && (
             <div className="l1-section">
+              <div className="lv-label">L1</div>
               <L1ChevronRow l1Groups={l1GroupsCurrent}
                 onClick={(l1) => { setExpandMode(true); scrollToL1Inside(l1); }}
                 onHover={onHover} l0={selectedL0} />
