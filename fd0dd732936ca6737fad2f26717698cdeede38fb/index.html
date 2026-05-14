@@ -95,7 +95,7 @@ button{font-family:inherit}
 .total-bar.tall .tb-context{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;opacity:.5}
 .total-bar.tall .tb-row-bottom{display:flex;align-items:flex-end;gap:26px;flex:1}
 .total-bar.tall .tb-stat{display:flex;flex-direction:column;gap:2px;cursor:help;transition:opacity var(--t-fast) var(--ease);flex-shrink:0}
-.total-bar.tall .tb-stat-label{font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;opacity:.6;white-space:nowrap}
+.total-bar.tall .tb-stat-label{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.04em;text-transform:uppercase;opacity:.62;white-space:nowrap}
 .total-bar.tall .tb-stat-value{font-family:'Geist',sans-serif;font-size:28px;font-weight:500;letter-spacing:-.02em;line-height:1.05}
 .total-bar.tall .tb-divider{width:1px;align-self:stretch;background:rgba(255,255,255,.18);margin:6px 4px 0}
 .total-bar.tall .tb-cats{display:flex;gap:22px;align-items:flex-end;flex:1;min-width:0;overflow-x:auto}
@@ -739,7 +739,6 @@ function SwimlaneView({ rows, l0, searchQuery, pinned, onPin, onHover, l1RefsRef
                 </div>
                 {ci.pwRow && (
                   <div className="lane-cell lane-cell-phasewide" style={{ gridRow: ci.pwRow, gridColumn: `3 / span ${totalCols}` }}>
-                    <div className="pw-eyebrow">Phase-wide</div>
                     <div className="pw-cards">
                       {pwItems.map(item => (
                         <ProcessCard key={item.id} row={item} category={cat}
