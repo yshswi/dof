@@ -111,7 +111,7 @@ button{font-family:inherit}
 .view-summary .level-section{padding:26px 28px 30px;justify-content:center;gap:20px}
 .view-intermediate .level-section{padding:20px 28px 22px;gap:22px}
 .view-expand .level-section{padding:10px 28px 14px;gap:8px}
-.view-expand .lv-row>.phase-chev-row{margin-left:122px}
+
 .phase-chev-row{flex-shrink:0;min-width:0}
 .view-summary .phase-chev-row{margin-bottom:0}
 
@@ -198,6 +198,9 @@ button{font-family:inherit}
 .lane-row-label .label-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .lane-row-label .label-text{font-size:11.5px;font-weight:500;letter-spacing:.02em}
 .lane-cell{padding:6px 5px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:5px;min-width:0}
+.lane-cell-phasewide{padding:7px 10px 9px;background:var(--surface-muted);border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:4px;min-width:0}
+.lane-cell-phasewide .pw-eyebrow{font-family:'Geist Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:1px}
+.lane-cell-phasewide .pw-cards{display:flex;flex-direction:column;gap:4px}
 .lane-cell.has-divider-left,.lane-l1-header.has-divider-left{border-left:1px solid var(--border-strong)}
 
 .pcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 9px 6px;cursor:pointer;transition:border-color var(--t-fast) var(--ease),transform var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),opacity var(--t-mid) var(--ease);position:relative;overflow:hidden;min-width:0}
@@ -279,7 +282,7 @@ const CATEGORIES = {
 };
 const CATEGORY_ROW_ORDER = ["Critical", "Output", "Control", "Workflow"];
 const ANCHOR_PRIORITY = ["Critical", "Output", "Control", "Workflow"];
-const L0_ORDER = ["TDD", "Preconstruction", "Construction", "Handover", "Post Construction"];
+const L0_ORDER = ["Feasibility & Business Plan", "Design & Pre-construction", "Procurement & Contracting", "Construction", "Handover", "TDD", "Preconstruction", "Post Construction"];
 const DETAIL_FIELDS = [
   { key: "l3", label: "L3 Activities (representative)" },
   { key: "rationale", label: "Categorization Rationale" },
@@ -322,6 +325,11 @@ function normalizeRow(rawRow) {
   row.sNo = isNaN(snoParsed) ? null : snoParsed;
   row.category = canonicalCategory(row.category);
   row.isNARow = isNAValue(row.l2);
+  row.isPhaseWide = false;
+  if (row.l2 && row.l2.startsWith("*")) {
+    row.l2 = row.l2.slice(1).trimStart();
+    row.isPhaseWide = true;
+  }
   row.id = row.sNo != null ? `r-${row.sNo}` : `r-${row.l0}-${row.l1}-${row.l2}`;
   return row;
 }
@@ -474,13 +482,14 @@ function UsageGuideButton() {
         <div className="guide-panel" role="dialog" style={{ top: pos.top, left: pos.left }}>
           <div className="guide-eyebrow">Quick guide</div>
           <ul>
-            <li><b>Click</b> any phase chevron to open its intermediate view.</li>
-            <li><b>Click</b> Expand to launch the full swim lane.</li>
-            <li><b>Hover</b> an L1 chevron or any category number to peek at what is inside.</li>
+            <li><b>Click</b> any L0 phase chevron to see its L1 stages.</li>
+            <li><b>Click</b> Expand to open the full swim lane of L2 processes.</li>
+            <li><b>Hover</b> an L1 stage chevron or any count to peek at what is inside.</li>
             <li>Tooltips with long lists are interactive: move into them to scroll.</li>
             <li><b>Search</b> across L0, L1, L2, and L3 keywords.</li>
-            <li>Click any process card in expand mode to pin its full detail panel.</li>
+            <li>Click any process card in the swim lane to pin its full detail panel.</li>
             <li>The total bar acts as a category filter. Click <b>Critical</b> to solo it, click again for all.</li>
+            <li>An L2 process prefixed with <code>*</code> in the data is phase-wide and shown across every L1 stage in its category row.</li>
             <li>Press <code>/</code> to focus search. Press <code>Esc</code> to close any panel.</li>
           </ul>
         </div>
@@ -528,7 +537,7 @@ function PhaseRow({ phases, selectedL0, onSelectL0, onHover, showCatCounts }) {
             <Chevron
               kind="phase-chevron"
               title={p.l0}
-              sub={`${p.l1Count} L1 groups · ${p.counts.l2} processes`}
+              sub={`${p.l1Count} L1 stages · ${p.counts.l2} L2 processes`}
               first={i === 0}
               selected={selectedL0 === p.l0}
               washed={selectedL0 && selectedL0 !== p.l0}
@@ -547,7 +556,7 @@ function PhaseRow({ phases, selectedL0, onSelectL0, onHover, showCatCounts }) {
                     const value = p.counts.byCat[c];
                     return (
                       <div key={c} className={"cat-row" + (value === 0 ? " is-zero" : "")}
-                        onMouseEnter={(e) => showListTip(e, { eyebrow: `${p.l0} · ${value} processes`, title: `${CATEGORIES[c].label} in ${p.l0}`, items: p.items.filter(r => !r.isNARow && r.category === c) })}
+                        onMouseEnter={(e) => showListTip(e, { eyebrow: `${p.l0} · ${value} L2 processes`, title: `${CATEGORIES[c].label} in ${p.l0}`, items: p.items.filter(r => !r.isNARow && r.category === c) })}
                         onMouseLeave={hideTip}>
                         <span className="cat-label"><span className="cat-dot" style={{ background: CATEGORIES[c].bright }} />{CATEGORIES[c].label}</span>
                         <span className="cat-value">{value}</span>
@@ -577,7 +586,7 @@ function L1ChevronRow({ l1Groups, onClick, onHover, l0 }) {
           title={l1}
           first={globalIdx === 0}
           onClick={() => onClick(l1)}
-          onMouseEnter={(e) => showListTip(e, { eyebrow: `${l0} · ${l2Count} processes`, title: l1, items: items.filter(r => !r.isNARow) })}
+          onMouseEnter={(e) => showListTip(e, { eyebrow: `${l0} · ${l2Count} L2 processes`, title: l1, items: items.filter(r => !r.isNARow) })}
           onMouseLeave={hideTip}
         />
       </div>
@@ -630,7 +639,16 @@ function SwimlaneView({ rows, l0, searchQuery, pinned, onPin, onHover, l1RefsRef
     return all.filter(r => r.isNARow || activeCategories.has(r.category));
   }, [rows, l0, activeCategories]);
   const visibleCategories = useMemo(() => CATEGORY_ROW_ORDER.filter(c => !activeCategories || activeCategories.has(c)), [activeCategories]);
-  const l1Groups = useMemo(() => groupByL1Ordered(l0Rows), [l0Rows]);
+  const regularL0Rows = useMemo(() => l0Rows.filter(r => !r.isPhaseWide), [l0Rows]);
+  const phaseWideByCat = useMemo(() => {
+    const byCat = {};
+    CATEGORY_ROW_ORDER.forEach(c => byCat[c] = []);
+    l0Rows.forEach(r => {
+      if (r.isPhaseWide && !r.isNARow && byCat[r.category]) byCat[r.category].push(r);
+    });
+    return byCat;
+  }, [l0Rows]);
+  const l1Groups = useMemo(() => groupByL1Ordered(regularL0Rows), [regularL0Rows]);
   const builtAll = useMemo(() => l1Groups.map(([l1, items]) => ({
     l1, items, columns: buildSwimlaneColumns(items), naRows: getNARowsForL1(items)
   })), [l1Groups]);
@@ -656,10 +674,20 @@ function SwimlaneView({ rows, l0, searchQuery, pinned, onPin, onHover, l1RefsRef
   }, [builtVisible]);
   const totalCols = flatCols.length;
   const gridStyle = { gridTemplateColumns: `22px 132px ` + flatCols.map(c => c.widthVar).join(" ") };
+  const rowPlan = useMemo(() => {
+    let cursor = 2;
+    const info = {};
+    visibleCategories.forEach(cat => {
+      const pw = phaseWideByCat[cat] || [];
+      info[cat] = { pwRow: pw.length > 0 ? cursor : null, regularRow: pw.length > 0 ? cursor + 1 : cursor, span: pw.length > 0 ? 2 : 1 };
+      cursor += info[cat].span;
+    });
+    return { info, total: cursor - 2 };
+  }, [visibleCategories, phaseWideByCat]);
 
   if (totalCols === 0 || visibleCategories.length === 0) {
-    const reason = visibleCategories.length === 0 ? "All categories are filtered out." : (searchQuery ? `No L1 groups match "${searchQuery}".` : "Nothing to show.");
-    const hint = visibleCategories.length === 0 ? "Click a category chip in the total bar to bring one back." : (searchQuery ? `Clear search to see all L1 groups in ${l0}.` : "");
+    const reason = visibleCategories.length === 0 ? "All categories are filtered out." : (searchQuery ? `No L1 stages match "${searchQuery}".` : "Nothing to show.");
+    const hint = visibleCategories.length === 0 ? "Click a category chip in the total bar to bring one back." : (searchQuery ? `Clear search to see all L1 stages in ${l0}.` : "");
     return (
       <div className="swimlane-inner">
         <div className="state-screen">
@@ -677,7 +705,7 @@ function SwimlaneView({ rows, l0, searchQuery, pinned, onPin, onHover, l1RefsRef
       <div className="swimlane-scroll">
         <div className="swimlane-grid" style={gridStyle}>
           <div className="lane-level-label lane-level-l1" style={{ gridRow: 1, gridColumn: 1 }}>L1</div>
-          <div className="lane-level-label lane-level-l2" style={{ gridRow: `2 / span ${visibleCategories.length}`, gridColumn: 1 }}>L2</div>
+          <div className="lane-level-label lane-level-l2" style={{ gridRow: `2 / span ${rowPlan.total}`, gridColumn: 1 }}>L2</div>
           <div className="lane-corner" style={{ gridRow: 1, gridColumn: 2 }} />
           {builtVisible.map((group, gi) => {
             const startCol = builtVisible.slice(0, gi).reduce((s, g) => s + Math.max(g.columns.length, 1), 0);
@@ -700,20 +728,34 @@ function SwimlaneView({ rows, l0, searchQuery, pinned, onPin, onHover, l1RefsRef
               </div>
             );
           })}
-          {visibleCategories.map((cat, rowIdx) => {
-            const gridRowNum = rowIdx + 2;
+          {visibleCategories.map((cat) => {
+            const ci = rowPlan.info[cat];
+            const pwItems = phaseWideByCat[cat] || [];
             return (
               <React.Fragment key={cat}>
-                <div className="lane-row-label" style={{ gridRow: gridRowNum, gridColumn: 2 }}>
+                <div className="lane-row-label" style={{ gridRow: `${ci.pwRow || ci.regularRow} / span ${ci.span}`, gridColumn: 2 }}>
                   <span className="label-dot" style={{ background: CATEGORIES[cat].bright }} />
                   <span className="label-text">{CATEGORIES[cat].label}</span>
                 </div>
+                {ci.pwRow && (
+                  <div className="lane-cell lane-cell-phasewide" style={{ gridRow: ci.pwRow, gridColumn: `3 / span ${totalCols}` }}>
+                    <div className="pw-eyebrow">Phase-wide</div>
+                    <div className="pw-cards">
+                      {pwItems.map(item => (
+                        <ProcessCard key={item.id} row={item} category={cat}
+                          isSearchNonMatch={searchQuery && !rowMatchesSearch(item, searchQuery)}
+                          pinned={pinned && pinned.id === item.id}
+                          onPin={onPin} onHover={onHover} />
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {flatCols.map((fc) => {
                   const itemsInCell = fc.column.byCategory[cat] || [];
                   return (
                     <div key={`${cat}-${fc.colIndex}`}
                       className={"lane-cell" + (fc.isGroupStart && fc.colIndex > 0 ? " has-divider-left" : "")}
-                      style={{ gridRow: gridRowNum, gridColumn: fc.colIndex + 3 }}>
+                      style={{ gridRow: ci.regularRow, gridColumn: fc.colIndex + 3 }}>
                       {itemsInCell.map(item => (
                         <ProcessCard key={item.id} row={item} category={cat}
                           isSearchNonMatch={searchQuery && !rowMatchesSearch(item, searchQuery)}
@@ -794,7 +836,7 @@ function PinnedDetailPanel({ item, onClose }) {
     <div className={"pinned-panel cat-" + cat}>
       <div className="pp-head">
         <div>
-          <div className="pp-eyebrow">{isNA ? `L1-level note · ${item.l0}` : `#${item.sNo} · ${item.l0} · ${item.l1}`}</div>
+          <div className="pp-eyebrow">{isNA ? `L1-level note · ${item.l0}` : item.isPhaseWide ? `#${item.sNo} · ${item.l0} · Phase-wide` : `#${item.sNo} · ${item.l0} · ${item.l1}`}</div>
           <div className="pp-title">{item.l2}</div>
         </div>
         <button className="pp-close" onClick={onClose} aria-label="Close">×</button>
@@ -844,21 +886,21 @@ function TotalBar({ tall, counts, overallLabel, contextLabel, phasesCount, onHov
         </div>
         <div className="tb-row-bottom">
           <div className="tb-stat"
-            onMouseEnter={(e) => showListTip(e, { eyebrow: `${phasesCount} phases`, title: "All phases", items: phaseList })}
+            onMouseEnter={(e) => showListTip(e, { eyebrow: `${phasesCount} L0 phases`, title: "All L0 phases", items: phaseList })}
             onMouseLeave={hideTip}>
-            <span className="tb-stat-label">Phases</span>
+            <span className="tb-stat-label">L0 Phases</span>
             <span className="tb-stat-value">{phasesCount}</span>
           </div>
           <div className="tb-stat"
-            onMouseEnter={(e) => showListTip(e, { eyebrow: `${counts.l1} L1 groups`, title: "L1 groups", items: l1List })}
+            onMouseEnter={(e) => showListTip(e, { eyebrow: `${counts.l1} L1 stages`, title: "All L1 stages", items: l1List })}
             onMouseLeave={hideTip}>
-            <span className="tb-stat-label">L1 groups</span>
+            <span className="tb-stat-label">L1 Stages</span>
             <span className="tb-stat-value">{counts.l1}</span>
           </div>
           <div className="tb-stat"
-            onMouseEnter={(e) => showListTip(e, { eyebrow: `${counts.l2} processes`, title: "All processes", items: scope.filter(r => !r.isNARow) })}
+            onMouseEnter={(e) => showListTip(e, { eyebrow: `${counts.l2} L2 processes`, title: "All L2 processes", items: scope.filter(r => !r.isNARow) })}
             onMouseLeave={hideTip}>
-            <span className="tb-stat-label">Processes</span>
+            <span className="tb-stat-label">L2 Processes</span>
             <span className="tb-stat-value">{counts.l2}</span>
           </div>
           <div className="tb-divider" />
@@ -869,7 +911,7 @@ function TotalBar({ tall, counts, overallLabel, contextLabel, phasesCount, onHov
               return (
                 <div key={c} className={"tb-cat" + (dim ? " is-dim" : "")}
                   onClick={() => onToggleCategory && onToggleCategory(c)}
-                  onMouseEnter={(e) => showListTip(e, { eyebrow: `${counts.byCat[c]} processes`, title: CATEGORIES[c].label, items: l2ByCat[c] })}
+                  onMouseEnter={(e) => showListTip(e, { eyebrow: `${counts.byCat[c]} L2 processes`, title: CATEGORIES[c].label, items: l2ByCat[c] })}
                   onMouseLeave={hideTip}
                   title={isAllActive ? `Click to solo ${CATEGORIES[c].label}` : (isActive ? `Click to restore all` : `Click to switch to ${CATEGORIES[c].label}`)}>
                   <span className="tb-cat-label"><span className="tb-cat-dot" style={{ background: CATEGORIES[c].bright }} />{CATEGORIES[c].label}</span>
@@ -886,15 +928,15 @@ function TotalBar({ tall, counts, overallLabel, contextLabel, phasesCount, onHov
     <div className="total-bar thin">
       <div className="tb-label">{contextLabel}</div>
       <div className="tb-seg"
-        onMouseEnter={(e) => showListTip(e, { eyebrow: `${contextLabel} · ${counts.l1} L1 groups`, title: "L1 groups", items: l1List })}
+        onMouseEnter={(e) => showListTip(e, { eyebrow: `${contextLabel} · ${counts.l1} L1 stages`, title: "L1 stages", items: l1List })}
         onMouseLeave={hideTip}>
-        <span className="tb-seg-label">L1 groups</span>
+        <span className="tb-seg-label">L1 Stages</span>
         <span className="tb-seg-value">{counts.l1}</span>
       </div>
       <div className="tb-seg"
-        onMouseEnter={(e) => showListTip(e, { eyebrow: `${contextLabel} · ${counts.l2} processes`, title: "All processes", items: scope.filter(r => !r.isNARow) })}
+        onMouseEnter={(e) => showListTip(e, { eyebrow: `${contextLabel} · ${counts.l2} L2 processes`, title: "All L2 processes", items: scope.filter(r => !r.isNARow) })}
         onMouseLeave={hideTip}>
-        <span className="tb-seg-label">Processes</span>
+        <span className="tb-seg-label">L2 Processes</span>
         <span className="tb-seg-value">{counts.l2}</span>
       </div>
       {CATEGORY_ROW_ORDER.map(c => {
@@ -903,7 +945,7 @@ function TotalBar({ tall, counts, overallLabel, contextLabel, phasesCount, onHov
         return (
           <div key={c} className={"tb-seg is-toggle" + (dim ? " is-dim" : "")}
             onClick={() => onToggleCategory && onToggleCategory(c)}
-            onMouseEnter={(e) => showListTip(e, { eyebrow: `${contextLabel} · ${counts.byCat[c]} processes`, title: CATEGORIES[c].label, items: l2ByCat[c] })}
+            onMouseEnter={(e) => showListTip(e, { eyebrow: `${contextLabel} · ${counts.byCat[c]} L2 processes`, title: CATEGORIES[c].label, items: l2ByCat[c] })}
             onMouseLeave={hideTip}
             title={isAllActive ? `Click to solo ${CATEGORIES[c].label}` : (isActive ? `Click to restore all` : `Click to switch to ${CATEGORIES[c].label}`)}>
             <span className="tb-dot" style={{ background: CATEGORIES[c].bright }} />
@@ -1028,7 +1070,7 @@ function App() {
         <div className="summary-page-head">
           <h1>{APP_TITLE}</h1>
           <div className="subtitle">
-            <span>Click any phase to drill into its swim lane view.</span>
+            <span>Click any L0 phase to see its L1 stages, then expand to the full swim lane of L2 processes.</span>
             <UsageGuideButton />
           </div>
         </div>
