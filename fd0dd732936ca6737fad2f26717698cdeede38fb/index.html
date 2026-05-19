@@ -326,9 +326,13 @@ function normalizeRow(rawRow) {
   row.category = canonicalCategory(row.category);
   row.isNARow = isNAValue(row.l2);
   row.isPhaseWide = false;
+  row.isL1Lifecycle = false;
   if (row.l2 && row.l2.startsWith("*")) {
     row.l2 = row.l2.slice(1).trimStart();
     row.isPhaseWide = true;
+  } else if (row.l2 && row.l2.startsWith("#")) {
+    row.l2 = row.l2.slice(1).trimStart();
+    row.isL1Lifecycle = true;
   }
   row.id = row.sNo != null ? `r-${row.sNo}` : `r-${row.l0}-${row.l1}-${row.l2}`;
   return row;
@@ -489,7 +493,9 @@ function UsageGuideButton() {
             <li><b>Search</b> across L0, L1, L2, and L3 keywords.</li>
             <li>Click any process card in the swim lane to pin its full detail panel.</li>
             <li>The total bar acts as a category filter. Click <b>Critical</b> to solo it, click again for all.</li>
-            <li>An L2 process prefixed with <code>*</code> in the data is phase-wide and shown across every L1 stage in its category row.</li>
+            <li>An L2 prefixed with <code>*</code> is a lifecycle activity at the L0 level: it spans every L1 stage in its category row.</li>
+            <li>An L2 prefixed with <code>#</code> is a lifecycle activity at the L1 level: it spans only its L1's columns.</li>
+            <li>Lifecycle activities sit below regular activities within each category row.</li>
             <li>Press <code>/</code> to focus search. Press <code>Esc</code> to close any panel.</li>
           </ul>
         </div>
@@ -639,12 +645,23 @@ function SwimlaneView({ rows, l0, searchQuery, pinned, onPin, onHover, l1RefsRef
     return all.filter(r => r.isNARow || activeCategories.has(r.category));
   }, [rows, l0, activeCategories]);
   const visibleCategories = useMemo(() => CATEGORY_ROW_ORDER.filter(c => !activeCategories || activeCategories.has(c)), [activeCategories]);
-  const regularL0Rows = useMemo(() => l0Rows.filter(r => !r.isPhaseWide), [l0Rows]);
+  const regularL0Rows = useMemo(() => l0Rows.filter(r => !r.isPhaseWide && !r.isL1Lifecycle), [l0Rows]);
   const phaseWideByCat = useMemo(() => {
     const byCat = {};
     CATEGORY_ROW_ORDER.forEach(c => byCat[c] = []);
     l0Rows.forEach(r => {
       if (r.isPhaseWide && !r.isNARow && byCat[r.category]) byCat[r.category].push(r);
+    });
+    return byCat;
+  }, [l0Rows]);
+  const l1LifecycleByCat = useMemo(() => {
+    const byCat = {};
+    CATEGORY_ROW_ORDER.forEach(c => byCat[c] = {});
+    l0Rows.forEach(r => {
+      if (r.isL1Lifecycle && !r.isNARow && byCat[r.category]) {
+        if (!byCat[r.category][r.l1]) byCat[r.category][r.l1] = [];
+        byCat[r.category][r.l1].push(r);
+      }
     });
     return byCat;
   }, [l0Rows]);
@@ -679,11 +696,19 @@ function SwimlaneView({ rows, l0, searchQuery, pinned, onPin, onHover, l1RefsRef
     const info = {};
     visibleCategories.forEach(cat => {
       const pw = phaseWideByCat[cat] || [];
-      info[cat] = { pwRow: pw.length > 0 ? cursor : null, regularRow: pw.length > 0 ? cursor + 1 : cursor, span: pw.length > 0 ? 2 : 1 };
-      cursor += info[cat].span;
+      const l1l = l1LifecycleByCat[cat] || {};
+      const hasL1l = Object.keys(l1l).length > 0;
+      const hasPw = pw.length > 0;
+      const regularRow = cursor;
+      let l1lRow = null, pwRow = null;
+      let span = 1;
+      if (hasL1l) { l1lRow = cursor + span; span += 1; }
+      if (hasPw) { pwRow = cursor + span; span += 1; }
+      info[cat] = { regularRow, l1lRow, pwRow, span };
+      cursor += span;
     });
     return { info, total: cursor - 2 };
-  }, [visibleCategories, phaseWideByCat]);
+  }, [visibleCategories, phaseWideByCat, l1LifecycleByCat]);
 
   if (totalCols === 0 || visibleCategories.length === 0) {
     const reason = visibleCategories.length === 0 ? "All categories are filtered out." : (searchQuery ? `No L1 stages match "${searchQuery}".` : "Nothing to show.");
@@ -731,24 +756,13 @@ function SwimlaneView({ rows, l0, searchQuery, pinned, onPin, onHover, l1RefsRef
           {visibleCategories.map((cat) => {
             const ci = rowPlan.info[cat];
             const pwItems = phaseWideByCat[cat] || [];
+            const l1lByL1 = l1LifecycleByCat[cat] || {};
             return (
               <React.Fragment key={cat}>
-                <div className="lane-row-label" style={{ gridRow: `${ci.pwRow || ci.regularRow} / span ${ci.span}`, gridColumn: 2 }}>
+                <div className="lane-row-label" style={{ gridRow: `${ci.regularRow} / span ${ci.span}`, gridColumn: 2 }}>
                   <span className="label-dot" style={{ background: CATEGORIES[cat].bright }} />
                   <span className="label-text">{CATEGORIES[cat].label}</span>
                 </div>
-                {ci.pwRow && (
-                  <div className="lane-cell lane-cell-phasewide" style={{ gridRow: ci.pwRow, gridColumn: `3 / span ${totalCols}` }}>
-                    <div className="pw-cards">
-                      {pwItems.map(item => (
-                        <ProcessCard key={item.id} row={item} category={cat}
-                          isSearchNonMatch={searchQuery && !rowMatchesSearch(item, searchQuery)}
-                          pinned={pinned && pinned.id === item.id}
-                          onPin={onPin} onHover={onHover} />
-                      ))}
-                    </div>
-                  </div>
-                )}
                 {flatCols.map((fc) => {
                   const itemsInCell = fc.column.byCategory[cat] || [];
                   return (
@@ -764,6 +778,37 @@ function SwimlaneView({ rows, l0, searchQuery, pinned, onPin, onHover, l1RefsRef
                     </div>
                   );
                 })}
+                {ci.l1lRow && builtVisible.map((group, gi) => {
+                  const items = l1lByL1[group.l1];
+                  if (!items || items.length === 0) return null;
+                  const startCol = builtVisible.slice(0, gi).reduce((s, g) => s + Math.max(g.columns.length, 1), 0);
+                  const span = Math.max(group.columns.length, 1);
+                  return (
+                    <div key={`l1l-${cat}-${group.l1}`} className="lane-cell lane-cell-phasewide"
+                      style={{ gridRow: ci.l1lRow, gridColumn: `${startCol + 3} / span ${span}` }}>
+                      <div className="pw-cards">
+                        {items.map(item => (
+                          <ProcessCard key={item.id} row={item} category={cat}
+                            isSearchNonMatch={searchQuery && !rowMatchesSearch(item, searchQuery)}
+                            pinned={pinned && pinned.id === item.id}
+                            onPin={onPin} onHover={onHover} />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+                {ci.pwRow && (
+                  <div className="lane-cell lane-cell-phasewide" style={{ gridRow: ci.pwRow, gridColumn: `3 / span ${totalCols}` }}>
+                    <div className="pw-cards">
+                      {pwItems.map(item => (
+                        <ProcessCard key={item.id} row={item} category={cat}
+                          isSearchNonMatch={searchQuery && !rowMatchesSearch(item, searchQuery)}
+                          pinned={pinned && pinned.id === item.id}
+                          onPin={onPin} onHover={onHover} />
+                      ))}
+                    </div>
+                  </div>
+                )}
               </React.Fragment>
             );
           })}
@@ -812,7 +857,7 @@ function ListTooltip({ hover, onMouseEnter, onMouseLeave }) {
             <li key={`${it.sNo || ""}-${idx}`}>
               {it.category && CATEGORIES[it.category] && <span className="tt-cat-dot" style={{ background: CATEGORIES[it.category].bright }} />}
               {it.sNo != null && <span className="tt-sno">#{it.sNo}</span>}
-              <span>{it.l2}{it.l1 && it.l1 !== title && <span className="tt-l1">{it.l1}</span>}{it.isPhaseWide && <span className="tt-pw">phase-wide</span>}</span>
+              <span>{it.l2}{it.l1 && it.l1 !== title && <span className="tt-l1">{it.l1}</span>}{it.isPhaseWide && <span className="tt-pw">L0 lifecycle</span>}{it.isL1Lifecycle && <span className="tt-pw">L1 lifecycle</span>}</span>
             </li>
           ))}
         </ul>
@@ -835,7 +880,7 @@ function PinnedDetailPanel({ item, onClose }) {
     <div className={"pinned-panel cat-" + cat}>
       <div className="pp-head">
         <div>
-          <div className="pp-eyebrow">{isNA ? `L1-level note · ${item.l0}` : item.isPhaseWide ? `#${item.sNo} · ${item.l0} · Phase-wide` : `#${item.sNo} · ${item.l0} · ${item.l1}`}</div>
+          <div className="pp-eyebrow">{isNA ? `L1-level note · ${item.l0}` : item.isPhaseWide ? `#${item.sNo} · ${item.l0} · L0 lifecycle` : item.isL1Lifecycle ? `#${item.sNo} · ${item.l0} · ${item.l1} · L1 lifecycle` : `#${item.sNo} · ${item.l0} · ${item.l1}`}</div>
           <div className="pp-title">{item.l2}</div>
         </div>
         <button className="pp-close" onClick={onClose} aria-label="Close">×</button>
